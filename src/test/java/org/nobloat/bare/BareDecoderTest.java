@@ -14,17 +14,12 @@ class BareDecoderTest {
         return new ByteArrayInputStream(bytes);
     }
 
-    @Test
-    void testVariadicUint() throws IOException {
-        InputStream stream = fromBytes((byte)0x7F, (byte)0xB7, (byte)0x26);
-        assertEquals(0x7F, new BareDecoder(stream).variadicUint().longValue());
-        assertEquals(0x1337, new BareDecoder(stream).variadicUint().longValue());
-    }
-
 
     @Test
     void u8() throws IOException {
-        assertEquals(3, new BareDecoder(fromBytes((byte)3)).u8());
+        InputStream stream = fromBytes((byte)3);
+        assertEquals(3, new BareDecoder(stream).u8());
+        assertEquals(-1, stream.read());
     }
 
     @Test
@@ -68,11 +63,19 @@ class BareDecoderTest {
     }
 
     @Test
-    void variadicInt() {
+    void variadicInt() throws IOException {
+        InputStream stream = fromBytes((byte)0x54, (byte)0xf1, (byte)0x14);
+        assertEquals(42, new BareDecoder(stream).variadicInt());
+        assertEquals(-1337, new BareDecoder(stream).variadicInt());
+        assertEquals(-1, stream.read());
     }
 
     @Test
-    void variadicUint() {
+    void variadicUint() throws IOException {
+        InputStream stream = fromBytes((byte)0x7F, (byte)0xB7, (byte)0x26);
+        assertEquals(0x7F, new BareDecoder(stream).variadicUint().longValue());
+        assertEquals(0x1337, new BareDecoder(stream).variadicUint().longValue());
+        assertEquals(-1, stream.read());
     }
 
     @Test

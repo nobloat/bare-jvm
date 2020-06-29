@@ -64,7 +64,11 @@ public class BareDecoder {
     }
 
     public long variadicInt() throws IOException {
-        return variadicUint().longValue();
+        BigInteger r = variadicUint();
+        if (r.testBit(0)) {
+            return r.shiftRight(1).not().longValue();
+        }
+        return r.shiftRight(1).longValue();
     }
 
     public BigInteger variadicUint() throws IOException {
