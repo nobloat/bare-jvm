@@ -19,7 +19,7 @@ public class BareDecoder {
     }
 
     public int u16() throws IOException {
-        return (is.readByte() << 8 | is.readByte());
+        return ((is.readByte() & 0xff) << 8 | (is.readByte() & 0xff));
     }
 
     public Integer u32() throws IOException {
@@ -52,7 +52,7 @@ public class BareDecoder {
     }
 
     public float f32() throws IOException {
-        return Float.intBitsToFloat(i32());
+        return Float.intBitsToFloat(u32());
     }
 
     public double f64() throws IOException {
@@ -92,7 +92,7 @@ public class BareDecoder {
     }
 
     public byte[] data() throws IOException {
-        int length = i32();
+        int length = u32();
         byte[] bytes = new byte[length];
         is.read(bytes);
         return bytes;
