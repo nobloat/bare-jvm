@@ -25,12 +25,16 @@ public class BareDecoder {
     }
 
     public Integer u32() throws IOException {
-        return ((is.readByte()) << 24) | ((is.readByte()) << 16) |
-                ((is.readByte()) << 8) | (is.readByte());
+        int byte1 = is.readByte() & 0xff;
+        int byte2 = is.readByte() & 0xff;
+        int byte3 = is.readByte() & 0xff;
+        int byte4 = is.readByte() & 0xff;
+        return (byte4 << 24) | (byte3 << 16) |
+                (byte2 << 8) | (byte1);
     }
 
     public BigInteger u64() throws IOException {
-        return BigInteger.valueOf(u32()).shiftLeft(32).add(BigInteger.valueOf(u32()));
+        return BigInteger.valueOf(u32()).shiftLeft(32).or(BigInteger.valueOf(u32()));
     }
 
     public byte i8() throws IOException {
@@ -38,12 +42,18 @@ public class BareDecoder {
     }
 
     public short i16() throws IOException {
-        return (short) (is.readByte() << 8 | is.readByte());
+        int byte1 = is.readByte() & 0xff;
+        int byte2 = is.readByte() & 0xff;
+        return (short) (byte2 << 8 | byte1);
     }
 
     public int i32() throws IOException {
-        return ((is.readByte()) << 24) | ((is.readByte()) << 16) |
-                ((is.readByte()) << 8) | (is.readByte());
+        int byte1 = is.readByte() & 0xff;
+        int byte2 = is.readByte() & 0xff;
+        int byte3 = is.readByte() & 0xff;
+        int byte4 = is.readByte() & 0xff;
+        return (byte4 << 24) | (byte3 << 16) |
+                (byte2 << 8) | (byte1);
     }
 
     public long i64() throws IOException {

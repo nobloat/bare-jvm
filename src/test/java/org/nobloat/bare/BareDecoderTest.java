@@ -74,7 +74,7 @@ class BareDecoderTest {
     @Test
     void f32() throws IOException {
         InputStream stream = fromBytes((byte)0x71, (byte)0x2D, (byte)0xA7, (byte)0x44);
-        assertEquals(1337.42, new BareDecoder(stream).f32());
+        assertEquals(1337.42, new BareDecoder(stream).f32(), 0.001);
         assertEquals(-1, stream.read());
     }
 
