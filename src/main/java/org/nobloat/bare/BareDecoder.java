@@ -19,7 +19,9 @@ public class BareDecoder {
     }
 
     public int u16() throws IOException {
-        return ((is.readByte() & 0xff) << 8 | (is.readByte() & 0xff));
+        int byte1 = is.readByte() & 0xff;
+        int byte2 = is.readByte() & 0xff;
+        return (byte1 | byte2 << 8);
     }
 
     public Integer u32() throws IOException {
