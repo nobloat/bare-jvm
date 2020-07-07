@@ -39,7 +39,7 @@ class BareDecoderTest {
     @Test
     void u64() throws IOException {
         InputStream stream = fromBytes((byte)0xEF, (byte)0xBE, (byte)0xAD, (byte)0xDE, (byte)0xBE, (byte)0xBA, (byte)0xFE, (byte)0xCA);
-        assertEquals(0xCAFEBABEDEADBEEFL, new BareDecoder(stream).u64());
+        assertEquals("14627333968688430831", new BareDecoder(stream).u64().toString());
         assertEquals(-1, stream.read());
     }
 
@@ -52,7 +52,7 @@ class BareDecoderTest {
 
     @Test
     void i16() throws IOException {
-        InputStream stream = fromBytes((byte)0xB2, (byte)0x9E, (byte)0x43, (byte)0xFF);
+        InputStream stream = fromBytes((byte)0x2E, (byte)0xFB);
         assertEquals(-1234, new BareDecoder(stream).i16());
         assertEquals(-1, stream.read());
     }
@@ -116,6 +116,7 @@ class BareDecoderTest {
                 (byte)0x81, (byte)0xAB, (byte)0xE3, (byte)0x81, (byte)0xA1, (byte)0xE3, (byte)0x81, (byte)0xAF, (byte)0xE3, (byte)0x80, (byte)0x81, (byte)0xE4,
                 (byte)0xB8, (byte)0x96, (byte)0xE7, (byte)0x95, (byte)0x8C, (byte)0xEF, (byte)0xBC, (byte)0x81);
         assertEquals("こんにちは、世界！", new BareDecoder(stream).string());
+        assertEquals(-1, stream.read());
     }
 
     @Test
@@ -123,5 +124,6 @@ class BareDecoderTest {
         byte[] ref = {(byte)0x13, (byte)0x37, (byte)0x42};
         InputStream stream = fromBytes((byte)0x03, (byte)0x13, (byte)0x37, (byte)0x42);
         assertArrayEquals(ref, new BareDecoder(stream).data());
+        assertEquals(-1, stream.read());
     }
 }

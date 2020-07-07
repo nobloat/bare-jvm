@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 public class BareDecoder {
 
     private final DataInputStream is;
+    private static final BigInteger UNSIGNED_LONG_MASK = BigInteger.ONE.shiftLeft(Long.SIZE).subtract(BigInteger.ONE);
 
     public BareDecoder(InputStream is) {
         this.is = new DataInputStream(is);
@@ -34,7 +35,7 @@ public class BareDecoder {
     }
 
     public BigInteger u64() throws IOException {
-        return BigInteger.valueOf(u32()).shiftLeft(32).or(BigInteger.valueOf(u32()));
+        return BigInteger.valueOf(i64()).and(UNSIGNED_LONG_MASK);
     }
 
     public byte i8() throws IOException {
@@ -57,10 +58,16 @@ public class BareDecoder {
     }
 
     public long i64() throws IOException {
-        return ((is.readByte()) << 56) | ((is.readByte()) << 48) |
-                ((is.readByte()) << 40) | ((is.readByte()) << 32) |
-                ((is.readByte()) << 24) | ((is.readByte()) << 16) |
-                ((is.readByte()) << 8) | (is.readByte());
+        long byte1 = is.readByte() & 0xff;
+        long byte2 = is.readByte() & 0xff;
+        long byte3 = is.readByte() & 0xff;
+        long byte4 = is.readByte() & 0xff;
+        long byte5 = is.readByte() & 0xff;
+        long byte6 = is.readByte() & 0xff;
+        long byte7 = is.readByte() & 0xff;
+        long byte8 = is.readByte() & 0xff;
+        return (byte8 << 56) | (byte7 << 48) | (byte6 << 40) | (byte5 << 32) |(byte4 << 24) | (byte3 << 16) |
+                (byte2 << 8) | (byte1);
     }
 
     public float f32() throws IOException {
@@ -104,8 +111,8 @@ public class BareDecoder {
     }
 
     public byte[] data() throws IOException {
-        int length = u32();
-        byte[] bytes = new byte[length];
+        BigInteger length = variadicUint();
+        byte[] bytes = new byte[length.intValue()];
         is.read(bytes);
         return bytes;
     }
