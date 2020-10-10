@@ -2,19 +2,22 @@ package org.nobloat.bare;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.NotSerializableException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class AggregateBareDecoder {
 
     private InputStream is;
-    private BareDecoder primitiveDecoder;
+    private PrimitiveBareDecoder primitiveDecoder;
 
     public AggregateBareDecoder(InputStream inputStream) {
         this.is = inputStream;
-        this.primitiveDecoder = new BareDecoder(is);
+        this.primitiveDecoder = new PrimitiveBareDecoder(is);
     }
 
     public <T>  Optional<T> optional(Class<T> c) throws IOException {
@@ -46,6 +49,27 @@ public class AggregateBareDecoder {
         return result;
     }
 
+    public <K,V> Map<K,V> map(Class<K> key, Class<V> value) throws IOException {
+
+        //TODO: check that K is a primitive type which is not data or data<length>
+
+        var length = primitiveDecoder.variadicUint();
+        var result = new HashMap<K,V>(length.intValue());
+        while(! length.equals(BigInteger.ZERO)) {
+            result.put(readType(key), readType(value));
+            length = length.subtract(BigInteger.ONE);
+        }
+        return result;
+    }
+
+    public UnionType union(Class<?>... possibleTypes) throws IOException {
+        int type = primitiveDecoder.variadicUint().intValue();
+        if (type > possibleTypes.length) {
+            throw new NotSerializableException("Unexpected union type: " + type);
+        }
+        return new UnionType(type, readType(possibleTypes[type]));
+    }
+
 
     //TODO: optimize for slices -> check type only once
     @SuppressWarnings("unchecked")
@@ -65,6 +89,10 @@ public class AggregateBareDecoder {
                 return (T) Boolean.valueOf(primitiveDecoder.bool());
             case "java.lang.Byte":
                 return (T) Byte.valueOf(primitiveDecoder.i8());
+            case "java.lang.Float":
+                return (T) Float.valueOf(primitiveDecoder.f32());
+            case "java.lang.Double":
+                return (T) Double.valueOf(primitiveDecoder.f64());
             default:
                 throw new UnsupportedOperationException("readType not implemented for " + c.getName());
         }

@@ -11,30 +11,26 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AggregateBareDecoderTest {
 
-    private InputStream fromBytes(byte... bytes) {
-        return new ByteArrayInputStream(bytes);
-    }
-
     private InputStream fromInts(int... bytes) {
         byte[] b = new byte[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
-            b[i] = (byte)bytes[i];
+            b[i] = (byte) bytes[i];
         }
         return new ByteArrayInputStream(b);
     }
 
     @Test
     public void testOptional() throws IOException {
-        InputStream stream = fromBytes((byte) 0x01, (byte)0x1B, (byte)0xE3, (byte)0x81, (byte)0x93, (byte)0xE3, (byte)0x82, (byte)0x93, (byte)0xE3,
-                (byte)0x81, (byte)0xAB, (byte)0xE3, (byte)0x81, (byte)0xA1, (byte)0xE3, (byte)0x81, (byte)0xAF, (byte)0xE3, (byte)0x80, (byte)0x81, (byte)0xE4,
-                (byte)0xB8, (byte)0x96, (byte)0xE7, (byte)0x95, (byte)0x8C, (byte)0xEF, (byte)0xBC, (byte)0x81);
+        InputStream stream = fromInts(0x01, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
+                0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
+                0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
 
         var decoder = new AggregateBareDecoder(stream);
         Optional<String> result = decoder.optional(String.class);
         assertEquals("こんにちは、世界！", result.get());
 
-        stream = fromBytes((byte)0x00);
+        stream = fromInts(0x00);
         decoder = new AggregateBareDecoder(stream);
         result = decoder.optional(String.class);
         assertFalse(result.isPresent());
@@ -76,6 +72,31 @@ class AggregateBareDecoderTest {
         assertEquals("こんにちは、世界！", result.get(0));
         assertEquals("こんにちは、世界！", result.get(1));
         assertEquals("こんにちは、世界！", result.get(2));
+    }
+
+    @Test
+    public void testMap() {
+
+    }
+
+    @Test
+    public void testUnion() throws IOException {
+        InputStream stream = fromInts(0x01, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
+                0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
+                0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
+
+        var decoder = new AggregateBareDecoder(stream);
+
+        var result = decoder.union(Float.class, String.class);
+        assertEquals(1, result.typeId);
+        assertEquals("こんにちは、世界！", result.value);
+
+
+        stream = fromInts(0x00, 0x71, 0x2D, 0xA7, 0x44);
+        decoder = new AggregateBareDecoder(stream);
+        result = decoder.union(Float.class, String.class);
+        assertEquals(0, result.typeId);
+        assertEquals(1337.42, (Float)result.value, 0.001);
     }
 
 }

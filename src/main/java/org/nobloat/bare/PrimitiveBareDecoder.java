@@ -6,12 +6,12 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
-public class BareDecoder {
+public class PrimitiveBareDecoder {
 
     private final DataInputStream is;
     private static final BigInteger UNSIGNED_LONG_MASK = BigInteger.ONE.shiftLeft(Long.SIZE).subtract(BigInteger.ONE);
 
-    public BareDecoder(InputStream is) {
+    public PrimitiveBareDecoder(InputStream is) {
         this.is = new DataInputStream(is);
     }
 
