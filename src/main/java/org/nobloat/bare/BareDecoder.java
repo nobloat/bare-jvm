@@ -117,4 +117,8 @@ public class BareDecoder {
         return bytes;
     }
 
+    public void Void() {
+
+    }
+
 }
