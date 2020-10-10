@@ -5,9 +5,12 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class AggregateBareDecoderTest {
 
@@ -105,5 +108,25 @@ class AggregateBareDecoderTest {
         assertEquals(0, result.typeId);
         assertEquals(1337.42, (Float) result.value, 0.001);
     }
+
+    @Test
+    public void testStruct() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IOException, IllegalAccessException {
+        var stream = fromInts(0x05, 0x50, 0x65, 0x74, 0x65, 0x72,     0x0C, 0x53, 0x70, 0x69, 0x65, 0x73, 0x73, 0x2d, 0x4b, 0x6e, 0x61, 0x66, 0x6c,
+                0x02,    0x10, 0x6e, 0x6f, 0x62, 0x6c, 0x6f, 0x61, 0x74, 0x2f, 0x62, 0x61, 0x72, 0x65, 0x2d, 0x6a, 0x76, 0x6d, 0x10, 0x6e, 0x6f, 0x62, 0x6c, 0x6f, 0x61, 0x74, 0x2f, 0x62, 0x61, 0x72, 0x65, 0x2d, 0x6a, 0x64, 0x6b);
+        var decoder = new AggregateBareDecoder(stream);
+        var person = decoder.struct(Person.class);
+
+        assertEquals("Peter", person.firstName);
+        assertEquals("Spiess-Knafl", person.lastName);
+        assertEquals("nobloat/bare-jvm", person.repositories.get(0));
+        assertEquals("nobloat/bare-jdk", person.repositories.get(1));
+    }
+
+    public static class Person {
+        public String firstName;
+        public String lastName;
+        public List<String> repositories;
+    }
+
 
 }
