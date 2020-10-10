@@ -1,9 +1,8 @@
 version: 2.1
-
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:11-jdk-alpine
+      - image: cimg/openjdk:11
     steps:
       - checkout
       - restore_cache:
