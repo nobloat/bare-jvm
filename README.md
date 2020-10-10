@@ -1,8 +1,9 @@
 # bare-jvm
 
 [![CircleCI](https://circleci.com/gh/nobloat/bare-jvm.svg?style=svg)](https://circleci.com/gh/nobloat/bare-jvm)
+[![](https://jitpack.io/v/nobloat/bare-jvm.svg)](https://jitpack.io/#nobloat/bare-jvm)
 
-![](logo.svg)
+![bare-jvm-logo](logo.svg)
 
 This is an implementation of [baremessages](https://baremessages.org/) for the JVM.
 
