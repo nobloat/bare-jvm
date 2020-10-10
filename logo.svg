@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="191mm"
+   height="50mm"
+   viewBox="0 0 191 50"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0.1 (3bc2e813f5, 2020-09-07)"
+   sodipodi:docname="logo.svg">
+  <defs
+     id="defs2">
+    <marker
+       style="overflow:visible"
+       id="TriangleOutM"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="TriangleOutM"
+       inkscape:isstock="true">
+      <path
+         transform="scale(0.4)"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path1034" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow2Lend"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow2Lend"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(-1.1,0,0,-1.1,-1.1,0)"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.625;stroke-linejoin:round;stroke-opacity:1"
+         id="path910" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="TriangleOutM-9"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="TriangleOutM"
+       inkscape:isstock="true">
+      <path
+         transform="scale(0.4)"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path1034-6" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="TriangleOutM-5"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="TriangleOutM"
+       inkscape:isstock="true">
+      <path
+         transform="scale(0.4)"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path1034-63" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="912.93625"
+     inkscape:cy="-64.466702"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="false"
+     inkscape:window-width="3840"
+     inkscape:window-height="2081"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.47082px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.136771"
+       x="2.1893811"
+       y="19.554346"
+       id="text835"
+       transform="scale(1.0156672,0.98457447)"><tspan
+         sodipodi:role="line"
+         id="tspan833"
+         x="2.1893811"
+         y="19.554346"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro';stroke-width:0.136771">010001101010</tspan><tspan
+         sodipodi:role="line"
+         x="2.1893811"
+         y="26.446297"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro';stroke-width:0.136771"
+         id="tspan839">00110011000110000</tspan><tspan
+         sodipodi:role="line"
+         x="2.1893811"
+         y="33.338249"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro';stroke-width:0.136771"
+         id="tspan843">011101010101</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.47082px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.136771"
+       x="121.08167"
+       y="15.895013"
+       id="text871"
+       transform="scale(1.0156672,0.98457447)"><tspan
+         sodipodi:role="line"
+         id="tspan869"
+         x="121.08167"
+         y="15.895013"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro';stroke-width:0.136771">class BareMessage {</tspan><tspan
+         sodipodi:role="line"
+         x="121.08167"
+         y="22.786964"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro';stroke-width:0.136771"
+         id="tspan877">  String name;</tspan><tspan
+         sodipodi:role="line"
+         x="121.08167"
+         y="29.678915"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro';stroke-width:0.136771"
+         id="tspan873">  List&lt;P&gt; friends;</tspan><tspan
+         sodipodi:role="line"
+         x="121.08167"
+         y="36.570866"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro';stroke-width:0.136771"
+         id="tspan875">}</tspan></text>
+    <path
+       id="path7583"
+       stroke-linejoin="round"
+       d="M 112.06117,19.370596 H 74.177544 c 0,9.861198 1.496398,16.435339 11.365085,23.009466 h 15.153451 c 9.32459,-5.781131 11.36509,-13.148268 11.36509,-23.009466 z"
+       fill-rule="evenodd"
+       stroke-width="2.64661"
+       fill="#c87137"
+       style="fill:#000000;stroke:#000000" />
+    <path
+       id="path7585"
+       stroke-linejoin="round"
+       d="M 115.84952,39.092991 H 70.228168 c 3.949376,3.287071 3.949376,5.20179 13.690199,6.430324 h 18.245693 c 9.89711,-1.006666 9.89711,-3.143253 13.68546,-6.430324 z"
+       fill-rule="evenodd"
+       stroke-width="2.64661"
+       fill="#c87137"
+       style="fill:#000000;stroke:#000000" />
+    <path
+       id="path7589"
+       stroke-linejoin="round"
+       d="M 61.955889,29.89636 A 7.6321845,6.2984556 57.447679 1 0 74.185007,26.279057 7.6321845,6.2984556 57.447679 1 0 61.955889,29.89636 Z"
+       stroke-linecap="round"
+       stroke-width="2.64661"
+       fill="none"
+       style="stroke:#000000" />
+    <path
+       id="path7593"
+       d="m 97.083883,2.7059491 c -7.224882,6.5400396 6.674137,6.9685896 0,13.6577589"
+       stroke-linecap="round"
+       stroke-width="1.76441"
+       fill="none"
+       style="stroke:#000000" />
+    <path
+       id="path7595"
+       stroke-width="1.76441"
+       stroke-linecap="round"
+       fill="none"
+       d="m 92.385357,2.9106272 c -7.226293,6.5412505 6.672253,6.9685745 0,13.6577588"
+       style="stroke:#000000" />
+    <path
+       id="path7597"
+       stroke-width="1.76441"
+       stroke-linecap="round"
+       fill="none"
+       d="m 87.214247,2.9106272 c -7.221574,6.5412505 6.67698,6.9685745 0,13.6577588"
+       style="stroke:#000000" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.65719px;line-height:1.25;font-family:sans-serif;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.14143"
+       x="73.801796"
+       y="27.689957"
+       id="text883"
+       transform="scale(1.0735481,0.93149063)"><tspan
+         sodipodi:role="line"
+         id="tspan881"
+         x="73.801796"
+         y="27.689957"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Source Code Pro';-inkscape-font-specification:'Source Code Pro Bold';fill:#ffffff;fill-opacity:1;stroke-width:0.14143">bare-jvm</tspan></text>
+  </g>
+</svg>
