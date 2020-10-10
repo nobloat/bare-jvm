@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: cimg/openjdk:11
+      - image: circleci/openjdk:stretch
     steps:
       - checkout
       - restore_cache:
