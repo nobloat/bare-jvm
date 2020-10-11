@@ -28,7 +28,7 @@ public class Union {
         this.types = allowedTypes;
     }
 
-    public void set(long id, Object object) {
+    void set(long id, Object object) {
         if (types.containsKey(id)) {
             this.value = object;
             this.type = id;
@@ -48,6 +48,7 @@ public class Union {
         return types.get(type);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T get(Class<T> type) {
         return (T)value;
     }

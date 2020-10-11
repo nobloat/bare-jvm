@@ -51,9 +51,9 @@ public class AggregateBareEncoder {
         }
     }
 
-    public void union(Union value) throws IOException {
-        encoder.variadicUInt(value.type);
-        encodeType(value.value);
+    public void union(long type, Object value) throws IOException {
+        encoder.variadicUInt(type);
+        encodeType(value);
     }
 
     //TODO: implement for all aggregate and primitive types
@@ -64,6 +64,10 @@ public class AggregateBareEncoder {
             encoder.bool((boolean) value);
         } else if (Byte.class.equals(value.getClass())) {
             encoder.u8((byte)value);
+        } else if (Double.class.equals(value.getClass())) {
+            encoder.f64((Double)value);
+        } else if (Float.class.equals(value.getClass())) {
+            encoder.f32((Float)value);
         } else {
             throw new UnsupportedOperationException("Encoding for type not implemented: " + value.getClass().getName());
         }

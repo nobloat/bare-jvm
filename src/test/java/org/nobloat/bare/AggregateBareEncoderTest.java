@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -108,6 +109,20 @@ class AggregateBareEncoderTest {
     }
 
     @Test
-    void union() {
+    void union() throws IOException {
+        encoder.union(1L, "こんにちは、世界！");
+        var expected = fromInts(0x01, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
+                0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
+                0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
+        assertEquals(expected.length, bos.size());
+        assertArrayEquals(expected, bos.toByteArray());
+    }
+
+    @Test
+    void union2() throws IOException {
+        encoder.union(0, 1337.42f);
+        var expected = fromInts(0x00, 0x71, 0x2D, 0xA7, 0x44);
+        assertEquals(expected.length, bos.size());
+        assertArrayEquals(expected, bos.toByteArray());
     }
 }
