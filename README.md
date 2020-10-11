@@ -22,9 +22,12 @@ This is a [baremessages](https://baremessages.org/) implementation for the JVM.
     - **Rationale:** Java cannot reflect on primitive types.
 - All class fields need to be public
     - **Rationale:** It simplifies the reflective code a lot.
+- Enum's are currently always set to null
+    - **Rationale:** Reflection and enums in Java are a mess.
 
 ## Problems
 - Java has no concept of unsigned primitive data types, hence double the amount of memory is required to safely use unsigned types:
     - `u64` becomes `BigInteger`
     - `u32` becomes `Integer`
     - `u16` becomes `int`
+    
