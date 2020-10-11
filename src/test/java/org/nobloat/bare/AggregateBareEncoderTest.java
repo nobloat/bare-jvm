@@ -7,7 +7,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,19 +52,59 @@ class AggregateBareEncoderTest {
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
         assertEquals(expected.length, bos.size());
-        assertEquals(expected, bos.toByteArray());
+        assertArrayEquals(expected, bos.toByteArray());
     }
 
     @Test
-    void slice() {
+    void slice() throws IOException {
+        try(var stream = bos) {
+            var array = new ArrayList<String>(3);
+            array.add("こんにちは、世界！");
+            array.add("こんにちは、世界！");
+            array.add("こんにちは、世界！");
+            encoder.slice(array);
+        }
+
+        var expected = fromInts(0x03, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
+                0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
+                0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
+                0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
+                0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
+                0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
+                0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
+
+        assertEquals(expected.length, bos.size());
+        assertArrayEquals(expected, bos.toByteArray());
     }
 
     @Test
-    void map() {
+    void map() throws IOException {
+        var map = new HashMap<Byte, Byte>();
+        map.put((byte)0x01, (byte) 0x11);
+        map.put((byte)0x02, (byte) 0x22);
+        map.put((byte)0x03, (byte) 0x33);
+        encoder.map(map);
+
+        var expected = fromInts(0x03, 0x01, 0x11, 0x02, 0x22, 0x03, 0x33);
+        assertEquals(expected.length, bos.size());
+        assertArrayEquals(expected, bos.toByteArray());
     }
 
     @Test
-    void optional() {
+    void optional() throws IOException {
+        encoder.optional(Optional.of("こんにちは、世界！"));
+        var expected = fromInts(0x01, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
+                0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
+                0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
+        assertEquals(expected.length, bos.size());
+    }
+
+    @Test
+    void emptyOptional() throws IOException {
+        var expected = fromInts(0x00);
+        encoder.optional(Optional.empty());
+        assertEquals(expected.length, bos.size());
+        assertArrayEquals(expected, bos.toByteArray());
     }
 
     @Test

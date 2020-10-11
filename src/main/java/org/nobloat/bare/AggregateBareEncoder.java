@@ -45,7 +45,9 @@ public class AggregateBareEncoder {
     public <T> void optional(Optional<T> value) throws IOException  {
         if (value.isPresent()) {
             encoder.bool(true);
-            encodeType(value);
+            encodeType(value.get());
+        } else {
+            encoder.bool(false);
         }
     }
 
@@ -54,11 +56,14 @@ public class AggregateBareEncoder {
         encodeType(value.value);
     }
 
+    //TODO: implement for all aggregate and primitive types
     public <T> void encodeType(T value) throws IOException {
         if (String.class.equals(value.getClass())) {
             encoder.string((String) value);
         } else if (Boolean.class.equals(value.getClass())) {
             encoder.bool((boolean) value);
+        } else if (Byte.class.equals(value.getClass())) {
+            encoder.u8((byte)value);
         } else {
             throw new UnsupportedOperationException("Encoding for type not implemented: " + value.getClass().getName());
         }
