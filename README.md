@@ -1,3 +1,5 @@
+**THIS IS WORK IN PROGRESS - DONT USE IT IN PRODUCTION**
+
 # bare-jvm
 [![CircleCI](https://circleci.com/gh/nobloat/bare-jvm.svg?style=svg)](https://circleci.com/gh/nobloat/bare-jvm)
 [![](https://jitpack.io/v/nobloat/bare-jvm.svg)](https://jitpack.io/#nobloat/bare-jvm)
