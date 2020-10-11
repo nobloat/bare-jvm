@@ -152,6 +152,7 @@ class PrimitiveBareEncoderTest {
         assertArrayEquals(new byte[]{(byte) 0xEF, (byte) 0xFD, (byte) 0xB6, (byte) 0xF5, 0x0D},result);
 
 
+        encoder = new PrimitiveBareEncoder(null, true);
         assertThrows(NotSerializableException.class, () -> assertEquals(5, encoder.variadicUInt( new BigInteger("DEADBEEFDEADBEEFDEADBEEFDEADBEEF", 16))));
         assertThrows(NotSerializableException.class, () -> assertEquals(5, encoder.variadicUInt( new BigInteger("-1", 16))));
     }
@@ -164,6 +165,8 @@ class PrimitiveBareEncoderTest {
         var result = bos.toByteArray();
         assertEquals(5, bos.size());
         assertArrayEquals(new byte[]{(byte) 0xEF, (byte) 0xFD, (byte) 0xB6, (byte) 0xF5, 0x0D},result);
+
+        encoder = new PrimitiveBareEncoder(null, true);
         assertThrows(NotSerializableException.class, () -> assertEquals(5, encoder.variadicUInt( -1)));
     }
 
