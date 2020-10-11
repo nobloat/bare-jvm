@@ -2,6 +2,7 @@
 [![CircleCI](https://circleci.com/gh/nobloat/bare-jvm.svg?style=svg)](https://circleci.com/gh/nobloat/bare-jvm)
 [![](https://jitpack.io/v/nobloat/bare-jvm.svg)](https://jitpack.io/#nobloat/bare-jvm)
 [![codecov](https://codecov.io/gh/nobloat/bare-jvm/branch/master/graph/badge.svg)](https://codecov.io/gh/nobloat/bare-jvm)
+[![](https://tokei.rs/b1/github.com/nobloat/bare-jvm?category=code)](https://github.com/XAMPPRocky/tokei)
 
 ![bare-jvm-logo](logo.svg)
 
