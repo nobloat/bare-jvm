@@ -84,6 +84,8 @@ public static class CustomerOrEmployee { public Union person = new Union(Custome
 
 ### Enums
 
+**enums are not functional yet**
+
 ```java
 public enum Department {
     ACCOUNTING(0), ADMINISTRATION(1), CUSTOMER_SERVICE(2), DEVELOPMENT(3), JSMITH(99);
@@ -93,6 +95,18 @@ public enum Department {
     }
 }
 ```
+
+
+## Usage
+
+Simply copy the required classes from `org.nobloat.bar` or add the dependency via [![](https://jitpack.io/v/nobloat/bare-jvm.svg)](https://jitpack.io/#nobloat/bare-jvm)
+
+- [Decoding a class](src/test/java/org/nobloat/bare/AggregateBareDecoderTest.java#L120)
+- [Decoding a slice](src/test/java/org/nobloat/bare/AggregateBareDecoderTest.java#L66)
+- [Decoding a map](src/test/java/org/nobloat/bare/AggregateBareDecoderTest.java#L85)
+- [Decoding a union](src/test/java/org/nobloat/bare/AggregateBareDecoderTest.java#L97)
+- [Decoding a map](src/test/java/org/nobloat/bare/AggregateBareDecoderTest.java#L85)
+
 
 ## Limitations
 - Java primitive types do not work, please use the respective wrapper types (e.g. `int` -> `Integer`)
