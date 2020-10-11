@@ -32,7 +32,7 @@ public class AggregateBareDecoder {
         return Optional.empty();
     }
 
-    public <T> List<T> values(Class<T> c) throws IOException, ReflectiveOperationException {
+    public <T> List<T> slice(Class<T> c) throws IOException, ReflectiveOperationException {
         //TODO: add max length
         var length = primitiveDecoder.variadicUint();
         if (length.equals(BigInteger.ZERO)) {
@@ -46,10 +46,10 @@ public class AggregateBareDecoder {
         return result;
     }
 
-    public <T> Array<T> values(Class<T> c, int length) throws IOException, ReflectiveOperationException {
+    public <T> Array<T> array(Class<T> c, int length) throws IOException, ReflectiveOperationException {
         var result = new Array<T>(length);
         for (int i = 0; i < length; i++) {
-            result.values.add(readType(c));
+            result.set(i, readType(c));
         }
         return result;
     }
@@ -101,11 +101,11 @@ public class AggregateBareDecoder {
                 var array = (Array<T>)f.get(result);
                 ParameterizedType type = (ParameterizedType)f.getGenericType();
                 var elementType =  type.getActualTypeArguments()[0];
-                f.set(result, values((Class<?>)elementType, array.size));
+                f.set(result, array((Class<?>)elementType, array.size));
             } else if(f.getType().getName().equals("java.util.List")) {
                 ParameterizedType type = (ParameterizedType)f.getGenericType();
                 var elementType =  type.getActualTypeArguments()[0];
-                f.set(result, values((Class<?>) elementType));
+                f.set(result, slice((Class<?>) elementType));
             } else if(f.getType().getName().equals("java.util.Map")) {
                 ParameterizedType type = (ParameterizedType)f.getGenericType();
                 var keyType =  type.getActualTypeArguments()[0];

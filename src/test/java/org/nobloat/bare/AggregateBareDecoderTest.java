@@ -44,7 +44,7 @@ class AggregateBareDecoderTest {
     }
 
     @Test
-    public void testStaticArray() throws IOException, ReflectiveOperationException {
+    public void testArray() throws IOException, ReflectiveOperationException {
         var stream = fromInts(0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
@@ -54,7 +54,7 @@ class AggregateBareDecoderTest {
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
         var decoder = new AggregateBareDecoder(stream);
-        var result = decoder.values(String.class, 3);
+        var result = decoder.array(String.class, 3);
 
         assertEquals(3, result.size);
         assertEquals("こんにちは、世界！", result.get(0));
@@ -73,7 +73,7 @@ class AggregateBareDecoderTest {
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
         var decoder = new AggregateBareDecoder(stream);
-        var result = decoder.values(String.class);
+        var result = decoder.slice(String.class);
 
         assertEquals(3, result.size());
         assertEquals("こんにちは、世界！", result.get(0));
@@ -173,6 +173,7 @@ class AggregateBareDecoderTest {
         assertEquals("Philadelphia", employee.address.city);
         assertEquals("PA", employee.address.sate);
         assertEquals("United States", employee.address.country);
+        //TODO: enable once enums are working
         //assertEquals(TestClasses.Department.ADMINISTRATION, employee.department);
         assertEquals("2020-06-21T21:18:05+00:00", employee.hireDate);
     }
