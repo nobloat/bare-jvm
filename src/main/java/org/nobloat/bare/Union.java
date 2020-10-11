@@ -52,10 +52,6 @@ public class Union {
         return (T)value;
     }
 
-    public Object get() {
-        return value;
-    }
-
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     public @interface Id {
