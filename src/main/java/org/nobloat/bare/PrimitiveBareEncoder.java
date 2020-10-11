@@ -74,14 +74,44 @@ public class PrimitiveBareEncoder {
         data(s.getBytes(StandardCharsets.UTF_8));
     }
 
-    public void variadicUInt(long value) throws IOException {
-        int i = 0;
-        List<Byte> bytes = new ArrayList<>(2);
+    public int variadicUInt(BigInteger value) throws IOException {
+        if (value.bitLength() > 64) {
+            throw new NotSerializableException("value for variadicUint cannot have more than 64 bits, value has " + value.bitLength() + " bits");
+        }
+
+        if (value.signum() == -1) {
+            throw new NotSerializableException("value for variadicUint cannot be negative: " + value);
+        }
+
+        int i=0;
+        while (value.longValue() >= 0x80) {
+            os.write((byte) (value.longValue() | 0x80));
+            value = value.shiftRight(7);
+            i++;
+        }
+        os.write((byte) value.longValue());
+        return i+1;
+    }
+
+    public int variadicUInt(long value) throws IOException {
+        if (value < 0) {
+            throw new NotSerializableException("value for variadicUint cannot be negative: " + value);
+        }
+        int i=0;
         while (value >= 0x80) {
             os.write((byte) (value | 0x80));
             value >>= 7;
             i++;
         }
         os.write((byte) value);
+        return i+1;
+    }
+
+    public int variadicInt(long value) throws IOException {
+        long unsigned = value << 1;
+        if (unsigned < 0) {
+            unsigned = ~unsigned;
+        }
+        return variadicUInt(unsigned);
     }
 }

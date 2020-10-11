@@ -1,7 +1,5 @@
 package org.nobloat.bare;
 
-import java.util.List;
-
 public class UnionType {
     public final Object value;
     public final int typeId;

@@ -14,6 +14,14 @@ class PrimitiveBareDecoderTest {
         return new ByteArrayInputStream(bytes);
     }
 
+    private InputStream fromInts(int... bytes) {
+        byte[] b = new byte[bytes.length];
+        for (int i = 0; i < bytes.length; i++) {
+            b[i] = (byte) bytes[i];
+        }
+        return new ByteArrayInputStream(b);
+    }
+
 
     @Test
     void u8() throws IOException {
@@ -96,17 +104,15 @@ class PrimitiveBareDecoderTest {
 
     @Test
     void variadicInt() throws IOException {
-        InputStream stream = fromBytes((byte)0x54, (byte)0xf1, (byte)0x14);
-        assertEquals(42, new PrimitiveBareDecoder(stream).variadicInt());
-        assertEquals(-1337, new PrimitiveBareDecoder(stream).variadicInt());
+        InputStream stream = fromInts(0x9B, 0x85, 0xE3, 0x0B);
+        assertEquals(-12345678L, new PrimitiveBareDecoder(stream).variadicInt());
         assertEquals(-1, stream.read());
     }
 
     @Test
     void variadicUint() throws IOException {
-        InputStream stream = fromBytes((byte)0x7F, (byte)0xB7, (byte)0x26);
-        assertEquals(0x7F, new PrimitiveBareDecoder(stream).variadicUint().longValue());
-        assertEquals(0x1337, new PrimitiveBareDecoder(stream).variadicUint().longValue());
+        InputStream stream = fromInts(0xEF, 0xFD, 0xB6, 0xF5, 0x0D);
+        assertEquals(0xDEADBEEFL, new PrimitiveBareDecoder(stream).variadicUint().longValue());
         assertEquals(-1, stream.read());
     }
 
@@ -125,11 +131,5 @@ class PrimitiveBareDecoderTest {
         InputStream stream = fromBytes((byte)0x03, (byte)0x13, (byte)0x37, (byte)0x42);
         assertArrayEquals(ref, new PrimitiveBareDecoder(stream).data());
         assertEquals(-1, stream.read());
-    }
-
-    @Test
-    void Void() {
-        InputStream stream = fromBytes();
-        new PrimitiveBareDecoder(stream).Void();
     }
 }

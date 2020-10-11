@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.NotSerializableException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +13,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class AggregateBareDecoder {
+
+    public static final List<String> PRIMITIVE_TYPES = List.of(new String[]{"java.lang.String", "java.lang.Long", "java.lang.Integer", "java.lang.BigInteger", "java.lang.Short", "java.lang.Boolean", "java.lang.Byte", "java.lang.Float", "java.lang.Double"});
 
     private InputStream is;
     private PrimitiveBareDecoder primitiveDecoder;
@@ -31,6 +32,7 @@ public class AggregateBareDecoder {
     }
 
     public <T> List<T> values(Class<T> c) throws IOException {
+        //TODO: add max length
         var length = primitiveDecoder.variadicUint();
         if (length.equals(BigInteger.ZERO)) {
             return List.of();
@@ -44,6 +46,7 @@ public class AggregateBareDecoder {
     }
 
     public <T> List<T> values(Class<T> c, int length) throws IOException {
+        //TODO: add max length
         //Creation of plain arrays out of generic types is not possible in Java
         var result = new ArrayList<T>(length);
         for (int i = 0; i < length; i++) {
@@ -53,6 +56,7 @@ public class AggregateBareDecoder {
     }
 
     public <K, V> Map<K, V> map(Class<K> key, Class<V> value) throws IOException {
+        //TODO: add max length
         assert PRIMITIVE_TYPES.contains(key.getName());
 
         var length = primitiveDecoder.variadicUint();
@@ -123,8 +127,4 @@ public class AggregateBareDecoder {
                 throw new UnsupportedOperationException("readType not implemented for " + c.getName());
         }
     }
-
-    public static final List<String> PRIMITIVE_TYPES = List.of(new String[]{"java.lang.String", "java.lang.Long", "java.lang.Integer", "java.lang.BigInteger", "java.lang.Short", "java.lang.Boolean", "java.lang.Byte", "java.lang.Float", "java.lang.Double"});
-    public static final List<String> AGGREGATE_TYPES = List.of(new String[]{"java.util.List", "java.util.Map"});
-
 }
