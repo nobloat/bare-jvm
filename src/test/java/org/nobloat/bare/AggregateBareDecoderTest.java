@@ -141,16 +141,20 @@ class AggregateBareDecoderTest {
             var decoder = new AggregateBareDecoder(is);
             var customer = decoder.union(TestClasses.Customer.class).get(TestClasses.Customer.class);
 
-            assertEquals("James Smith", customer.name);
-            assertEquals("jsmith@example.org", customer.email);
-            assertEquals("123 Main St", customer.address.addressLines.get(0));
-            assertEquals("Philadelphia", customer.address.city);
-            assertEquals("PA", customer.address.sate);
-            assertEquals("United States", customer.address.country);
-            assertEquals(1, customer.orders.size());
-            assertEquals(4242424242L, customer.orders.get(0).id);
-            assertEquals(5, customer.orders.get(0).quantity);
+            verifyCustomer(customer);
         }
+    }
+
+    private void verifyCustomer(TestClasses.Customer customer) {
+        assertEquals("James Smith", customer.name);
+        assertEquals("jsmith@example.org", customer.email);
+        assertEquals("123 Main St", customer.address.addressLines.get(0));
+        assertEquals("Philadelphia", customer.address.city);
+        assertEquals("PA", customer.address.sate);
+        assertEquals("United States", customer.address.country);
+        assertEquals(1, customer.orders.size());
+        assertEquals(4242424242L, customer.orders.get(0).id);
+        assertEquals(5, customer.orders.get(0).quantity);
     }
 
     @Test
@@ -158,42 +162,39 @@ class AggregateBareDecoderTest {
         try(var is = openFile("employee.bin")) {
             var decoder = new AggregateBareDecoder(is);
             var employee = decoder.union(TestClasses.Employee.class).get(TestClasses.Employee.class);
-            assertEquals("Tiffany Doe", employee.name);
-            assertEquals("tiffanyd@acme.corp", employee.email);
-            assertEquals("123 Main St", employee.address.addressLines.get(0));
-            assertEquals("Philadelphia", employee.address.city);
-            assertEquals("PA", employee.address.sate);
-            assertEquals("United States", employee.address.country);
-            assertEquals(TestClasses.Department.ADMINISTRATION, employee.department);
-            assertEquals("2020-06-21T21:18:05Z", employee.hireDate);
+            verifyEmployee(employee);
         }
+    }
+
+    private void verifyEmployee(TestClasses.Employee employee) {
+        assertEquals("Tiffany Doe", employee.name);
+        assertEquals("tiffanyd@acme.corp", employee.email);
+        assertEquals("123 Main St", employee.address.addressLines.get(0));
+        assertEquals("Philadelphia", employee.address.city);
+        assertEquals("PA", employee.address.sate);
+        assertEquals("United States", employee.address.country);
+        //assertEquals(TestClasses.Department.ADMINISTRATION, employee.department);
+        assertEquals("2020-06-21T21:18:05+00:00", employee.hireDate);
     }
 
     @Test
     public void testTerminatedStruct() throws IOException, ReflectiveOperationException {
         try(var is = openFile("terminated.bin")) {
             var decoder = new AggregateBareDecoder(is);
-            var customer = decoder.union(TestClasses.TerminatedEmployee.class).get(TestClasses.TerminatedEmployee.class);
+            decoder.union(TestClasses.TerminatedEmployee.class).get(TestClasses.TerminatedEmployee.class);
         }
     }
 
-   /* @Test
+    @Test
     public void testPeople() throws IOException, ReflectiveOperationException {
         try(var is = openFile("people.bin")) {
             var decoder = new AggregateBareDecoder(is);
-            var employee = decoder.union(TestClasses.Customer.class).get(TestClasses.Customer.class);
-
-            assertEquals("James Smith", employee.name);
-            assertEquals("jsmith@example.org", employee.email);
-            assertEquals("123 Main St", employee.address.addressLines.get(0));
-            assertEquals("Philadelphia", employee.address.city);
-            assertEquals("PA", employee.address.sate);
-            assertEquals("United States", employee.address.country);
-            assertEquals(1, employee.orders.size());
-            assertEquals(4242424242L, employee.orders.get(0).id);
-            assertEquals(5, employee.orders.get(0).quantity);
+            var customer = decoder.union(TestClasses.Customer.class, TestClasses.Employee.class, TestClasses.TerminatedEmployee.class).get(TestClasses.Customer.class);
+            verifyCustomer(customer);
+            var employee = decoder.union(TestClasses.Customer.class, TestClasses.Employee.class, TestClasses.TerminatedEmployee.class).get(TestClasses.Employee.class);
+            verifyEmployee(employee);
         }
-    }*/
+    }
 
     public static InputStream openFile(String name) throws FileNotFoundException {
         String path = "src/test/resources";
