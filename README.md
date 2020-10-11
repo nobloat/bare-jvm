@@ -8,8 +8,9 @@
 This is an implementation of [baremessages](https://baremessages.org/) for the JVM.
 
 ## Features
-- Decoding primitive datatypes from `InputStream`
-- Decoding aggregate datatype from `InputStream`
+- Decoding primitive data types from `InputStream`
+- Decoding aggregate data types from `InputStream`
+- Encoding aggregate data types to `OutputStream`
 
 ## Problems
 - Java has no concept of unsigned primitive data types, hence double the amount of memory is required to safely use unsigned types:
