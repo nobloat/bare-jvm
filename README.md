@@ -31,11 +31,11 @@ This is a [baremessages](https://baremessages.org/) implementation for the JVM.
 | `@Int(Int.Type.i32) Integer`    | `i32`          |
 | `@Int(Int.Type.u32) Long`       | `u32`          |
 | `@Int(Int.Type.i16) Short`      | `i16`          |
-| `@Int(Int.Type.u16) Integer     | `i16`          |
-| `@Int(Int.Type.u8) Byte         | `u8`           |
-| `@Int(Int.Type.i8) Byte         | `i8`           |
+| `@Int(Int.Type.u16) Integer`     | `i16`          |
+| `@Int(Int.Type.u8) Byte`         | `u8`           |
+| `@Int(Int.Type.i8) Byte`         | `i8`           |
 | `@Int(Int.Type.i) Long`         | `int`          |
-| `@Int(Int.Type.i) BigInteger    | `uint`         |
+| `@Int(Int.Type.i) BigInteger`    | `uint`         |
 
 ### Aggregate types
 
