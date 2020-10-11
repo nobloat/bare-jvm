@@ -10,8 +10,8 @@ import java.util.Map;
 public class Union {
 
     Map<Long, Class<?>> types;
-    private Object value;
-    private long type;
+    Object value;
+    long type;
 
     public Union(Class<?> ...allowedTypes) {
         this.types = new HashMap<>();
