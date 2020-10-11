@@ -5,12 +5,18 @@
 
 ![bare-jvm-logo](logo.svg)
 
-This is an implementation of [baremessages](https://baremessages.org/) for the JVM.
+This is a [baremessages](https://baremessages.org/) implementation for the JVM.
 
 ## Features
 - Decoding primitive data types from `InputStream`
 - Decoding aggregate data types from `InputStream`
 - Encoding aggregate data types to `OutputStream`
+
+## Limitations
+- Java primitive types do not work, please use the respective wrapper types (e.g. `int` -> `Integer`)
+    - **Rationale:** Java cannot reflect on primitive types.
+- All class fields need to be public
+    - **Rationale:** It simplifies the reflective code a lot.
 
 ## Problems
 - Java has no concept of unsigned primitive data types, hence double the amount of memory is required to safely use unsigned types:

@@ -3,7 +3,6 @@ package org.nobloat.bare;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.NotSerializableException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -26,12 +25,12 @@ public class AggregateBareDecoder {
 
     public <T> Optional<T> optional(Class<T> c) throws IOException {
         if (primitiveDecoder.bool()) {
-            return Optional.of(readType(c));
+            return Optional.of(readPrimitiveType(c));
         }
         return Optional.empty();
     }
 
-    public <T> List<T> values(Class<T> c) throws IOException {
+    public <T> List<T> values(Class<T> c) throws IOException, ReflectiveOperationException {
         //TODO: add max length
         var length = primitiveDecoder.variadicUint();
         if (length.equals(BigInteger.ZERO)) {
@@ -45,45 +44,52 @@ public class AggregateBareDecoder {
         return result;
     }
 
-    public <T> List<T> values(Class<T> c, int length) throws IOException {
-        //TODO: add max length
-        //Creation of plain arrays out of generic types is not possible in Java
-        var result = new ArrayList<T>(length);
+    public <T> Array<T> values(Class<T> c, int length) throws IOException, ReflectiveOperationException {
+        var result = new Array<T>(length);
         for (int i = 0; i < length; i++) {
-            result.add(readType(c));
+            result.values.add(readType(c));
         }
         return result;
     }
 
-    public <K, V> Map<K, V> map(Class<K> key, Class<V> value) throws IOException {
+    public <K, V> Map<K, V> map(Class<K> key, Class<V> value) throws IOException, ReflectiveOperationException {
         //TODO: add max length
         assert PRIMITIVE_TYPES.contains(key.getName());
 
         var length = primitiveDecoder.variadicUint();
         var result = new HashMap<K, V>(length.intValue());
         while (!length.equals(BigInteger.ZERO)) {
-            result.put(readType(key), readType(value));
+            result.put(readPrimitiveType(key), readType(value));
             length = length.subtract(BigInteger.ONE);
         }
         return result;
     }
 
-    public UnionType union(Class<?>... possibleTypes) throws IOException {
-        int type = primitiveDecoder.variadicUint().intValue();
-        if (type > possibleTypes.length) {
-            throw new NotSerializableException("Unexpected union type: " + type);
-        }
-        return new UnionType(type, readType(possibleTypes[type]));
+    public Union union(Class<?>... possibleTypes) throws IOException, ReflectiveOperationException {
+        return union(new Union(possibleTypes).types);
     }
 
-    public <T> T  struct(Class<T> c) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
+    public Union union(Map<Long, Class<?>> allowedTypes) throws IOException, ReflectiveOperationException {
+        var union = new Union(allowedTypes);
+        int type = primitiveDecoder.variadicUint().intValue();
+        var clazz = union.type(type);
+        union.set(type, readType(clazz));
+        return union;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T  struct(Class<T> c) throws ReflectiveOperationException, IOException {
         var fields = c.getFields();
         var result = c.getConstructor().newInstance();
         for(var f : fields) {
             f.setAccessible(true);
-
             if (PRIMITIVE_TYPES.contains(f.getType().getName())) {
-                f.set(result, readType(f.getType()));
+                f.set(result, readPrimitiveType(f.getType()));
+            } else if(f.getType().getName().equals("org.nobloat.bare.Array")) {
+                var array = (Array<T>)f.get(result);
+                ParameterizedType type = (ParameterizedType)f.getGenericType();
+                var elementType =  type.getActualTypeArguments()[0];
+                f.set(result, values((Class<?>)elementType, array.size));
             } else if(f.getType().getName().equals("java.util.List")) {
                 ParameterizedType type = (ParameterizedType)f.getGenericType();
                 var elementType =  type.getActualTypeArguments()[0];
@@ -103,12 +109,12 @@ public class AggregateBareDecoder {
 
     //TODO: optimize for slices -> check type only once
     @SuppressWarnings("unchecked")
-    public <T> T readType(Class<T> c) throws IOException {
+    public <T> T readPrimitiveType(Class<T> c) throws IOException {
         switch (c.getName()) {
             case "java.lang.String":
                 return (T) primitiveDecoder.string();
             case "java.lang.Long":
-                return (T) Long.valueOf(primitiveDecoder.variadicInt());
+                return (T) Long.valueOf(primitiveDecoder.i64());
             case "java.lang.Integer":
                 return (T) Integer.valueOf(primitiveDecoder.i32());
             case "java.lang.BigInteger":
@@ -127,4 +133,14 @@ public class AggregateBareDecoder {
                 throw new UnsupportedOperationException("readType not implemented for " + c.getName());
         }
     }
+
+    public <T> T readType(Class<T> c) throws IOException, ReflectiveOperationException {
+        try {
+            return readPrimitiveType(c);
+        } catch (UnsupportedOperationException e) {
+            return struct(c);
+        }
+    }
+
+
 }

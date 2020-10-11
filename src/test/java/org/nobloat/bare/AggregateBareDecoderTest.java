@@ -3,14 +3,18 @@ package org.nobloat.bare;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AggregateBareDecoderTest {
 
@@ -40,7 +44,7 @@ class AggregateBareDecoderTest {
     }
 
     @Test
-    public void testStaticArray() throws IOException {
+    public void testStaticArray() throws IOException, ReflectiveOperationException {
         var stream = fromInts(0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
@@ -52,14 +56,14 @@ class AggregateBareDecoderTest {
         var decoder = new AggregateBareDecoder(stream);
         var result = decoder.values(String.class, 3);
 
-        assertEquals(3, result.size());
+        assertEquals(3, result.size);
         assertEquals("こんにちは、世界！", result.get(0));
         assertEquals("こんにちは、世界！", result.get(1));
         assertEquals("こんにちは、世界！", result.get(2));
     }
 
     @Test
-    public void testSlice() throws IOException {
+    public void testSlice() throws IOException, ReflectiveOperationException {
         var stream = fromInts(0x03, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
@@ -78,7 +82,7 @@ class AggregateBareDecoderTest {
     }
 
     @Test
-    public void testMap() throws IOException {
+    public void testMap() throws IOException, ReflectiveOperationException {
         var stream = fromInts(0x03, 0x01, 0x11, 0x02, 0x22, 0x03, 0x33);
         var decoder = new AggregateBareDecoder(stream);
         var result = decoder.map(Byte.class, Byte.class);
@@ -90,27 +94,30 @@ class AggregateBareDecoderTest {
     }
 
     @Test
-    public void testUnion() throws IOException {
+    public void testUnion() throws IOException, ReflectiveOperationException {
         var stream = fromInts(0x01, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
         var decoder = new AggregateBareDecoder(stream);
 
-        var result = decoder.union(Float.class, String.class);
-        assertEquals(1, result.typeId);
-        assertEquals("こんにちは、世界！", result.value);
+        var result = decoder.union(Map.of(0L, Float.class, 1L, String.class));
+        assertEquals(String.class, result.type());
+        assertEquals("こんにちは、世界！", result.get(String.class));
 
 
         stream = fromInts(0x00, 0x71, 0x2D, 0xA7, 0x44);
         decoder = new AggregateBareDecoder(stream);
-        result = decoder.union(Float.class, String.class);
-        assertEquals(0, result.typeId);
-        assertEquals(1337.42, (Float) result.value, 0.001);
+        result = decoder.union(Map.of(0L, Float.class, 1L, String.class));
+        assertEquals(Float.class, result.type());
+        assertEquals(1337.42, result.get(Float.class), 0.001);
+
+        assertThrows(UnsupportedOperationException.class, () ->  new AggregateBareDecoder(fromInts(0x03, 0x71, 0x2D, 0xA7, 0x44))
+                .union(Map.of(0L, Float.class, 1L, String.class)));
     }
 
     @Test
-    public void testStruct() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IOException, IllegalAccessException {
+    public void testStruct() throws ReflectiveOperationException, IOException {
         var stream = fromInts(0x05, 0x50, 0x65, 0x74, 0x65, 0x72,     0x0C, 0x53, 0x70, 0x69, 0x65, 0x73, 0x73, 0x2d, 0x4b, 0x6e, 0x61, 0x66, 0x6c,
                 0x02,    0x10, 0x6e, 0x6f, 0x62, 0x6c, 0x6f, 0x61, 0x74, 0x2f, 0x62, 0x61, 0x72, 0x65, 0x2d, 0x6a, 0x76, 0x6d, 0x10, 0x6e, 0x6f, 0x62, 0x6c, 0x6f, 0x61, 0x74, 0x2f, 0x62, 0x61, 0x72, 0x65, 0x2d, 0x6a, 0x64, 0x6b);
         var decoder = new AggregateBareDecoder(stream);
@@ -128,5 +135,28 @@ class AggregateBareDecoderTest {
         public List<String> repositories;
     }
 
+    @Test
+    public void testCustomerStruct() throws IOException, ReflectiveOperationException {
+        try(var is = openFile("customer.bin")) {
+            var decoder = new AggregateBareDecoder(is);
+            var customer = decoder.union(TestClasses.Customer.class).get(TestClasses.Customer.class);
+
+            assertEquals("James Smith", customer.name);
+            assertEquals("jsmith@example.org", customer.email);
+            assertEquals("123 Main St", customer.addres.addressLines.get(0));
+            assertEquals("Philadelphia", customer.addres.city);
+            assertEquals("PA", customer.addres.sate);
+            assertEquals("United States", customer.addres.country);
+            assertEquals(1, customer.orders.size());
+            assertEquals(4242424242L, customer.orders.get(0).id);
+            assertEquals(5, customer.orders.get(0).quantity);
+        }
+    }
+
+    public static InputStream openFile(String name) throws FileNotFoundException {
+        String path = "src/test/resources";
+        File file = new File(path);
+        return new FileInputStream(file.getAbsolutePath() + "/" + name);
+    }
 
 }
