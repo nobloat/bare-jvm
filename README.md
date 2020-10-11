@@ -11,7 +11,7 @@ This is a [baremessages](https://baremessages.org/) implementation for the JVM.
 ## Features
 - Decoding primitive data types from `InputStream`
 - Decoding aggregate data types from `InputStream`
-- Encoding aggregate data types to `OutputStream`
+- Encoding primitive data types to `OutputStream`
 
 ## Type mappings
 
