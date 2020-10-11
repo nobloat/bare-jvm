@@ -111,7 +111,11 @@ public class AggregateBareDecoder {
                 var keyType =  type.getActualTypeArguments()[0];
                 var valueType =  type.getActualTypeArguments()[0];
                 f.set(result, map((Class<?>)keyType, (Class<?>) valueType));
-            } else{
+            } else if(f.getType().getName().equals("java.util.Optional")) {
+                ParameterizedType type = (ParameterizedType)f.getGenericType();
+                var elementType =  type.getActualTypeArguments()[0];
+                f.set(result, optional((Class<?>)elementType));
+            } else {
                 f.set(result, readType(f.getType()));
             }
         }
