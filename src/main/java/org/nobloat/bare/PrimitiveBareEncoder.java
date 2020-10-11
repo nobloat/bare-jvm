@@ -25,11 +25,11 @@ public class PrimitiveBareEncoder {
     }
 
     public void u16(int b) throws IOException {
-        os.write(new byte[]{(byte) (b & 0xFF), (byte) (b >> 8 & 0xFF)});
+        os.write(new byte[]{(byte) b, (byte) (b >> 8)});
     }
 
-    public void u32(Integer b) throws IOException {
-        os.write(new byte[]{(byte) (b & 0xFF), (byte) (b >> 8 & 0xFF), (byte) (b >> 16 & 0xFF), (byte) (b >> 24 & 0xFF)});
+    public void u32(int b) throws IOException {
+        os.write(new byte[]{(byte) b, (byte) (b >> 8), (byte) (b >> 16), (byte) (b >> 24)});
     }
 
     public void u64(BigInteger b) throws IOException {
@@ -52,8 +52,8 @@ public class PrimitiveBareEncoder {
     }
 
     public void i64(long b) throws IOException {
-        os.write(new byte[]{(byte) (b & 0xFF), (byte) (b >> 8 & 0xFF), (byte) (b >> 16 & 0xFF), (byte) (b >> 24 & 0xFF),
-                (byte) (b >> 32 & 0xFF), (byte) (b >> 40 & 0xFF), (byte) (b >> 48 & 0xFF), (byte) (b >> 56 & 0xFF)
+        os.write(new byte[]{(byte) b, (byte) (b >> 8), (byte) (b >> 16), (byte) (b >> 24),
+                (byte) (b >> 32), (byte) (b >> 40), (byte) (b >> 48), (byte) (b >> 56)
         });
     }
 
