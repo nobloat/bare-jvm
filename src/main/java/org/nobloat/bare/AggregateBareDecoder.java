@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -85,8 +84,7 @@ public class AggregateBareDecoder {
         var field = c.getField("value");
         var enumValue = readIntegerType(field);
 
-        //TODO: enum creation not working
-        return c.getConstructor(field.getType()).newInstance(enumValue);
+        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -140,6 +138,7 @@ public class AggregateBareDecoder {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T readIntegerType(Field f) throws IOException {
         var annotation = f.getAnnotation(Int.class);
         if (annotation == null) {
@@ -151,7 +150,7 @@ public class AggregateBareDecoder {
             case i16: return (T) Short.valueOf(primitiveDecoder.i16());
             case u16: return (T) Integer.valueOf(primitiveDecoder.u16());
             case i32: return (T) Integer.valueOf(primitiveDecoder.i32());
-            case u32: return (T) Integer.valueOf(primitiveDecoder.u32());
+            case u32: return (T) primitiveDecoder.u32();
             case u64: return (T) primitiveDecoder.u64();
             case i64: return (T) Long.valueOf(primitiveDecoder.i64());
             default:
@@ -162,6 +161,7 @@ public class AggregateBareDecoder {
     public <T> T readType(Class<T> c) throws IOException, ReflectiveOperationException {
         try {
             if (c.isEnum()) {
+
                 return enumeration(c);
             }
             return readPrimitiveType(c);
@@ -169,6 +169,4 @@ public class AggregateBareDecoder {
             return struct(c);
         }
     }
-
-
 }

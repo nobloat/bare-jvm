@@ -159,7 +159,7 @@ class AggregateBareDecoderTest {
             var decoder = new AggregateBareDecoder(is);
             var employee = decoder.union(TestClasses.Employee.class).get(TestClasses.Employee.class);
             assertEquals("Tiffany Doe", employee.name);
-            assertEquals(" tiffanyd@acme.corp", employee.email);
+            assertEquals("tiffanyd@acme.corp", employee.email);
             assertEquals("123 Main St", employee.address.addressLines.get(0));
             assertEquals("Philadelphia", employee.address.city);
             assertEquals("PA", employee.address.sate);

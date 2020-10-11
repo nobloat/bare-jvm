@@ -23,7 +23,7 @@ public class TestClasses {
         public Address address;
         public Department department;
         public String hireDate;
-        public Array<Byte> publicKey = new Array<>(128);
+        public List<Byte> publicKey;
         public Map<String,String> metadata;
     }
 
