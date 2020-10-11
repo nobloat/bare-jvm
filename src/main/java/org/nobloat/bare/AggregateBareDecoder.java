@@ -2,7 +2,9 @@ package org.nobloat.bare;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.NotSerializableException;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -13,7 +15,8 @@ import java.util.Optional;
 
 public class AggregateBareDecoder {
 
-    public static final List<String> PRIMITIVE_TYPES = List.of(new String[]{"java.lang.String", "java.lang.Long", "java.lang.Integer", "java.lang.BigInteger", "java.lang.Short", "java.lang.Boolean", "java.lang.Byte", "java.lang.Float", "java.lang.Double"});
+    public static final List<String> INTEGER_TYPES = List.of(new String[]{"java.lang.Long", "java.lang.Integer", "java.lang.BigInteger", "java.lang.Short"});
+    public static final List<String> PRIMITIVE_TYPES = List.of(new String[]{"java.lang.String", "java.lang.Boolean", "java.lang.Byte", "java.lang.Float", "java.lang.Double"});
 
     private InputStream is;
     private PrimitiveBareDecoder primitiveDecoder;
@@ -77,13 +80,24 @@ public class AggregateBareDecoder {
         return union;
     }
 
+    public <T> T enumeration(Class<T> c) throws IOException, ReflectiveOperationException {
+        //TODO: maybe fallback to ordinal? -> I like it more explicit, therefore no fallback
+        var field = c.getField("value");
+        var enumValue = readIntegerType(field);
+
+        //TODO: enum creation not working
+        return c.getConstructor(field.getType()).newInstance(enumValue);
+    }
+
     @SuppressWarnings("unchecked")
     public <T> T  struct(Class<T> c) throws ReflectiveOperationException, IOException {
         var fields = c.getFields();
         var result = c.getConstructor().newInstance();
         for(var f : fields) {
             f.setAccessible(true);
-            if (PRIMITIVE_TYPES.contains(f.getType().getName())) {
+            if (INTEGER_TYPES.contains(f.getType().getName())) {
+                f.set(result, readIntegerType(f));
+            } else if (PRIMITIVE_TYPES.contains(f.getType().getName())) {
                 f.set(result, readPrimitiveType(f.getType()));
             } else if(f.getType().getName().equals("org.nobloat.bare.Array")) {
                 var array = (Array<T>)f.get(result);
@@ -100,7 +114,7 @@ public class AggregateBareDecoder {
                 var valueType =  type.getActualTypeArguments()[0];
                 f.set(result, map((Class<?>)keyType, (Class<?>) valueType));
             } else{
-                f.set(result, struct(f.getType()));
+                f.set(result, readType(f.getType()));
             }
         }
         return result;
@@ -109,18 +123,8 @@ public class AggregateBareDecoder {
 
     //TODO: optimize for slices -> check type only once
     @SuppressWarnings("unchecked")
-    public <T> T readPrimitiveType(Class<T> c) throws IOException {
+    public <T> T readPrimitiveType(Class<?> c) throws IOException {
         switch (c.getName()) {
-            case "java.lang.String":
-                return (T) primitiveDecoder.string();
-            case "java.lang.Long":
-                return (T) Long.valueOf(primitiveDecoder.i64());
-            case "java.lang.Integer":
-                return (T) Integer.valueOf(primitiveDecoder.i32());
-            case "java.lang.BigInteger":
-                return (T) primitiveDecoder.u64();
-            case "java.lang.Short":
-                return (T) Short.valueOf(primitiveDecoder.i16());
             case "java.lang.Boolean":
                 return (T) Boolean.valueOf(primitiveDecoder.bool());
             case "java.lang.Byte":
@@ -129,13 +133,37 @@ public class AggregateBareDecoder {
                 return (T) Float.valueOf(primitiveDecoder.f32());
             case "java.lang.Double":
                 return (T) Double.valueOf(primitiveDecoder.f64());
+            case "java.lang.String":
+                return (T) primitiveDecoder.string();
             default:
                 throw new UnsupportedOperationException("readType not implemented for " + c.getName());
         }
     }
 
+    public <T> T readIntegerType(Field f) throws IOException {
+        var annotation = f.getAnnotation(Int.class);
+        if (annotation == null) {
+           throw new UnsupportedEncodingException("Missing @Int type annotation on number field: " + f.getName());
+        }
+        switch (annotation.value()) {
+            case i8: return (T) Byte.valueOf(primitiveDecoder.i8());
+            case u8: return (T) Byte.valueOf(primitiveDecoder.u8());
+            case i16: return (T) Short.valueOf(primitiveDecoder.i16());
+            case u16: return (T) Integer.valueOf(primitiveDecoder.u16());
+            case i32: return (T) Integer.valueOf(primitiveDecoder.i32());
+            case u32: return (T) Integer.valueOf(primitiveDecoder.u32());
+            case u64: return (T) primitiveDecoder.u64();
+            case i64: return (T) Long.valueOf(primitiveDecoder.i64());
+            default:
+                throw new UnsupportedEncodingException("Unknown Int type: " + annotation.value());
+        }
+    }
+
     public <T> T readType(Class<T> c) throws IOException, ReflectiveOperationException {
         try {
+            if (c.isEnum()) {
+                return enumeration(c);
+            }
             return readPrimitiveType(c);
         } catch (UnsupportedOperationException e) {
             return struct(c);

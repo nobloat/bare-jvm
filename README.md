@@ -12,6 +12,11 @@ This is a [baremessages](https://baremessages.org/) implementation for the JVM.
 - Decoding aggregate data types from `InputStream`
 - Encoding aggregate data types to `OutputStream`
 
+## Type mappings
+- `u8` -> `byte`
+- `i8` -> `byte`
+- `u16` -> `int`
+
 ## Limitations
 - Java primitive types do not work, please use the respective wrapper types (e.g. `int` -> `Integer`)
     - **Rationale:** Java cannot reflect on primitive types.
