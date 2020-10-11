@@ -11,6 +11,6 @@ public @interface Int {
     Type value() default Type.i32;
 
     enum Type {
-        u8, i8, u16, i16, u32, i32, u64, i64
+        u8, i8, u16, i16, u32, i32, u64, i64, ui, i
     }
 }

@@ -82,7 +82,7 @@ public class AggregateBareDecoder {
     public <T> T enumeration(Class<T> c) throws IOException, ReflectiveOperationException {
         //TODO: maybe fallback to ordinal? -> I like it more explicit, therefore no fallback
         var field = c.getField("value");
-        var enumValue = readIntegerType(field);
+        var enumValue = primitiveDecoder.variadicUint().longValue();
 
         return null;
     }
@@ -153,6 +153,8 @@ public class AggregateBareDecoder {
             case u32: return (T) primitiveDecoder.u32();
             case u64: return (T) primitiveDecoder.u64();
             case i64: return (T) Long.valueOf(primitiveDecoder.i64());
+            case i: return (T) Long.valueOf(primitiveDecoder.variadicInt());
+            case ui: return (T) primitiveDecoder.variadicUint();
             default:
                 throw new UnsupportedEncodingException("Unknown Int type: " + annotation.value());
         }
