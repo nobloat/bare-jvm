@@ -32,7 +32,7 @@ public class Scanner implements AutoCloseable {
             }
 
             char character = (char) ch;
-            if (!isDigit(character)) {
+            if (!Character.isDigit(character)) {
                 unreadChar();
                 break;
             }
@@ -58,7 +58,7 @@ public class Scanner implements AutoCloseable {
             }
 
             char character = (char) ch;
-            if (!isLetterOrDigit(character)) {
+            if (!Character.isLetterOrDigit(character)) {
                 unreadChar();
                 break;
             }
@@ -95,27 +95,11 @@ public class Scanner implements AutoCloseable {
         return builder.toString();
     }
 
-    public boolean isSpace(char character) {
-        return Character.isSpaceChar(character);
-    }
-
-    public boolean isDigit(char character) {
-        return Character.isDigit(character);
-    }
-
-    public boolean isLetter(char character) {
-        return Character.isLetter(character);
-    }
-
-    public boolean isLetterOrDigit(char character) {
-        return Character.isLetterOrDigit(character);
+    public boolean isNewLine(char character) {
+        return character == '\n' || character == '\r';
     }
 
     public void close() throws Exception {
         reader.close();
-    }
-
-    public boolean isNewLine(char character) {
-        return character == '\n' || character == '\r';
     }
 }

@@ -15,7 +15,7 @@ public class Lexer {
 
         do {
             ch = scanner.readChar();
-        } while (scanner.isSpace((char) ch) || scanner.isNewLine((char) ch));
+        } while (Character.isSpaceChar((char) ch) || scanner.isNewLine((char) ch));
 
         if (ch == -1) {
             return new Token(Token.Type.EOF);
@@ -23,16 +23,16 @@ public class Lexer {
 
         char character = (char) ch;
 
-        if (scanner.isLetter(character)) {
+        if (Character.isLetter(character)) {
             scanner.unreadChar();
             String word = scanner.readWord();
             return tokenOfWord(word);
         }
 
-        if (scanner.isDigit(character)) {
+        if (Character.isDigit(character)) {
             scanner.unreadChar();
             String integer = scanner.readInteger();
-            return new Token(Token.Type.INTEGER, integer);
+            return new Token(Token.Type.NUMBER, integer);
         }
 
         switch (character) {
@@ -129,7 +129,7 @@ public class Lexer {
         }
 
         enum Type {
-            INTEGER,
+            NUMBER,
             L_ANGLE, R_ANGLE,
             L_BRACE, R_BRACE,
             L_BRACKET, R_BRACKET,
@@ -140,21 +140,13 @@ public class Lexer {
             UNKNOWN,
             EOF,
             COMMENT,
-
             TYPE,
             ENUM,
             UINT,
-            U8,
-            U16,
-            U32,
-            U64,
+            U8, U16, U32, U64,
             INT,
-            I8,
-            I16,
-            I32,
-            I64,
-            F32,
-            F64,
+            I8, I16, I32, I64,
+            F32, F64,
             BOOL,
             STRING,
             DATA,

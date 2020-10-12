@@ -61,7 +61,7 @@ public class LexerTest {
             assertType(lexer, COLON);
 
             assertType(lexer, L_BRACKET);
-            assertTypeAndValue(lexer, INTEGER, "4");
+            assertTypeAndValue(lexer, NUMBER, "4");
             assertType(lexer, R_BRACKET);
             assertType(lexer, STRING);
 
@@ -158,7 +158,7 @@ public class LexerTest {
 
             assertType(lexer, DATA);
             assertType(lexer, L_ANGLE);
-            assertTypeAndValue(lexer, INTEGER, "128");
+            assertTypeAndValue(lexer, NUMBER, "128");
             assertType(lexer, R_ANGLE);
 
             assertType(lexer, EOF);
@@ -208,7 +208,7 @@ public class LexerTest {
 
             assertTypeAndValue(lexer, NAME, "JSMITH");
             assertType(lexer, EQUAL);
-            assertTypeAndValue(lexer, INTEGER, "99");
+            assertTypeAndValue(lexer, NUMBER, "99");
 
             assertType(lexer, R_BRACE);
 
