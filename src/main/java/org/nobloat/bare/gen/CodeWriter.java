@@ -3,7 +3,7 @@ package org.nobloat.bare.gen;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
-public class CodeWriter {
+public class CodeWriter implements AutoCloseable {
 
     public static String INDENDT_CHARACTER = "\t";
     private int indent = 0;
@@ -24,5 +24,10 @@ public class CodeWriter {
 
     public void write(String codeLine) {
         writer.println(INDENDT_CHARACTER.repeat(indent) + codeLine);
+    }
+
+    @Override
+    public void close() throws Exception {
+        writer.close();
     }
 }
