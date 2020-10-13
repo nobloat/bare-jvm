@@ -45,8 +45,9 @@ public class CodeGenerator {
         } else if (type.kind == Ast.TypeKind.Union) {
             //TODO: map unions
         } else {
+            //TODO: change to inheritance -> move upwards to createJavaTypes
             var userDefindeType = (Ast.UserDefinedType)type;
-            writer.write("public " + fieldTypeMap(userDefindeType.type) + " " + userDefindeType.name);
+            writer.write("public " + fieldTypeMap(userDefindeType.type) + " " + userDefindeType.name + ";");
         }
 
     }
