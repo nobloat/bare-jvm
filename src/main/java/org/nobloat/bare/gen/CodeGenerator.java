@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CodeGenerator {
 
@@ -29,6 +30,7 @@ public class CodeGenerator {
             writeTypeFields(writer, type);
             writer.dedendt();
             writer.write(classEpilog());
+            writer.write("");
         }
         writer.dedendt();
         writer.write("}");
@@ -40,63 +42,70 @@ public class CodeGenerator {
             writeStructFields(writer, (Ast.StructType) ((Ast.UserDefinedType)type).type);
         }
 
+        if (type instanceof Ast.UserDefinedEnum) {
+            writer.write(writeEnumValues(((Ast.UserDefinedEnum)type).values));
+        }
+
+    }
+
+    private static String writeEnumValues(List<Ast.EnumValue> values) {
+        return values.stream().map(v -> v.name + "(" + v.value +")").collect(Collectors.joining(",")) + ";";
     }
 
     private static void writeStructFields (CodeWriter writer, Ast.StructType struct) {
         for(var field : struct.fields) {
-            switch (field.type.kind) {
-                case U8:
-                    writer.write("public @Int(Int.Type.u8) Short " + field.name + ";");
-                    break;
-                case I8:
-                    writer.write("public @Int(Int.Type.i8) Short " + field.name + ";");
-                    break;
-                case U16:
-                    writer.write("public @Int(Int.Type.u16) Integer " + field.name + ";");
-                    break;
-                case I16:
-                    writer.write("public @Int(Int.Type.i16) Short " + field.name + ";");
-                    break;
-                case U32:
-                    writer.write("public @Int(Int.Type.u32) Long " + field.name + ";");
-                    break;
-                case I32:
-                    writer.write("public @Int(Int.Type.i32) Integer " + field.name + ";");
-                    break;
-                case U64:
-                    writer.write("public @Int(Int.Type.u64) BigInteger " + field.name + ";");
-                    break;
-                case I64:
-                    writer.write("public @Int(Int.Type.i64) Long " + field.name + ";");
-                    break;
-                case STRING:
-                    writer.write("public String " + field.name + ";");
-                    break;
-                case Bool:
-                    writer.write("public Boolean " + field.name + ";");
-                    break;
-                case F32:
-                    writer.write("public Float " + field.name + ";");
-                    break;
-                case F64:
-                    writer.write("public Double " + field.name + ";");
-                    break;
-                case INT:
-                    writer.write("public @Int(Int.Type.i) Long " + field.name + ";");
-                    break;
-                case UINT:
-                    writer.write("public @Int(Int.Type.ui) Long " + field.name + ";");
-                    break;
-                case UserType:
-                    writer.write("public " + field.type.name + " " + field.name + ";");
-                    break;
-                case Optional:
-                    //TODO: set state that optional was used for importing
-                    writer.write("public Optional<" + ((Ast.OptionalType)field.type).subType.name + "> " + field.name + ";");
-                    break;
-            }
+            writer.write("public " + fieldTypeMap(field.type) + " " + field.name + ";");
         }
 
+    }
+
+    private static String fieldTypeMap(Ast.Type type) {
+        switch (type.kind) {
+            case U8:
+               return "@Int(Int.Type.u8) Short";
+            case I8:
+                return "@Int(Int.Type.i8) Short";
+            case U16:
+                return "@Int(Int.Type.u16) Integer";
+            case I16:
+                return "@Int(Int.Type.i16) Short";
+            case U32:
+                return "@Int(Int.Type.u32) Long";
+            case I32:
+                return "@Int(Int.Type.i32) Integer";
+            case U64:
+                return "@Int(Int.Type.u64) BigInteger";
+            case I64:
+                return "@Int(Int.Type.i64) Long";
+            case STRING:
+                return "String";
+            case Bool:
+                return "Boolean";
+            case F32:
+                return "Float";
+            case F64:
+                return "Double";
+            case INT:
+                return "@Int(Int.Type.i) Long";
+            case UINT:
+                return "@Int(Int.Type.ui) Long";
+            case DataSlice:
+                return "List<Byte>";
+            case DataArray:
+                return "Byte[]";
+            case UserType:
+                return "" + type.name + ";";
+            case Optional:
+                //TODO: set state that optional was used for importing
+                return "Optional<" + fieldTypeMap(((Ast.OptionalType) type).subType) + ">";
+            case Map:
+                return "Map<" + fieldTypeMap(((Ast.MapType) type).key) + "," + fieldTypeMap(((Ast.MapType) type).value) + ">";
+            case Slice:
+                return "List<" + fieldTypeMap(((Ast.ArrayType) type).member) + ">";
+            case Array:
+                return fieldTypeMap(((Ast.ArrayType) type).member) + "[]";
+        }
+        return "";
     }
 
 
