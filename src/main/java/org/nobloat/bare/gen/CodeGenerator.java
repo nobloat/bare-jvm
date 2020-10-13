@@ -40,10 +40,13 @@ public class CodeGenerator {
     private static void writeTypeFields(CodeWriter writer, Ast.Type type) {
         if (type.kind == Ast.TypeKind.UserType && ((Ast.UserDefinedType)type).type.kind == Ast.TypeKind.Struct) {
             writeStructFields(writer, (Ast.StructType) ((Ast.UserDefinedType)type).type);
-        }
-
-        if (type instanceof Ast.UserDefinedEnum) {
+        } else if (type instanceof Ast.UserDefinedEnum) {
             writer.write(writeEnumValues(((Ast.UserDefinedEnum)type).values));
+        } else if (type.kind == Ast.TypeKind.Union) {
+            //TODO: map unions
+        } else {
+            var userDefindeType = (Ast.UserDefinedType)type;
+            writer.write("public " + fieldTypeMap(userDefindeType.type) + " " + userDefindeType.name);
         }
 
     }
@@ -54,7 +57,12 @@ public class CodeGenerator {
 
     private static void writeStructFields (CodeWriter writer, Ast.StructType struct) {
         for(var field : struct.fields) {
-            writer.write("public " + fieldTypeMap(field.type) + " " + field.name + ";");
+            String fieldMapping = "public " + fieldTypeMap(field.type) + " " + field.name;
+            if (field.type.kind == Ast.TypeKind.Array || field.type.kind == Ast.TypeKind.DataArray) {
+                var arrayType = (Ast.ArrayType)field.type;
+                fieldMapping += " = new Array<>("+arrayType.length+")";
+            }
+            writer.write(fieldMapping + ";");
         }
 
     }
@@ -92,7 +100,7 @@ public class CodeGenerator {
             case DataSlice:
                 return "List<Byte>";
             case DataArray:
-                return "Byte[]";
+                return "Array<Byte>";
             case UserType:
                 return "" + type.name + ";";
             case Optional:
@@ -103,7 +111,7 @@ public class CodeGenerator {
             case Slice:
                 return "List<" + fieldTypeMap(((Ast.ArrayType) type).member) + ">";
             case Array:
-                return fieldTypeMap(((Ast.ArrayType) type).member) + "[]";
+                return "Array<"+fieldTypeMap(((Ast.ArrayType) type).member) + ">";
         }
         return "";
     }
