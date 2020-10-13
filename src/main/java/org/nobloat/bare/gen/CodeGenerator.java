@@ -20,12 +20,15 @@ public class CodeGenerator {
 
         writer.write("package " + packageName + ";");
 
+        writer.write("public class Messages {");
+        writer.indendt();
         for (var type : types) {
             //TODO: switch on types
             writer.write(classProlog(type.name));
             writer.write(classEpilog());
         }
-
+        writer.dedendt();
+        writer.write("}");
         writer.close();
     }
 
