@@ -3,11 +3,14 @@ package org.nobloat.bare.dsl;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.nobloat.bare.TestUtil.openFile;
 
 public class AstParserTest {
 
@@ -213,6 +216,11 @@ public class AstParserTest {
             assertEquals(Ast.TypeKind.I32, quantityType.kind);
         }
     }
+
+     @Test
+     void testWholeSchema() throws FileNotFoundException {
+         var schemaFile = openFile("schema.bare");
+     }
 
     private InputStream toStream(String input) {
         return new ByteArrayInputStream(input.getBytes());

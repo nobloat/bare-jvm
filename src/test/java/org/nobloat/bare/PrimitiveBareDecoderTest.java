@@ -2,21 +2,16 @@ package org.nobloat.bare;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.nobloat.bare.TestUtil.fromInts;
 
 class PrimitiveBareDecoderTest {
-    private InputStream fromInts(int... bytes) {
-        byte[] b = new byte[bytes.length];
-        for (int i = 0; i < bytes.length; i++) {
-            b[i] =  (byte)bytes[i];
-        }
-        return new ByteArrayInputStream(b);
-    }
-
 
     @Test
     void u8() throws IOException {
