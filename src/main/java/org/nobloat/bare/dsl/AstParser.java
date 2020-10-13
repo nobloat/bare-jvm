@@ -6,7 +6,21 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.nobloat.bare.dsl.Ast.TypeKind.*;
+import static org.nobloat.bare.dsl.Ast.TypeKind.Bool;
+import static org.nobloat.bare.dsl.Ast.TypeKind.F32;
+import static org.nobloat.bare.dsl.Ast.TypeKind.F64;
+import static org.nobloat.bare.dsl.Ast.TypeKind.I16;
+import static org.nobloat.bare.dsl.Ast.TypeKind.I32;
+import static org.nobloat.bare.dsl.Ast.TypeKind.I64;
+import static org.nobloat.bare.dsl.Ast.TypeKind.I8;
+import static org.nobloat.bare.dsl.Ast.TypeKind.INT;
+import static org.nobloat.bare.dsl.Ast.TypeKind.STRING;
+import static org.nobloat.bare.dsl.Ast.TypeKind.U16;
+import static org.nobloat.bare.dsl.Ast.TypeKind.U32;
+import static org.nobloat.bare.dsl.Ast.TypeKind.U64;
+import static org.nobloat.bare.dsl.Ast.TypeKind.U8;
+import static org.nobloat.bare.dsl.Ast.TypeKind.UINT;
+import static org.nobloat.bare.dsl.Ast.TypeKind.Void;
 
 public class AstParser {
 

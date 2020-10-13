@@ -48,7 +48,7 @@ public class AstParserTest {
             assertEquals(1, Types.size());
 
             Ast.Type type = Types.get(0);
-            assertEquals("Person", type.name());
+            assertEquals("Person", type.name);
             assertTrue(type instanceof Ast.UserDefinedType);
 
             Ast.UserDefinedType userDefinedType = (Ast.UserDefinedType) type;
@@ -84,7 +84,7 @@ public class AstParserTest {
             assertEquals(1, Types.size());
 
             Ast.Type type = Types.get(0);
-            assertEquals("Department", type.name());
+            assertEquals("Department", type.name);
             assertTrue(type instanceof Ast.UserDefinedEnum);
 
             Ast.UserDefinedEnum userDefinedEnum = (Ast.UserDefinedEnum) type;

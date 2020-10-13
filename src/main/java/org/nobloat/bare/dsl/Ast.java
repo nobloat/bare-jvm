@@ -1,12 +1,6 @@
 package org.nobloat.bare.dsl;
 
-import org.nobloat.bare.Union;
-
-import javax.xml.crypto.Data;
-import java.sql.Struct;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Ast {
@@ -19,9 +13,6 @@ public class Ast {
             this.name = name;
             this.kind = kind;
         }
-
-        public String name() { return name; }
-        public TypeKind type() { return kind;}
     }
 
     public static class UserDefinedType extends Type {
@@ -36,7 +27,6 @@ public class Ast {
         public PrimitiveType(TypeKind kind) {
             super(kind.toString(),kind);
         }
-
     }
 
     public static class NamedUserType extends Type {
