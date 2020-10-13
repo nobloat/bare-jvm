@@ -1,16 +1,24 @@
 package org.nobloat.bare.dsl;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Lexer {
 
     private final Scanner scanner;
+    private final List<Token> pushbackTokens;
 
     public Lexer(Scanner scanner) {
         this.scanner = scanner;
+        this.pushbackTokens = new ArrayList<>();
     }
 
     public Token nextToken() throws IOException {
+        if (pushbackTokens.size() > 0) {
+            return pushbackTokens.remove(0);
+        }
+
         int ch;
 
         do {
@@ -38,7 +46,8 @@ public class Lexer {
         switch (character) {
             case '#':
                 String comment = scanner.readAllUntil('\n');
-                return new Token(Token.Type.COMMENT, comment);
+//                return new Token(Token.Type.COMMENT, comment);
+                return nextToken();
             case '<':
                 return new Token(Token.Type.L_ANGLE);
             case '>':
@@ -64,6 +73,10 @@ public class Lexer {
         }
 
         return new Token(Token.Type.UNKNOWN);
+    }
+
+    public void pushback(Token token) {
+        pushbackTokens.add(token);
     }
 
     private Token tokenOfWord(String word) {

@@ -7,7 +7,28 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.nobloat.bare.dsl.Lexer.Token.Type.*;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.COLON;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.DATA;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.ENUM;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.EOF;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.EQUAL;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.I32;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.I64;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.L_ANGLE;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.L_BRACE;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.L_BRACKET;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.L_PAREN;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.MAP;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.NAME;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.NUMBER;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.OPTIONAL;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.PIPE;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.R_ANGLE;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.R_BRACE;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.R_BRACKET;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.R_PAREN;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.STRING;
+import static org.nobloat.bare.dsl.Lexer.Token.Type.TYPE;
 
 public class LexerTest {
 
@@ -177,7 +198,7 @@ public class LexerTest {
             assertTypeAndValue(lexer, NAME, "Time");
             assertType(lexer, STRING);
 
-            assertTypeAndValue(lexer, COMMENT, " ISO 8601");
+//            assertTypeAndValue(lexer, COMMENT, " ISO 8601");
 
             assertType(lexer, EOF);
         }
@@ -204,7 +225,7 @@ public class LexerTest {
             assertTypeAndValue(lexer, NAME, "ACCOUNTING");
             assertTypeAndValue(lexer, NAME, "DEVELOPMENT");
 
-            assertTypeAndValue(lexer, COMMENT, " Reserved for the CEO");
+//            assertTypeAndValue(lexer, COMMENT, " Reserved for the CEO");
 
             assertTypeAndValue(lexer, NAME, "JSMITH");
             assertType(lexer, EQUAL);

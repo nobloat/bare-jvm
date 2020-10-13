@@ -2,12 +2,7 @@ package org.nobloat.bare;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,16 +10,10 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.nobloat.bare.TestUtil.fromInts;
+import static org.nobloat.bare.TestUtil.openFile;
 
 class AggregateBareDecoderTest {
-
-    private InputStream fromInts(int... bytes) {
-        byte[] b = new byte[bytes.length];
-        for (int i = 0; i < bytes.length; i++) {
-            b[i] = (byte) bytes[i];
-        }
-        return new ByteArrayInputStream(b);
-    }
 
     @Test
     public void testOptional() throws IOException {
@@ -196,10 +185,6 @@ class AggregateBareDecoderTest {
         }
     }
 
-    public static InputStream openFile(String name) throws FileNotFoundException {
-        String path = "src/test/resources";
-        File file = new File(path);
-        return new FileInputStream(file.getAbsolutePath() + "/" + name);
-    }
+
 
 }

@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.math.BigInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PrimitiveBareEncoderTest {
     ByteArrayOutputStream bos;

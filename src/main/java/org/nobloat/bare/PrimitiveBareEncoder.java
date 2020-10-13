@@ -1,10 +1,11 @@
 package org.nobloat.bare;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PrimitiveBareEncoder {
     private final DataOutputStream os;

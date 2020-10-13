@@ -58,7 +58,7 @@ public class Scanner implements AutoCloseable {
             }
 
             char character = (char) ch;
-            if (!Character.isLetterOrDigit(character)) {
+            if (!(Character.isLetterOrDigit(character) || character == '_')) {
                 unreadChar();
                 break;
             }
