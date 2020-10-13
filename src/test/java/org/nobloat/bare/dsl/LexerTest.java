@@ -177,7 +177,7 @@ public class LexerTest {
             assertTypeAndValue(lexer, NAME, "Time");
             assertType(lexer, STRING);
 
-            assertTypeAndValue(lexer, COMMENT, " ISO 8601");
+//            assertTypeAndValue(lexer, COMMENT, " ISO 8601");
 
             assertType(lexer, EOF);
         }
@@ -204,7 +204,7 @@ public class LexerTest {
             assertTypeAndValue(lexer, NAME, "ACCOUNTING");
             assertTypeAndValue(lexer, NAME, "DEVELOPMENT");
 
-            assertTypeAndValue(lexer, COMMENT, " Reserved for the CEO");
+//            assertTypeAndValue(lexer, COMMENT, " Reserved for the CEO");
 
             assertTypeAndValue(lexer, NAME, "JSMITH");
             assertType(lexer, EQUAL);
