@@ -87,35 +87,58 @@ public class AstParserTest {
 
             List<Ast.Type> types = astParser.parse();
             assertEquals(1, types.size());
-            verifyCustomerType(((Ast.UserDefinedType)types.get(0)).type);
+            verifyCustomerType(((Ast.UserDefinedType) types.get(0)).type);
         }
     }
 
+    @Test
+    void testWholeSchema() throws Exception {
+        try (var stream = openFile("schema.bare"); var scanner = new Scanner(stream)) {
+            Lexer lexer = new Lexer(scanner);
+            AstParser parser = new AstParser(lexer);
+
+            var types = parser.parse();
+            assertEquals(7, types.size());
 
 
+            verifyPublicKey(types.get(0));
+            verifyTimeType(types.get(1));
 
-     @Test
-     void testWholeSchema() throws Exception {
-         try(var stream = openFile("schema.bare"); var scanner = new Scanner(stream)) {
-             Lexer lexer = new Lexer(scanner);
-             AstParser parser = new AstParser(lexer);
+            verifyDepartment(types.get(2));
 
-             var types = parser.parse();
-             assertEquals(7, types.size());
-             //TODO: deeper testing
-         }
+            verifyCustomerType(((Ast.UserDefinedType) types.get(3)).type);
+            verifyEmployee(((Ast.UserDefinedType) types.get(4)).type);
 
-     }
+            verifyPersonType(types.get(5));
+            verifyAddressType(types.get(6));
+        }
+    }
 
     private InputStream toStream(String input) {
         return new ByteArrayInputStream(input.getBytes());
     }
 
+    void verifyEmployee(Ast.Type type) {
+        var fields = ((Ast.StructType) type).fields;
 
-    private void verifyCustomerType(Ast.Type type) {
+        verifyNameMailAddress(fields);
 
-        var fields = ((Ast.StructType)type).fields;
+        assertEquals("department", fields.get(3).name);
+        assertEquals(Ast.TypeKind.UserType, fields.get(3).type.kind);
+        assertEquals("Department", fields.get(3).type.name);
 
+        assertEquals("hireDate", fields.get(4).name);
+        assertEquals(Ast.TypeKind.UserType, fields.get(4).type.kind);
+        assertEquals("Time", fields.get(4).type.name);
+
+        assertEquals("publicKey", fields.get(5).name);
+        assertEquals(Ast.TypeKind.Optional, fields.get(5).type.kind);
+        assertEquals("PublicKey", ((Ast.OptionalType) fields.get(5).type).subType.name);
+
+        verifyMetaData(fields.get(6));
+    }
+
+    private void verifyNameMailAddress(List<Ast.StructField> fields) {
         var nameField = fields.get(0);
         assertEquals("name", nameField.name);
         assertEquals(Ast.TypeKind.STRING, nameField.type.kind);
@@ -124,8 +147,15 @@ public class AstParserTest {
         assertEquals("email", emailField.name);
         assertEquals(Ast.TypeKind.STRING, emailField.type.kind);
 
+        assertEquals("address", fields.get(2).name);
         assertEquals(Ast.TypeKind.UserType, fields.get(2).type.kind);
+    }
 
+    void verifyCustomerType(Ast.Type type) {
+
+        var fields = ((Ast.StructType) type).fields;
+
+        verifyNameMailAddress(fields);
 
         // orders: []{
         //  orderId: i64
@@ -157,7 +187,10 @@ public class AstParserTest {
         assertEquals(Ast.TypeKind.I32, quantityType.kind);
 
         // metadata: map[string]data
-        Ast.StructField metadataField = fields.get(4);
+        verifyMetaData(fields.get(4));
+    }
+
+    private void verifyMetaData(Ast.StructField metadataField) {
         assertEquals("metadata", metadataField.name);
         assertTrue(metadataField.type instanceof Ast.MapType);
         Ast.MapType metadataMapType = (Ast.MapType) metadataField.type;
@@ -170,14 +203,14 @@ public class AstParserTest {
 
     void verifyAddressType(Ast.Type type) {
         assertEquals("Address", type.name);
-        assertTrue(type instanceof Ast.NamedUserType);
+        assertTrue(type instanceof Ast.UserDefinedType);
 
         Ast.UserDefinedType userDefinedType = (Ast.UserDefinedType) type;
         assertEquals(Ast.TypeKind.Struct, userDefinedType.type.kind);
 
         Ast.StructType structType = (Ast.StructType) userDefinedType.type;
         List<Ast.StructField> fields = structType.fields;
-        assertEquals(5, fields.size());
+        assertEquals(4, fields.size());
 
         // address: [4]string
         Ast.StructField addressField = fields.get(0);
@@ -195,15 +228,15 @@ public class AstParserTest {
         assertEquals(Ast.TypeKind.STRING, cityPrimitiveType.kind);
 
         // state: string
-        Ast.StructField stateField = fields.get(1);
-        assertEquals("state", cityField.name);
+        Ast.StructField stateField = fields.get(2);
+        assertEquals("state", stateField.name);
         assertTrue(stateField.type instanceof Ast.PrimitiveType);
         Ast.PrimitiveType statePrimitiveType = (Ast.PrimitiveType) stateField.type;
         assertEquals(Ast.TypeKind.STRING, statePrimitiveType.kind);
 
         // state: string
-        Ast.StructField countryField = fields.get(1);
-        assertEquals("country", cityField.name);
+        Ast.StructField countryField = fields.get(3);
+        assertEquals("country", countryField.name);
         assertTrue(countryField.type instanceof Ast.PrimitiveType);
         Ast.PrimitiveType countryPrimitiveType = (Ast.PrimitiveType) countryField.type;
         assertEquals(Ast.TypeKind.STRING, countryPrimitiveType.kind);
@@ -218,6 +251,14 @@ public class AstParserTest {
 
         Ast.DataType dataType = (Ast.DataType) userDefinedType.type;
         assertEquals(128, dataType.length);
+    }
+
+    void verifyTimeType(Ast.Type type) {
+        assertEquals("Time", type.name);
+        assertTrue(type instanceof Ast.UserDefinedType);
+
+        Ast.UserDefinedType userDefinedType = (Ast.UserDefinedType) type;
+        assertEquals(Ast.TypeKind.STRING, userDefinedType.type.kind);
     }
 
     void verifyPersonType(Ast.Type type) {
