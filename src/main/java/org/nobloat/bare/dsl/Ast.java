@@ -132,7 +132,7 @@ public class Ast {
         }
     }
 
-    enum TypeKind {
+    public enum TypeKind {
         UINT,U8,U16,U32,U64,
         INT,I8,I16,I32,I64,
         F32,F64,
