@@ -1,172 +1,121 @@
 package org.nobloat.bare.dsl;
 
+import org.nobloat.bare.Union;
+
+import javax.xml.crypto.Data;
+import java.sql.Struct;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Ast {
 
-    public interface SchemaType {
-        String name();
-    }
+    public static class Type {
+        public final String name;
+        public final TypeKind kind;
 
-    public interface Type {
-        TypeKind kind();
-    }
-
-    public static class UserDefinedType implements SchemaType {
-
-        final String name;
-        final Type type;
-
-        public UserDefinedType(String name, Type type) {
+        public Type(String name, TypeKind kind) {
             this.name = name;
-            this.type = type;
-        }
-
-        @Override
-        public String name() {
-            return name;
-        }
-
-        public Type type() {
-            return type;
-        }
-    }
-
-    public static class PrimitiveType implements Type {
-
-        final TypeKind kind;
-
-        public PrimitiveType(TypeKind kind) {
             this.kind = kind;
         }
 
-        @Override
-        public TypeKind kind() {
-            return kind;
+        public String name() { return name; }
+        public TypeKind type() { return kind;}
+    }
+
+    public static class UserDefinedType extends Type {
+        public final Type type;
+        public UserDefinedType(String name, Type type) {
+            super(name, TypeKind.UserType);
+            this.type = type;
         }
     }
 
-    public static class NamedUserType implements Type {
+    public static class PrimitiveType extends Type {
+        public PrimitiveType(TypeKind kind) {
+            super(kind.toString(),kind);
+        }
 
-        final String name;
+    }
 
+    public static class NamedUserType extends Type {
         public NamedUserType(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public TypeKind kind() {
-            return TypeKind.UserType;
+            super(name, TypeKind.UserType);
         }
     }
 
-    public static class OptionalType implements Type {
-
-        final Type subType;
+    public static class OptionalType extends Type {
+        public final Type subType;
 
         public OptionalType(Type subType) {
+            super(String.format("optional<%s>", subType.name), TypeKind.Optional);
             this.subType = subType;
         }
-
-        @Override
-        public TypeKind kind() {
-            return TypeKind.Optional;
-        }
     }
 
-    public static class DataType implements Type {
-
-        final long length;
+    public static class DataType extends Type {
+        public final long length;
 
         public DataType(long length) {
+            super("data", length == 0 ? TypeKind.DataSlice : TypeKind.DataArray);
             this.length = length;
-        }
-
-        @Override
-        public TypeKind kind() {
-            if (length == 0) {
-                return TypeKind.DataSlice;
-            }
-
-            return TypeKind.DataArray;
         }
     }
 
-    public static class MapType implements Type {
-
-        final Type key;
-        final Type value;
+    public static class MapType extends Type {
+        public final Type key;
+        public final Type value;
 
         public MapType(Type key, Type value) {
+            super(String.format("map[%s]%s",key.name, value.name), TypeKind.Map);
             this.key = key;
             this.value = value;
         }
-
-        @Override
-        public TypeKind kind() {
-            return TypeKind.Map;
-        }
     }
 
-    public static class ArrayType implements Type {
-
-        final Type member;
-        final long length;
+    public static class ArrayType extends Type {
+        public final Type member;
+        public final long length;
 
         public ArrayType(Type member, long length) {
+            super("[]"+member.name, length == 0 ? TypeKind.Slice : TypeKind.Array);
             this.member = member;
             this.length = length;
         }
+    }
 
-        @Override
-        public TypeKind kind() {
-            if (length == 0) {
-                return TypeKind.Slice;
-            }
+    public static class UnionType extends Type {
+        public final List<UnionVariant> variants;
 
-            return TypeKind.Array;
+        public UnionType(List<UnionVariant> variants) {
+            super(String.format("union<%s>", variants.stream().map(u -> u.subtype.name).collect(Collectors.joining(","))), TypeKind.Union);
+            this.variants = variants;
         }
     }
 
-    public static class UnionType implements Type {
-        final List<UnionSubType> subTypes;
+    public static class UnionVariant {
+        public final Type subtype;
+        public final int tag;
 
-        public UnionType(List<UnionSubType> subTypes) {
-            this.subTypes = subTypes;
-        }
-
-        @Override
-        public TypeKind kind() {
-            return TypeKind.Union;
-        }
-    }
-
-    public static class UnionSubType {
-        final Type subtype;
-        final int tag;
-
-        public UnionSubType(Type subtype, int tag) {
+        public UnionVariant(Type subtype, int tag) {
             this.subtype = subtype;
             this.tag = tag;
         }
     }
 
-    public static class StructType implements Type {
-        final List<StructField> fields;
+    public static class StructType extends Type {
+        public final List<StructField> fields;
 
         public StructType(List<StructField> fields) {
+            super("struct", TypeKind.Struct);
             this.fields = fields;
-        }
-
-        @Override
-        public TypeKind kind() {
-            return TypeKind.Struct;
         }
     }
 
     public static class StructField {
-        final String name;
-        final Type type;
+        public final String name;
+        public final Type type;
 
         public StructField(String name, Type type) {
             this.name = name;
@@ -174,31 +123,18 @@ public class Ast {
         }
     }
 
-    public static class UserDefinedEnum implements Type, SchemaType {
-        final String name;
-        final TypeKind kind;
-        final List<EnumValue> values;
+    public static class UserDefinedEnum extends Type {
+        public final List<EnumValue> values;
 
         public UserDefinedEnum(String name, TypeKind kind, List<EnumValue> values) {
-            this.name = name;
-            this.kind = kind;
+            super (name, kind);
             this.values = values;
-        }
-
-        @Override
-        public Ast.TypeKind kind() {
-            return kind;
-        }
-
-        @Override
-        public String name() {
-            return name;
         }
     }
 
     public static class EnumValue {
-        final String name;
-        final int value;
+        public final String name;
+        public final int value;
 
         public EnumValue(String name, int value) {
             this.name = name;
@@ -207,26 +143,12 @@ public class Ast {
     }
 
     enum TypeKind {
-        UINT,
-        U8,
-        U16,
-        U32,
-        U64,
-        INT,
-        I8,
-        I16,
-        I32,
-        I64,
-        F32,
-        F64,
+        UINT,U8,U16,U32,U64,
+        INT,I8,I16,I32,I64,
+        F32,F64,
         Bool,
         STRING,
         Void,
-        // data,
-        Data,
-        // data<length>,
-        DataFixed,
-        // [len]type,
         Array,
         // []type,
         Slice,

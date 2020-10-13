@@ -1,6 +1,5 @@
 package org.nobloat.bare.dsl;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -21,15 +20,15 @@ public class AstParserTest {
             Lexer lexer = new Lexer(scanner);
             AstParser astParser = new AstParser(lexer);
 
-            List<Ast.SchemaType> schemaTypes = astParser.parse();
-            assertEquals(1, schemaTypes.size());
+            List<Ast.Type> Types = astParser.parse();
+            assertEquals(1, Types.size());
 
-            Ast.SchemaType type = schemaTypes.get(0);
-            assertEquals("PublicKey", type.name());
+            Ast.Type type = Types.get(0);
+            assertEquals("PublicKey", type.name);
             assertTrue(type instanceof Ast.UserDefinedType);
 
             Ast.UserDefinedType userDefinedType = (Ast.UserDefinedType) type;
-            assertEquals(Ast.TypeKind.DataArray, userDefinedType.type.kind());
+            assertEquals(Ast.TypeKind.DataArray, userDefinedType.type.kind);
 
             Ast.DataType dataType = (Ast.DataType) userDefinedType.type;
             assertEquals(128, dataType.length);
@@ -45,22 +44,22 @@ public class AstParserTest {
             Lexer lexer = new Lexer(scanner);
             AstParser astParser = new AstParser(lexer);
 
-            List<Ast.SchemaType> schemaTypes = astParser.parse();
-            assertEquals(1, schemaTypes.size());
+            List<Ast.Type> Types = astParser.parse();
+            assertEquals(1, Types.size());
 
-            Ast.SchemaType type = schemaTypes.get(0);
+            Ast.Type type = Types.get(0);
             assertEquals("Person", type.name());
             assertTrue(type instanceof Ast.UserDefinedType);
 
             Ast.UserDefinedType userDefinedType = (Ast.UserDefinedType) type;
-            assertEquals(Ast.TypeKind.Union, userDefinedType.type.kind());
+            assertEquals(Ast.TypeKind.Union, userDefinedType.type.kind);
 
             Ast.UnionType unionType = (Ast.UnionType) userDefinedType.type;
-            List<Ast.UnionSubType> subTypes = unionType.subTypes;
+            List<Ast.UnionVariant> subTypes = unionType.variants;
             assertEquals(2, subTypes.size());
 
-            Ast.UnionSubType customerSubType = subTypes.get(0);
-            assertEquals(Ast.TypeKind.UserType, customerSubType.subtype.kind());
+            Ast.UnionVariant customerSubType = subTypes.get(0);
+            assertEquals(Ast.TypeKind.UserType, customerSubType.subtype.kind);
         }
     }
 
@@ -81,10 +80,10 @@ public class AstParserTest {
             Lexer lexer = new Lexer(scanner);
             AstParser astParser = new AstParser(lexer);
 
-            List<Ast.SchemaType> schemaTypes = astParser.parse();
-            assertEquals(1, schemaTypes.size());
+            List<Ast.Type> Types = astParser.parse();
+            assertEquals(1, Types.size());
 
-            Ast.SchemaType type = schemaTypes.get(0);
+            Ast.Type type = Types.get(0);
             assertEquals("Department", type.name());
             assertTrue(type instanceof Ast.UserDefinedEnum);
 
@@ -134,15 +133,15 @@ public class AstParserTest {
             Lexer lexer = new Lexer(scanner);
             AstParser astParser = new AstParser(lexer);
 
-            List<Ast.SchemaType> schemaTypes = astParser.parse();
-            assertEquals(1, schemaTypes.size());
+            List<Ast.Type> Types = astParser.parse();
+            assertEquals(1, Types.size());
 
-            Ast.SchemaType type = schemaTypes.get(0);
-            assertEquals("Address", type.name());
+            Ast.Type type = Types.get(0);
+            assertEquals("Address", type.name);
             assertTrue(type instanceof Ast.UserDefinedType);
 
             Ast.UserDefinedType userDefinedType = (Ast.UserDefinedType) type;
-            assertEquals(Ast.TypeKind.Struct, userDefinedType.type.kind());
+            assertEquals(Ast.TypeKind.Struct, userDefinedType.type.kind);
 
             Ast.StructType structType = (Ast.StructType) userDefinedType.type;
             List<Ast.StructField> fields = structType.fields;
@@ -154,34 +153,34 @@ public class AstParserTest {
             assertTrue(addressField.type instanceof Ast.ArrayType);
             Ast.ArrayType addressArrayType = (Ast.ArrayType) addressField.type;
             assertEquals(4, addressArrayType.length);
-            assertEquals(Ast.TypeKind.STRING, addressArrayType.member.kind());
+            assertEquals(Ast.TypeKind.STRING, addressArrayType.member.kind);
 
             // city: string
             Ast.StructField cityField = fields.get(1);
             assertEquals("city", cityField.name);
             assertTrue(cityField.type instanceof Ast.PrimitiveType);
             Ast.PrimitiveType cityPrimitiveType = (Ast.PrimitiveType) cityField.type;
-            assertEquals(Ast.TypeKind.STRING, cityPrimitiveType.kind());
+            assertEquals(Ast.TypeKind.STRING, cityPrimitiveType.kind);
 
             // publicKey: optional<PublicKey>
             Ast.StructField publicKeyField = fields.get(2);
             assertEquals("publicKey", publicKeyField.name);
             assertTrue(publicKeyField.type instanceof Ast.OptionalType);
             Ast.OptionalType publicKeyOptionalType = (Ast.OptionalType) publicKeyField.type;
-            assertEquals(Ast.TypeKind.Optional, publicKeyOptionalType.kind());
-            assertEquals(Ast.TypeKind.UserType, publicKeyOptionalType.subType.kind());
-            assertEquals("PublicKey", ((Ast.NamedUserType) publicKeyOptionalType.subType).name);
+            assertEquals(Ast.TypeKind.Optional, publicKeyOptionalType.kind);
+            assertEquals(Ast.TypeKind.UserType, publicKeyOptionalType.subType.kind);
+            assertEquals("PublicKey", publicKeyOptionalType.subType.name);
 
             // metadata: map[string]data
             Ast.StructField metadataField = fields.get(3);
             assertEquals("metadata", metadataField.name);
             assertTrue(metadataField.type instanceof Ast.MapType);
             Ast.MapType metadataMapType = (Ast.MapType) metadataField.type;
-            assertEquals(Ast.TypeKind.Map, metadataMapType.kind());
+            assertEquals(Ast.TypeKind.Map, metadataMapType.kind);
             assertTrue(metadataMapType.key instanceof Ast.PrimitiveType);
-            assertEquals(Ast.TypeKind.STRING, metadataMapType.key.kind());
+            assertEquals(Ast.TypeKind.STRING, metadataMapType.key.kind);
             assertTrue(metadataMapType.value instanceof Ast.DataType);
-            assertEquals(Ast.TypeKind.DataSlice, metadataMapType.value.kind());
+            assertEquals(Ast.TypeKind.DataSlice, metadataMapType.value.kind);
 
 
             // orders: []{
@@ -204,14 +203,14 @@ public class AstParserTest {
             assertEquals("orderId", orderIdField.name);
             assertTrue(orderIdField.type instanceof Ast.PrimitiveType);
             Ast.PrimitiveType orderIdType = (Ast.PrimitiveType) orderIdField.type;
-            assertEquals(Ast.TypeKind.I64, orderIdType.kind());
+            assertEquals(Ast.TypeKind.I64, orderIdType.kind);
 
             // quantity: i32
             Ast.StructField quantityField = orderFields.get(1);
             assertEquals("quantity", quantityField.name);
             assertTrue(quantityField.type instanceof Ast.PrimitiveType);
             Ast.PrimitiveType quantityType = (Ast.PrimitiveType) quantityField.type;
-            assertEquals(Ast.TypeKind.I32, quantityType.kind());
+            assertEquals(Ast.TypeKind.I32, quantityType.kind);
         }
     }
 

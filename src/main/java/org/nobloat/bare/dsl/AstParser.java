@@ -21,8 +21,8 @@ public class AstParser {
         this.lexer = lexer;
     }
 
-    public List<Ast.SchemaType> parse() throws IOException {
-        List<Ast.SchemaType> schemaTypes = new ArrayList<>();
+    public List<Ast.Type> parse() throws IOException {
+        List<Ast.Type> schemaTypes = new ArrayList<>();
 
         while (true) {
             Lexer.Token token = lexer.nextToken();
@@ -31,7 +31,7 @@ public class AstParser {
                 break;
             }
 
-            Ast.SchemaType schemaType = parseSchemaType(token);
+            Ast.Type schemaType = parseSchemaType(token);
 
             schemaTypes.add(schemaType);
         }
@@ -39,7 +39,7 @@ public class AstParser {
         return schemaTypes;
     }
 
-    private Ast.SchemaType parseSchemaType(Lexer.Token token) throws IOException {
+    private Ast.Type parseSchemaType(Lexer.Token token) throws IOException {
         switch (token.type) {
             case TYPE:
                 return parseUserType();
@@ -50,7 +50,7 @@ public class AstParser {
         throw new IllegalStateException(String.format("Unexpected token %s. Required: 'type' or 'enum'", token.type));
     }
 
-    private Ast.SchemaType parseUserType() throws IOException {
+    private  Ast.UserDefinedType parseUserType() throws IOException {
         Lexer.Token nameToken = lexer.nextToken();
 
         if (nameToken.type != Lexer.Token.Type.NAME) {
@@ -120,7 +120,7 @@ public class AstParser {
         throw new IllegalStateException(String.format("Unexpected token %s. Required: type ", token.type));
     }
 
-    private Ast.Type parseOptionalType() throws IOException {
+    private Ast.OptionalType parseOptionalType() throws IOException {
         Lexer.Token leftAngle = lexer.nextToken();
 
         if (leftAngle.type != Lexer.Token.Type.L_ANGLE) {
@@ -138,7 +138,7 @@ public class AstParser {
         return new Ast.OptionalType(subType);
     }
 
-    private Ast.Type parseDataType() throws IOException {
+    private Ast.DataType parseDataType() throws IOException {
         Lexer.Token leftAngle = lexer.nextToken();
 
         if (leftAngle.type != Lexer.Token.Type.L_ANGLE) {
@@ -163,7 +163,7 @@ public class AstParser {
         return new Ast.DataType(length);
     }
 
-    private Ast.Type parseMapType() throws IOException {
+    private Ast.MapType parseMapType() throws IOException {
 
         Lexer.Token leftBracket = lexer.nextToken();
 
@@ -184,7 +184,7 @@ public class AstParser {
         return new Ast.MapType(keyType, valueType);
     }
 
-    private Ast.Type parseArrayType() throws IOException {
+    private Ast.ArrayType parseArrayType() throws IOException {
         Lexer.Token token = lexer.nextToken();
 
         long length = 0;
@@ -210,9 +210,9 @@ public class AstParser {
         return new Ast.ArrayType(type, length);
     }
 
-    private Ast.Type parseUnionType() throws IOException {
+    private Ast.UnionType parseUnionType() throws IOException {
 
-        List<Ast.UnionSubType> unionSubTypes = new ArrayList<>();
+        List<Ast.UnionVariant> unionVariants = new ArrayList<>();
         int tag = 0;
 
         while (true) {
@@ -231,7 +231,7 @@ public class AstParser {
                 lexer.pushback(token);
             }
 
-            unionSubTypes.add(new Ast.UnionSubType(type, tag));
+            unionVariants.add(new Ast.UnionVariant(type, tag));
             tag++;
 
             Lexer.Token nextToken = lexer.nextToken();
@@ -245,10 +245,10 @@ public class AstParser {
             }
         }
 
-        return new Ast.UnionType(unionSubTypes);
+        return new Ast.UnionType(unionVariants);
     }
 
-    private Ast.Type parseStructType() throws IOException {
+    private Ast.StructType parseStructType() throws IOException {
         List<Ast.StructField> fields = new ArrayList<>();
 
         while (true) {
@@ -280,7 +280,7 @@ public class AstParser {
         return new Ast.StructType(fields);
     }
 
-    private Ast.SchemaType parseUserEnum() throws IOException {
+    private Ast.UserDefinedEnum parseUserEnum() throws IOException {
 
         Lexer.Token name = lexer.nextToken();
         if (name.type != Lexer.Token.Type.NAME) {
