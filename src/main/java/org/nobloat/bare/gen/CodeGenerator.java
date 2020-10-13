@@ -80,8 +80,20 @@ public class CodeGenerator {
                     break;
                 case F64:
                     writer.write("public Double " + field.name + ";");
-                break;
-
+                    break;
+                case INT:
+                    writer.write("public @Int(Int.Type.i) Long " + field.name + ";");
+                    break;
+                case UINT:
+                    writer.write("public @Int(Int.Type.ui) Long " + field.name + ";");
+                    break;
+                case UserType:
+                    writer.write("public " + field.type.name + " " + field.name + ";");
+                    break;
+                case Optional:
+                    //TODO: set state that optional was used for importing
+                    writer.write("public Optional<" + ((Ast.OptionalType)field.type).subType.name + "> " + field.name + ";");
+                    break;
             }
         }
 
