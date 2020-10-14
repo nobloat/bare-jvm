@@ -61,19 +61,19 @@ public class AstParser {
                 return parseUserEnum();
         }
 
-        throw new IllegalStateException(String.format("Unexpected token %s. Required: 'type' or 'enum'", token.type));
+        throw unexpectedTokenException(token, "'type' or 'enum'");
     }
 
     private  Ast.UserDefinedType parseUserType() throws IOException {
         Lexer.Token nameToken = lexer.nextToken();
 
         if (nameToken.type != Lexer.Token.Type.NAME) {
-            throw new IllegalStateException(String.format("Unexpected token %s. Required: type 'name'", nameToken.type));
+            throw unexpectedTokenException(nameToken, "type 'name'");
         }
 
         Matcher matcher = USER_TYPE_NAME_RE.matcher(nameToken.value);
         if (!matcher.matches()) {
-            throw new IllegalStateException(String.format("Invalid name for user type %s. Must match: %s", nameToken.type, USER_TYPE_NAME_RE.pattern()));
+            throw illegalNameException(nameToken, USER_TYPE_NAME_RE);
         }
 
         Ast.Type type = parseType();
@@ -131,14 +131,14 @@ public class AstParser {
                 return new Ast.NamedUserType(token.value);
         }
 
-        throw new IllegalStateException(String.format("Unexpected token %s. Required: type ", token.type));
+        throw unexpectedTokenException(token, "type");
     }
 
     private Ast.OptionalType parseOptionalType() throws IOException {
         Lexer.Token leftAngle = lexer.nextToken();
 
         if (leftAngle.type != Lexer.Token.Type.L_ANGLE) {
-            throw new IllegalStateException(String.format("Unexpected token %s. Required: '<'", leftAngle.type));
+            throw unexpectedTokenException(leftAngle, "'<'");
         }
 
         Ast.Type subType = parseType();
@@ -146,7 +146,7 @@ public class AstParser {
         Lexer.Token rightAngle = lexer.nextToken();
 
         if (rightAngle.type != Lexer.Token.Type.R_ANGLE) {
-            throw new IllegalStateException(String.format("Unexpected token %s. Required: '>'", rightAngle.type));
+            throw unexpectedTokenException(rightAngle, "'>'");
         }
 
         return new Ast.OptionalType(subType);
@@ -163,7 +163,7 @@ public class AstParser {
         Lexer.Token number = lexer.nextToken();
 
         if (number.type != Lexer.Token.Type.NUMBER) {
-            throw new IllegalStateException(String.format("Unexpected token %s. Required: 'integer'", number.type));
+            throw unexpectedTokenException(number, "'number'");
         }
 
         int length = Integer.parseInt(number.value);
@@ -171,7 +171,7 @@ public class AstParser {
         Lexer.Token rightAngle = lexer.nextToken();
 
         if (rightAngle.type != Lexer.Token.Type.R_ANGLE) {
-            throw new IllegalStateException(String.format("Unexpected token %s. Required: '>'", rightAngle.type));
+            throw unexpectedTokenException(rightAngle, "'>'");
         }
 
         return new Ast.DataType(length);
@@ -182,7 +182,7 @@ public class AstParser {
         Lexer.Token leftBracket = lexer.nextToken();
 
         if (leftBracket.type != Lexer.Token.Type.L_BRACKET) {
-            throw new IllegalStateException(String.format("Unexpected token %s. Required: '['", leftBracket.type));
+            throw unexpectedTokenException(leftBracket, "'['");
         }
 
         Ast.Type keyType = parseType();
@@ -190,7 +190,7 @@ public class AstParser {
         Lexer.Token rightBracket = lexer.nextToken();
 
         if (rightBracket.type != Lexer.Token.Type.R_BRACKET) {
-            throw new IllegalStateException(String.format("Unexpected token %s. Required: ']'", rightBracket.type));
+            throw unexpectedTokenException(rightBracket, "']'");
         }
 
         Ast.Type valueType = parseType();
@@ -209,13 +209,13 @@ public class AstParser {
                 Lexer.Token rightBracket = lexer.nextToken();
 
                 if (rightBracket.type != Lexer.Token.Type.R_BRACKET) {
-                    throw new IllegalStateException(String.format("Unexpected token %s. Required: ']'", token.type));
+                    throw unexpectedTokenException(rightBracket, "']'");
                 }
                 break;
             case R_BRACKET:
                 break;
             default:
-                throw new IllegalStateException(String.format("Unexpected token %s. Required: ']'", token.type));
+                throw unexpectedTokenException(token, "']'");
         }
 
 
@@ -237,7 +237,7 @@ public class AstParser {
 
                 Lexer.Token number = lexer.nextToken();
                 if (number.type != Lexer.Token.Type.NUMBER) {
-                    throw new IllegalStateException(String.format("Unexpected token %s. Required: 'number'", token.type));
+                    throw unexpectedTokenException(token, "'number'");
                 }
 
                 tag = Integer.parseInt(number.value);
@@ -255,7 +255,7 @@ public class AstParser {
             } else if (nextToken.type == Lexer.Token.Type.R_PAREN) {
                 break;
             } else {
-                throw new IllegalStateException(String.format("Unexpected token %s. Required: '|' or ')'", token.type));
+                throw unexpectedTokenException(token, "'|' or ')'");
             }
         }
 
@@ -272,18 +272,18 @@ public class AstParser {
                 break;
             }
             if (token.type != Lexer.Token.Type.NAME) {
-                throw new IllegalStateException(String.format("Unexpected token %s. Required: field name", token.type));
+                throw unexpectedTokenException(token, "field name");
             }
 
             String name = token.value;
             Matcher matcher = FIELD_NAME_RE.matcher(name);
             if (!matcher.matches()) {
-                throw new IllegalStateException(String.format("Invalid name for field %s. Must match: %s", name, FIELD_NAME_RE.pattern()));
+                throw illegalNameException(token, FIELD_NAME_RE);
             }
 
             Lexer.Token colon = lexer.nextToken();
             if (colon.type != Lexer.Token.Type.COLON) {
-                throw new IllegalStateException(String.format("Unexpected token %s. Required: ':'", colon.type));
+                throw unexpectedTokenException(colon, "':'");
             }
 
             Ast.Type type = parseType();
@@ -298,7 +298,7 @@ public class AstParser {
 
         Lexer.Token name = lexer.nextToken();
         if (name.type != Lexer.Token.Type.NAME) {
-            throw new IllegalStateException(String.format("Unexpected token %s. Required: enum name", name.type));
+            throw unexpectedTokenException(name, "enum 'name'");
         }
 
         Lexer.Token token = lexer.nextToken();
@@ -324,7 +324,7 @@ public class AstParser {
 
         Lexer.Token leftBrace = lexer.nextToken();
         if (leftBrace.type != Lexer.Token.Type.L_BRACE) {
-            throw new IllegalStateException(String.format("Unexpected token %s. Required: '{'", leftBrace.type));
+            throw unexpectedTokenException(leftBrace, "'{'");
         }
 
         int value = 0;
@@ -332,13 +332,13 @@ public class AstParser {
         while (true) {
             Lexer.Token valueNameToken = lexer.nextToken();
             if (valueNameToken.type != Lexer.Token.Type.NAME) {
-                throw new IllegalStateException(String.format("Unexpected token %s. Required: value name", valueNameToken.type));
+                throw unexpectedTokenException(valueNameToken, "value 'name'");
             }
 
             String valueName = valueNameToken.value;
             Matcher matcher = ENUM_VALUE_RE.matcher(valueName);
             if (!matcher.matches()) {
-                throw new IllegalStateException(String.format("Invalid name for enum value %s. Must match: %s", valueNameToken.type, ENUM_VALUE_RE.pattern()));
+                throw illegalNameException(valueNameToken, ENUM_VALUE_RE);
             }
 
             int evValue;
@@ -346,7 +346,7 @@ public class AstParser {
             if (nextToken.type == Lexer.Token.Type.EQUAL) {
                 Lexer.Token number = lexer.nextToken();
                 if (number.type != Lexer.Token.Type.NUMBER) {
-                    throw new IllegalStateException(String.format("Unexpected token %s. Required: number", number.type));
+                    throw unexpectedTokenException(number, "'number'");
                 }
 
                 value = Integer.parseInt(number.value);
@@ -366,15 +366,23 @@ public class AstParser {
             } else if (nextToken2.type == Lexer.Token.Type.NAME) {
                 lexer.pushback(nextToken2);
             } else {
-                throw new IllegalStateException(String.format("Unexpected token %s. Required: 'value name'", nextToken2.type));
+                throw unexpectedTokenException(nextToken2, "value 'name'");
             }
         }
 
         Matcher matcher = USER_ENUM_NAME_RE.matcher(name.value);
         if (!matcher.matches()) {
-            throw new IllegalStateException(String.format("Invalid name for user enum %s. Must match: %s", name.type, USER_ENUM_NAME_RE.pattern()));
+            throw new IllegalStateException(String.format("Line: %s - Invalid name for user enum %s. Must match: %s", name.lineNumber, name.type, USER_ENUM_NAME_RE.pattern()));
         }
 
         return new Ast.UserDefinedEnum(name.value, kind, values);
+    }
+
+    private IllegalStateException unexpectedTokenException(Lexer.Token token, String requiredMessage) {
+        return new IllegalStateException(String.format("(%s:%s) - Unexpected token '%s'. Required: %s", token.lineNumber, token.column, token.value, requiredMessage));
+    }
+
+    private IllegalStateException illegalNameException(Lexer.Token token, Pattern pattern) {
+        return new IllegalStateException(String.format("(%s:%s) - Invalid name '%s'. Must match: %s", token.lineNumber, token.column, token.value, pattern.pattern()));
     }
 }

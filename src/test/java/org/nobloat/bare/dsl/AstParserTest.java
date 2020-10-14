@@ -114,6 +114,49 @@ public class AstParserTest {
         }
     }
 
+    @Test
+    public void shouldThrowExceptionWhenInvalidTokenIsFound() throws Exception {
+        String input = "type Customer {\n" +
+                "  name: string\n" +
+                "  metadata: asdf[string]data\n" +
+                "}";
+
+        try (InputStream is = toStream(input);
+             Scanner scanner = new Scanner(is)) {
+            Lexer lexer = new Lexer(scanner);
+            AstParser astParser = new AstParser(lexer);
+
+            try {
+                astParser.parse();
+            } catch (IllegalStateException ex) {
+                assertEquals("(3:17) - Unexpected token '['. Required: field name", ex.getMessage());
+            }
+        }
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenInvalidTokenIsFound2() throws Exception {
+        String input = "type Customer {\n" +
+                "  address: Address\n" +
+                "  orders: [{\n" +
+                "    orderId: i64\n" +
+                "    quantity: i32\n" +
+                "  }\n" +
+                "}";
+
+        try (InputStream is = toStream(input);
+             Scanner scanner = new Scanner(is)) {
+            Lexer lexer = new Lexer(scanner);
+            AstParser astParser = new AstParser(lexer);
+
+            try {
+                astParser.parse();
+            } catch (IllegalStateException ex) {
+                assertEquals("(3:12) - Unexpected token '{'. Required: ']'", ex.getMessage());
+            }
+        }
+    }
+
     private InputStream toStream(String input) {
         return new ByteArrayInputStream(input.getBytes());
     }
