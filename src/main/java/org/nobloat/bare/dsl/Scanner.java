@@ -7,18 +7,26 @@ import java.io.InputStream;
 public class Scanner implements AutoCloseable {
 
     private final BufferedInputStream reader;
+    private final PositionTracker positionTracker;
 
     public Scanner(InputStream is) {
         reader = new BufferedInputStream(is, 2);
+        positionTracker = new PositionTracker();
     }
 
     public int readChar() throws IOException {
         reader.mark(1);
-        return reader.read();
+        int read = reader.read();
+
+        positionTracker.nextCharacter(read);
+
+        return read;
     }
 
     public void unreadChar() throws IOException {
         reader.reset();
+
+        positionTracker.withdrawLastCharacter();
     }
 
     public String readInteger() throws IOException {
@@ -40,7 +48,7 @@ public class Scanner implements AutoCloseable {
             builder.append(character);
         }
 
-        if(builder.length() == 0) {
+        if (builder.length() == 0) {
             throw new IOException("Is not an integer");
         }
 
@@ -66,7 +74,7 @@ public class Scanner implements AutoCloseable {
             builder.append(character);
         }
 
-        if(builder.length() == 0) {
+        if (builder.length() == 0) {
             throw new IOException("Is not a word");
         }
 
@@ -97,6 +105,14 @@ public class Scanner implements AutoCloseable {
 
     public boolean isNewLine(char character) {
         return character == '\n' || character == '\r';
+    }
+
+    public int getLineNumber() {
+        return positionTracker.getLine();
+    }
+
+    public int getColumn() {
+        return positionTracker.getColumn();
     }
 
     public void close() throws Exception {

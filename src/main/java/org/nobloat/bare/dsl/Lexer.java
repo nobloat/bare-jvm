@@ -26,7 +26,7 @@ public class Lexer {
         } while (Character.isSpaceChar((char) ch) || scanner.isNewLine((char) ch));
 
         if (ch == -1) {
-            return new Token(Token.Type.EOF);
+            return new Token(Token.Type.EOF, "EOF", scanner.getLineNumber(), scanner.getColumn());
         }
 
         char character = (char) ch;
@@ -40,7 +40,7 @@ public class Lexer {
         if (Character.isDigit(character)) {
             scanner.unreadChar();
             String integer = scanner.readInteger();
-            return new Token(Token.Type.NUMBER, integer);
+            return new Token(Token.Type.NUMBER, integer, scanner.getLineNumber(), scanner.getColumn());
         }
 
         switch (character) {
@@ -49,30 +49,30 @@ public class Lexer {
 //                return new Token(Token.Type.COMMENT, comment);
                 return nextToken();
             case '<':
-                return new Token(Token.Type.L_ANGLE);
+                return new Token(Token.Type.L_ANGLE, character, scanner.getLineNumber(), scanner.getColumn());
             case '>':
-                return new Token(Token.Type.R_ANGLE);
+                return new Token(Token.Type.R_ANGLE, character, scanner.getLineNumber(), scanner.getColumn());
             case '{':
-                return new Token(Token.Type.L_BRACE);
+                return new Token(Token.Type.L_BRACE, character, scanner.getLineNumber(), scanner.getColumn());
             case '}':
-                return new Token(Token.Type.R_BRACE);
+                return new Token(Token.Type.R_BRACE, character, scanner.getLineNumber(), scanner.getColumn());
             case '[':
-                return new Token(Token.Type.L_BRACKET);
+                return new Token(Token.Type.L_BRACKET, character, scanner.getLineNumber(), scanner.getColumn());
             case ']':
-                return new Token(Token.Type.R_BRACKET);
+                return new Token(Token.Type.R_BRACKET, character, scanner.getLineNumber(), scanner.getColumn());
             case '(':
-                return new Token(Token.Type.L_PAREN);
+                return new Token(Token.Type.L_PAREN, character, scanner.getLineNumber(), scanner.getColumn());
             case ')':
-                return new Token(Token.Type.R_PAREN);
+                return new Token(Token.Type.R_PAREN, character, scanner.getLineNumber(), scanner.getColumn());
             case '|':
-                return new Token(Token.Type.PIPE);
+                return new Token(Token.Type.PIPE, character, scanner.getLineNumber(), scanner.getColumn());
             case '=':
-                return new Token(Token.Type.EQUAL);
+                return new Token(Token.Type.EQUAL, character, scanner.getLineNumber(), scanner.getColumn());
             case ':':
-                return new Token(Token.Type.COLON);
+                return new Token(Token.Type.COLON, character, scanner.getLineNumber(), scanner.getColumn());
         }
 
-        return new Token(Token.Type.UNKNOWN);
+        return new Token(Token.Type.UNKNOWN, character, scanner.getLineNumber(), scanner.getColumn());
     }
 
     public void pushback(Token token) {
@@ -83,62 +83,66 @@ public class Lexer {
 
         switch (word) {
             case "type":
-                return new Token(Token.Type.TYPE);
+                return new Token(Token.Type.TYPE, word, scanner.getLineNumber(), scanner.getColumn());
             case "enum":
-                return new Token(Token.Type.ENUM);
+                return new Token(Token.Type.ENUM, word, scanner.getLineNumber(), scanner.getColumn());
             case "uint":
-                return new Token(Token.Type.UINT);
+                return new Token(Token.Type.UINT, word, scanner.getLineNumber(), scanner.getColumn());
             case "u8":
-                return new Token(Token.Type.U8);
+                return new Token(Token.Type.U8, word, scanner.getLineNumber(), scanner.getColumn());
             case "u16":
-                return new Token(Token.Type.U16);
+                return new Token(Token.Type.U16, word, scanner.getLineNumber(), scanner.getColumn());
             case "u32":
-                return new Token(Token.Type.U32);
+                return new Token(Token.Type.U32, word, scanner.getLineNumber(), scanner.getColumn());
             case "u64":
-                return new Token(Token.Type.U64);
+                return new Token(Token.Type.U64, word, scanner.getLineNumber(), scanner.getColumn());
             case "int":
-                return new Token(Token.Type.INT);
+                return new Token(Token.Type.INT, word, scanner.getLineNumber(), scanner.getColumn());
             case "i8":
-                return new Token(Token.Type.I8);
+                return new Token(Token.Type.I8, word, scanner.getLineNumber(), scanner.getColumn());
             case "i16":
-                return new Token(Token.Type.I16);
+                return new Token(Token.Type.I16, word, scanner.getLineNumber(), scanner.getColumn());
             case "i32":
-                return new Token(Token.Type.I32);
+                return new Token(Token.Type.I32, word, scanner.getLineNumber(), scanner.getColumn());
             case "i64":
-                return new Token(Token.Type.I64);
+                return new Token(Token.Type.I64, word, scanner.getLineNumber(), scanner.getColumn());
             case "f32":
-                return new Token(Token.Type.F32);
+                return new Token(Token.Type.F32, word, scanner.getLineNumber(), scanner.getColumn());
             case "f64":
-                return new Token(Token.Type.F64);
+                return new Token(Token.Type.F64, word, scanner.getLineNumber(), scanner.getColumn());
             case "bool":
-                return new Token(Token.Type.BOOL);
+                return new Token(Token.Type.BOOL, word, scanner.getLineNumber(), scanner.getColumn());
             case "string":
-                return new Token(Token.Type.STRING);
+                return new Token(Token.Type.STRING, word, scanner.getLineNumber(), scanner.getColumn());
             case "data":
-                return new Token(Token.Type.DATA);
+                return new Token(Token.Type.DATA, word, scanner.getLineNumber(), scanner.getColumn());
             case "void":
-                return new Token(Token.Type.VOID);
+                return new Token(Token.Type.VOID, word, scanner.getLineNumber(), scanner.getColumn());
             case "optional":
-                return new Token(Token.Type.OPTIONAL);
+                return new Token(Token.Type.OPTIONAL, word, scanner.getLineNumber(), scanner.getColumn());
             case "map":
-                return new Token(Token.Type.MAP);
+                return new Token(Token.Type.MAP, word, scanner.getLineNumber(), scanner.getColumn());
         }
 
-        return new Token(Token.Type.NAME, word);
+        return new Token(Token.Type.NAME, word, scanner.getLineNumber(), scanner.getColumn());
     }
 
     public static class Token {
 
         final Type type;
         final String value;
+        final int lineNumber;
+        final int column;
 
-        public Token(Type type) {
-            this(type, null);
+        public Token(Type type, char value, int lineNumber, int column) {
+            this(type, Character.toString(value), lineNumber, column);
         }
 
-        public Token(Type type, String value) {
+        public Token(Type type, String value, int lineNumber, int column) {
             this.type = type;
             this.value = value;
+            this.lineNumber = lineNumber;
+            this.column = column;
         }
 
         enum Type {
