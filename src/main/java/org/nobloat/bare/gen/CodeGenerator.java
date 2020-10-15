@@ -75,10 +75,29 @@ public class CodeGenerator {
         } else if (type.kind == Ast.TypeKind.UserType && ((Ast.UserDefinedType)type).type.kind == Ast.TypeKind.Union) {
             createUnion((Ast.UnionType) ((Ast.UserDefinedType)type).type);
         } else {
-            //TODO: change to inheritance -> move upwards to createJavaTypes
-            //var userDefindeType = (Ast.UserDefinedType)type;
-            //writer.write("public " + fieldTypeMap(userDefindeType.type) + " " + userDefindeType.name + ";");
+            createTypeAlias((Ast.UserDefinedType) type);
         }
+    }
+
+    public void createTypeAlias(Ast.UserDefinedType type) throws BareException {
+        writer.write("public static class " + type.name +" {");
+        writer.indent();
+
+        writer.write("public " + fieldTypeMap(type.type) + " value;");
+
+
+        writer.write("public static " + type.name + " decode(AggregateBareDecoder decoder) throws IOException, BareException {");
+        writer.indent();
+        writer.write("var o = new " + type.name + "();");
+
+        writer.write("o.value = " + decodeStatement(type.type) + ";");
+
+        writer.write("return o;");
+        writer.dedent();
+        writer.write("}");
+
+        writer.dedent();
+        writer.write("}");
     }
 
     public void createStruct(Ast.UserDefinedType struct) throws BareException {
@@ -106,7 +125,7 @@ public class CodeGenerator {
             }
             fieldSection.write(fieldMapping + ";");
 
-            decodeSection.write("o." + field.name + " = " + deocodeStatement(field.type) + ";");
+            decodeSection.write("o." + field.name + " = " + decodeStatement(field.type) + ";");
 
         }
 
@@ -135,7 +154,7 @@ public class CodeGenerator {
             return null;
         }).collect(Collectors.joining(","));
 
-        writer.write("decoder.union(Map.of("+types+"));");
+        writer.write("return decoder.union(Map.of("+types+"));");
 
         writer.dedent();
         writer.write("}");
@@ -193,7 +212,7 @@ public class CodeGenerator {
         writer.write("}");
     }
 
-    private String deocodeStatement(Ast.Type type) throws BareException {
+    private String decodeStatement(Ast.Type type) throws BareException {
         switch (type.kind) {
             case U8:
                 return "decoder.u8()";
@@ -226,7 +245,7 @@ public class CodeGenerator {
             case DataSlice:
                 return "decoder.data()";
             case DataArray:
-                return "decoder.array("+((Ast.ArrayType)type).length+")";
+                return "decoder.data("+((Ast.DataType)type).length+")";
             case UserType:
                 return type.name + ".decode(decoder)";
             case Optional:

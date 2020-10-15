@@ -121,6 +121,14 @@ public class PrimitiveBareDecoder {
         return new String(target, StandardCharsets.UTF_8);
     }
 
+    public Array<Byte> data(int length) throws IOException {
+        var result = new Array<Byte>(length);
+        for (long i=0; i < length; i++) {
+            result.values.add(is.readByte());
+        }
+        return result;
+    }
+
     public List<Byte> data() throws IOException {
         //TODO: add max length
         BigInteger length = variadicUint();
