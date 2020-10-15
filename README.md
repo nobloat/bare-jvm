@@ -118,6 +118,7 @@ Simply copy the required classes from `org.nobloat.bar` or add the dependency vi
     - **Rationale:** It simplifies the reflective code a lot.
 - Enum's are currently always set to null
     - **Rationale:** Reflection and enums in Java are a mess.
+- Anonymous structs are not supported by the code generator.
 
 ## Problems
 - Java has no concept of unsigned primitive data types, hence double the amount of memory is required to safely use unsigned types:

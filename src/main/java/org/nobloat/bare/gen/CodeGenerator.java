@@ -9,6 +9,7 @@ import org.nobloat.bare.dsl.Scanner;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,7 +39,9 @@ public class CodeGenerator {
 
         var importSection = writer.section();
 
-        importSection.write("package " + packageName + ";");
+        if (packageName != null) {
+            importSection.write("package " + packageName + ";");
+        }
 
         var messagesSection = writer.section();
         messagesSection.write("public class Messages {");
@@ -57,6 +60,12 @@ public class CodeGenerator {
     }
 
     public void createImports(CodeWriter section) {
+
+
+        usedTypes.add("org.nobloat.bare.AggregateBareDecoder");
+        usedTypes.add("org.nobloat.bare.AggregateBareEncoder");
+        usedTypes.add("org.nobloat.bare.BareException");
+        usedTypes.add("java.io.IOException");
 
         var types = new ArrayList<>(usedTypes);
         Collections.sort(types);
@@ -138,6 +147,8 @@ public class CodeGenerator {
 
     public void createUnion(Ast.UnionType union) {
 
+        usedTypes.add("org.nobloat.bare.Union");
+
         writer.write("public static class " + union.name + " extends Union {");
         writer.indent();
 
@@ -170,10 +181,6 @@ public class CodeGenerator {
 
         writer.write(enumeration.values.stream().map(v -> v.name + "(" + v.value + ")").collect(Collectors.joining(",")) + ";");
 
-        usedTypes.add("org.nobloat.bare.Int");
-        usedTypes.add("org.nobloat.bare.PrimitiveBareDecoder");
-        usedTypes.add("org.nobloat.bare.PrimitiveBareEncoder");
-
         writer.write("@Int(Int.Type.ui)");
         writer.write("private int value;");
 
@@ -184,7 +191,7 @@ public class CodeGenerator {
         writer.write("}");
 
 
-        writer.write("public static " + enumeration.name + " decode(PrimitiveBareDecoder decoder) throws IOException, BareException {");
+        writer.write("public static " + enumeration.name + " decode(AggregateBareDecoder decoder) throws IOException, BareException {");
         writer.indent();
 
         writer.write("var i = decoder.variadicUint().intValue();");
@@ -202,7 +209,7 @@ public class CodeGenerator {
         writer.dedent();
         writer.write("}");
 
-        writer.write("public void encode(PrimitiveBareEncoder encoder) throws IOException {");
+        writer.write("public void encode(AggregateBareEncoder encoder) throws IOException {");
         writer.indent();
         writer.write("encoder.variadicUInt(value);");
         writer.dedent();
@@ -215,20 +222,28 @@ public class CodeGenerator {
     private String decodeStatement(Ast.Type type) throws BareException {
         switch (type.kind) {
             case U8:
+                usedTypes.add("org.nobloat.bare.Int");
                 return "decoder.u8()";
             case I8:
+                usedTypes.add("org.nobloat.bare.Int");
                 return "decoder.i8()";
             case U16:
-                return "deocoder.u16()";
+                usedTypes.add("org.nobloat.bare.Int");
+                return "decoder.u16()";
             case I16:
-                return "deocoder.i16()";
+                usedTypes.add("org.nobloat.bare.Int");
+                return "decoder.i16()";
             case U32:
-                return "deocoder.u32()";
+                usedTypes.add("org.nobloat.bare.Int");
+                return "decoder.u32()";
             case I32:
-                return "deocoder.i32()";
+                usedTypes.add("org.nobloat.bare.Int");
+                return "decoder.i32()";
             case U64:
+                usedTypes.add("org.nobloat.bare.Int");
                 return "decoder.u64()";
             case I64:
+                usedTypes.add("org.nobloat.bare.Int");
                 return "decoder.i64()";
             case STRING:
                 return "decoder.string()";
@@ -239,8 +254,10 @@ public class CodeGenerator {
             case F64:
                 return "decoder.f64()";
             case INT:
+                usedTypes.add("org.nobloat.bare.Int");
                 return "decoder.variadicInt()";
             case UINT:
+                usedTypes.add("org.nobloat.bare.Int");
                 return "decoder.variadicUint()";
             case DataSlice:
                 return "decoder.data()";
@@ -249,6 +266,7 @@ public class CodeGenerator {
             case UserType:
                 return type.name + ".decode(decoder)";
             case Optional:
+                usedTypes.add("java.util.Optional");
                 return "decoder.optional("+decodeLambda(((Ast.OptionalType) type).subType)+")";
             case Map:
                 return "decoder.map("+decodeLambda(((Ast.MapType) type).key)+","+decodeLambda(((Ast.MapType) type).value) + ")";
@@ -263,35 +281,35 @@ public class CodeGenerator {
     private String decodeLambda(Ast.Type type) throws BareException {
         switch (type.kind) {
             case U8:
-                return "PrimitiveBareDecoder::u8";
+                return "AggregateBareDecoder::u8";
             case I8:
-                return "PrimitiveBareDecoder::i8";
+                return "AggregateBareDecoder::i8";
             case U16:
-                return "PrimitiveBareDecoder::u16";
+                return "AggregateBareDecoder::u16";
             case I16:
-                return "PrimitiveBareDecoder::i16";
+                return "AggregateBareDecoder::i16";
             case U32:
-                return "PrimitiveBareDecoder::u32";
+                return "AggregateBareDecoder::u32";
             case I32:
-                return "PrimitiveBareDecoder::i32";
+                return "AggregateBareDecoder::i32";
             case U64:
-                return "PrimitiveBareDecoder::u64";
+                return "AggregateBareDecoder::u64";
             case I64:
-                return "PrimitiveBareDecoder::i64";
+                return "AggregateBareDecoder::i64";
             case STRING:
-                return "PrimitiveBareDecoder::string";
+                return "AggregateBareDecoder::string";
             case Bool:
-                return "PrimitiveBareDecoder::bool";
+                return "AggregateBareDecoder::bool";
             case F32:
-                return "PrimitiveBareDecoder::f32";
+                return "AggregateBareDecoder::f32";
             case F64:
-                return "PrimitiveBareDecoder::f64";
+                return "AggregateBareDecoder::f64";
             case INT:
-                return "PrimitiveBareDecoder::variadicInt";
+                return "AggregateBareDecoder::variadicInt";
             case UINT:
-                return "PrimitiveBareDecoder::variadicUint";
+                return "AggregateBareDecoder::variadicUint";
             case DataSlice:
-                return "PrimitiveBareDecoder::data";
+                return "AggregateBareDecoder::data";
             case Struct:
             case UserType:
                 return type.name + "::decode";
@@ -358,11 +376,11 @@ public class CodeGenerator {
     }
 
     public static void main(String[] args) throws Exception {
-        try (var is = openFile("schema.bare"); var scanner = new Scanner(is)) {
+        try (var is = openFile("schema2.bare"); var scanner = new Scanner(is); var target = new FileOutputStream("Messages.java")) {
             Lexer lexer = new Lexer(scanner);
             AstParser parser = new AstParser(lexer);
             var types = parser.parse();
-            new CodeGenerator("org.example", types, System.out).createJavaTypes();
+            new CodeGenerator("org.example", types, target).createJavaTypes();
         }
     }
 
