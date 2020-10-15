@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.nobloat.bare.TestUtil.fromInts;
 import static org.nobloat.bare.TestUtil.openFile;
 
-class AggregateBareDecoderTest {
+class ReflectiveBareDecoderTest {
 
     @Test
     public void testOptional() throws IOException {
@@ -22,12 +22,12 @@ class AggregateBareDecoderTest {
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
 
-        var decoder = new AggregateBareDecoder(stream);
+        var decoder = new ReflectiveBareDecoder(stream);
         Optional<String> result = decoder.optional(String.class);
         assertEquals("こんにちは、世界！", result.get());
 
         stream = fromInts(0x00);
-        decoder = new AggregateBareDecoder(stream);
+        decoder = new ReflectiveBareDecoder(stream);
         result = decoder.optional(String.class);
         assertFalse(result.isPresent());
     }
@@ -42,7 +42,7 @@ class AggregateBareDecoderTest {
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
-        var decoder = new AggregateBareDecoder(stream);
+        var decoder = new ReflectiveBareDecoder(stream);
         var result = decoder.values(String.class, 3);
 
         assertEquals(3, result.size);
@@ -61,7 +61,7 @@ class AggregateBareDecoderTest {
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
-        var decoder = new AggregateBareDecoder(stream);
+        var decoder = new ReflectiveBareDecoder(stream);
         var result = decoder.values(String.class);
 
         assertEquals(3, result.size());
@@ -73,7 +73,7 @@ class AggregateBareDecoderTest {
     @Test
     public void testMap() throws IOException, ReflectiveOperationException {
         var stream = fromInts(0x03, 0x01, 0x11, 0x02, 0x22, 0x03, 0x33);
-        var decoder = new AggregateBareDecoder(stream);
+        var decoder = new ReflectiveBareDecoder(stream);
         var result = decoder.map(Byte.class, Byte.class);
 
         assertEquals(3, result.size());
@@ -88,7 +88,7 @@ class AggregateBareDecoderTest {
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
-        var decoder = new AggregateBareDecoder(stream);
+        var decoder = new ReflectiveBareDecoder(stream);
 
         var result = decoder.union(Map.of(0L, Float.class, 1L, String.class));
         assertEquals(String.class, result.type());
@@ -96,12 +96,12 @@ class AggregateBareDecoderTest {
 
 
         stream = fromInts(0x00, 0x71, 0x2D, 0xA7, 0x44);
-        decoder = new AggregateBareDecoder(stream);
+        decoder = new ReflectiveBareDecoder(stream);
         result = decoder.union(Map.of(0L, Float.class, 1L, String.class));
         assertEquals(Float.class, result.type());
         assertEquals(1337.42, result.get(Float.class), 0.001);
 
-        assertThrows(UnsupportedOperationException.class, () ->  new AggregateBareDecoder(fromInts(0x03, 0x71, 0x2D, 0xA7, 0x44))
+        assertThrows(UnsupportedOperationException.class, () ->  new ReflectiveBareDecoder(fromInts(0x03, 0x71, 0x2D, 0xA7, 0x44))
                 .union(Map.of(0L, Float.class, 1L, String.class)));
     }
 
@@ -109,7 +109,7 @@ class AggregateBareDecoderTest {
     public void testStruct() throws ReflectiveOperationException, IOException {
         var stream = fromInts(0x05, 0x50, 0x65, 0x74, 0x65, 0x72,     0x0C, 0x53, 0x70, 0x69, 0x65, 0x73, 0x73, 0x2d, 0x4b, 0x6e, 0x61, 0x66, 0x6c,
                 0x02,    0x10, 0x6e, 0x6f, 0x62, 0x6c, 0x6f, 0x61, 0x74, 0x2f, 0x62, 0x61, 0x72, 0x65, 0x2d, 0x6a, 0x76, 0x6d, 0x10, 0x6e, 0x6f, 0x62, 0x6c, 0x6f, 0x61, 0x74, 0x2f, 0x62, 0x61, 0x72, 0x65, 0x2d, 0x6a, 0x64, 0x6b);
-        var decoder = new AggregateBareDecoder(stream);
+        var decoder = new ReflectiveBareDecoder(stream);
         var person = decoder.struct(Person.class);
 
         assertEquals("Peter", person.firstName);
@@ -127,7 +127,7 @@ class AggregateBareDecoderTest {
     @Test
     public void testCustomerStruct() throws IOException, ReflectiveOperationException {
         try(var is = openFile("customer.bin")) {
-            var decoder = new AggregateBareDecoder(is);
+            var decoder = new ReflectiveBareDecoder(is);
             var customer = decoder.union(TestClasses.Customer.class).get(TestClasses.Customer.class);
 
             verifyCustomer(customer);
@@ -149,7 +149,7 @@ class AggregateBareDecoderTest {
     @Test
     public void testEmployeeStruct() throws IOException, ReflectiveOperationException {
         try(var is = openFile("employee.bin")) {
-            var decoder = new AggregateBareDecoder(is);
+            var decoder = new ReflectiveBareDecoder(is);
             var employee = decoder.union(TestClasses.Employee.class).get(TestClasses.Employee.class);
             verifyEmployee(employee);
         }
@@ -169,7 +169,7 @@ class AggregateBareDecoderTest {
     @Test
     public void testTerminatedStruct() throws IOException, ReflectiveOperationException {
         try(var is = openFile("terminated.bin")) {
-            var decoder = new AggregateBareDecoder(is);
+            var decoder = new ReflectiveBareDecoder(is);
             decoder.union(TestClasses.TerminatedEmployee.class).get(TestClasses.TerminatedEmployee.class);
         }
     }
@@ -177,7 +177,7 @@ class AggregateBareDecoderTest {
     @Test
     public void testPeople() throws IOException, ReflectiveOperationException {
         try(var is = openFile("people.bin")) {
-            var decoder = new AggregateBareDecoder(is);
+            var decoder = new ReflectiveBareDecoder(is);
             var customer = decoder.union(TestClasses.Customer.class, TestClasses.Employee.class, TestClasses.TerminatedEmployee.class).get(TestClasses.Customer.class);
             verifyCustomer(customer);
             var employee = decoder.union(TestClasses.Customer.class, TestClasses.Employee.class, TestClasses.TerminatedEmployee.class).get(TestClasses.Employee.class);

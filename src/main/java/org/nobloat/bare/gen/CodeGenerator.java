@@ -38,6 +38,7 @@ public class CodeGenerator {
         var importSection = writer.section();
 
         importSection.write("package " + packageName + ";");
+        importSection.newline();
 
         writer.write("public class Messages {");
         writer.indent();
@@ -80,6 +81,10 @@ public class CodeGenerator {
     }
 
     public void createStruct(Ast.UserDefinedType struct) {
+
+        var decodeSection = writer.section();
+        var encodeSection = writer.section();
+
         writer.write("public static class " + struct.name + " {");
         writer.indent();
 
@@ -153,6 +158,60 @@ public class CodeGenerator {
         writer.write("}");
     }
 
+    private String deocodeStatement(Ast.Type type) {
+        switch (type.kind) {
+            case U8:
+                return "decoder.u8()";
+            case I8:
+                return "decoder.i8()";
+            case U16:
+                return "deocoder.u16()";
+            case I16:
+                return "deocoder.i16()";
+            case U32:
+                return "deocoder.u32()";
+            case I32:
+                return "deocoder.i32()";
+            case U64:
+                return "decoder.u64()";
+            case I64:
+                return "decoder.i64()";
+            case STRING:
+                return "decoder.string()";
+            case Bool:
+                return "decoder.bool()";
+            case F32:
+                return "decoder.f32()";
+            case F64:
+                return "decoder.f64()";
+            case INT:
+                return "decoder.variadicInt()";
+            case UINT:
+                return "decoder.variadicUint()";
+            case DataSlice:
+                //TODO: lambda with element decoder
+                return "decoder.data()";
+            case DataArray:
+                //TODO: size
+                return "decoder.data()";
+            case UserType:
+                return type.name + ".decode(decoder)";
+            case Optional:
+                return "decoder.optional()";
+            case Map:
+                return "decoder.map()";
+            case Slice:
+                return "decoder.slice()";
+            case Array:
+                return "decoder.array()";
+        }
+        return "";
+    }
+
+    private String enocodeStatement(Ast.Type type) {
+        return "";
+    }
+
     private String fieldTypeMap(Ast.Type type) {
         switch (type.kind) {
             case U8:
@@ -206,7 +265,6 @@ public class CodeGenerator {
         }
         return "";
     }
-
 
     public static void main(String[] args) throws Exception {
         try (var is = openFile("schema.bare"); var scanner = new Scanner(is)) {
