@@ -72,8 +72,8 @@ public class CodeGenerator {
             createStruct((Ast.UserDefinedType)type);
         } else if (type instanceof Ast.UserDefinedEnum) {
             createEnum((Ast.UserDefinedEnum)type);
-        } else if (type.kind == Ast.TypeKind.Union) {
-            //TODO: map unions
+        } else if (type.kind == Ast.TypeKind.UserType && ((Ast.UserDefinedType)type).type.kind == Ast.TypeKind.Union) {
+            createUnion((Ast.UnionType) ((Ast.UserDefinedType)type).type);
         } else {
             //TODO: change to inheritance -> move upwards to createJavaTypes
             //var userDefindeType = (Ast.UserDefinedType)type;
@@ -118,6 +118,30 @@ public class CodeGenerator {
     }
 
     public void createUnion(Ast.UnionType union) {
+
+        writer.write("public static class " + union.name + " extends Union {");
+        writer.indent();
+
+        writer.write("public static Union decode(AggregateBareDecoder decoder) throws IOException, BareException {");
+        writer.indent();
+
+
+        var types = union.variants.stream().map(v -> {
+            try {
+                return v.tag + "," + decodeLambda(v.subtype);
+            } catch (BareException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).collect(Collectors.joining(","));
+
+        writer.write("decoder.union(Map.of("+types+"));");
+
+        writer.dedent();
+        writer.write("}");
+
+        writer.dedent();
+        writer.write("}");
 
     }
 
