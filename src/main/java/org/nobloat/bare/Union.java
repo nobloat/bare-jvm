@@ -49,8 +49,8 @@ public class Union {
         throw new UnsupportedOperationException("Unexpected union type: " + id);
     }
 
-    public long type() {
-        return type;
+    public int type() {
+        return (int) type;
     }
 
     public <T> T get(Class<T> type) {
