@@ -115,6 +115,7 @@ public class CodeGenerator {
 
         var fieldSection = structSection.section();
         var decodeSection = structSection.section();
+        var encodeSection = structSection.section();
 
         fieldSection.write("public static class " + struct.name + " {");
 
@@ -126,6 +127,10 @@ public class CodeGenerator {
         decodeSection.indent();
         decodeSection.write("var o = new " + struct.name + "();");
 
+        encodeSection.indent();
+        encodeSection.write("public void encode(AggregateBareEncoder encoder) throws IOException, BareException {");
+        encodeSection.indent();
+
         for(var field : fields) {
             String fieldMapping = "public " + fieldTypeMap(field.type) + " " + field.name;
             if (field.type.kind == Ast.TypeKind.Array || field.type.kind == Ast.TypeKind.DataArray) {
@@ -135,6 +140,7 @@ public class CodeGenerator {
             fieldSection.write(fieldMapping + ";");
 
             decodeSection.write("o." + field.name + " = " + decodeStatement(field.type) + ";");
+            encodeSection.write(encodeStatement(field.type, field.name) + ";");
 
         }
 
@@ -142,7 +148,106 @@ public class CodeGenerator {
         decodeSection.dedent();
         decodeSection.write("}");
 
+        encodeSection.dedent();
+        encodeSection.write("}");
+
         structSection.write("}");
+    }
+
+    private String encodeStatement(Ast.Type type, String name) throws BareException {
+        switch (type.kind) {
+            case U8:
+                usedTypes.add("org.nobloat.bare.Int");
+                return "encoder.u8("+name+")";
+            case I8:
+                usedTypes.add("org.nobloat.bare.Int");
+                return "encoder.ui8("+name+")";
+            case U16:
+                usedTypes.add("org.nobloat.bare.Int");
+                return "encoder.u16("+name+")";
+            case I16:
+                usedTypes.add("org.nobloat.bare.Int");
+                return "encoder.i16("+name+")";
+            case U32:
+                usedTypes.add("org.nobloat.bare.Int");
+                return "encoder.u32("+name+")";
+            case I32:
+                usedTypes.add("org.nobloat.bare.Int");
+                return "encoder.i32("+name+")";
+            case U64:
+                usedTypes.add("org.nobloat.bare.Int");
+                return "encoder.u64("+name+")";
+            case I64:
+                usedTypes.add("org.nobloat.bare.Int");
+                return "encoder.i64("+name+")";
+            case STRING:
+                return "encoder.string("+name+")";
+            case Bool:
+                return "encoder.bool("+name+")";
+            case F32:
+                return "encoder.f32("+name+")";
+            case F64:
+                return "encoder.f64("+name+")";
+            case INT:
+                usedTypes.add("org.nobloat.bare.Int");
+                return "encoder.variadicInt("+name+")";
+            case UINT:
+                usedTypes.add("org.nobloat.bare.Int");
+                return "encoder.variadicUInt("+name+")";
+            case DataSlice:
+                return "encoder.data("+name+")";
+            case UserType:
+                return name + ".encode(encoder)";
+            case Optional:
+                usedTypes.add("java.util.Optional");
+                return "encoder.optional(" + name + ","+ encodeLambda(((Ast.OptionalType) type).subType)+")";
+            case Map:
+                return "encoder.map("+ name + "," + encodeLambda(((Ast.MapType) type).key)+","+encodeLambda(((Ast.MapType) type).value) + ")";
+            case Slice:
+                return "encoder.slice(" + name + "," + encodeLambda(((Ast.ArrayType) type).member)+")";
+            case Array:
+                return "encoder.array("+ name + ", " + encodeLambda(((Ast.ArrayType) type).member) +")";
+        }
+        return "";
+    }
+
+    private String encodeLambda(Ast.Type type) throws BareException {
+        switch (type.kind) {
+            case U8:
+                return "encoder::u8";
+            case I8:
+                return "encoder::i8";
+            case U16:
+                return "encoder::u16";
+            case I16:
+                return "encoder::i16";
+            case U32:
+                return "encoder::u32";
+            case I32:
+                return "encoder::i32";
+            case U64:
+                return "encoder::u64";
+            case I64:
+                return "encoder::i64";
+            case STRING:
+                return "encoder::string";
+            case Bool:
+                return "encoder::bool";
+            case F32:
+                return "encoder::f32";
+            case F64:
+                return "encoder::f64";
+            case INT:
+                return "encoder::variadicInt";
+            case UINT:
+                return "encoder::variadicUint";
+            case DataSlice:
+                return "encoder::data";
+            case Struct:
+            case UserType:
+                return type.name + "::encode";
+            default: throw new BareException("Unknown lambda for " + type.name);
+        }
     }
 
     public void createUnion(Ast.UnionType union) {
@@ -315,10 +420,6 @@ public class CodeGenerator {
                 return type.name + "::decode";
             default: throw new BareException("Unknown lambda for " + type.name);
         }
-    }
-
-    private String enocodeStatement(Ast.Type type) {
-        return "";
     }
 
     private String fieldTypeMap(Ast.Type type) {
