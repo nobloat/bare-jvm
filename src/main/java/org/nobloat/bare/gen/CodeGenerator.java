@@ -8,53 +8,112 @@ import org.nobloat.bare.dsl.Scanner;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CodeGenerator {
 
-    public static void createJavaTypes(String packageName, List<Ast.Type> types, OutputStream outputStream) throws Exception {
-        CodeWriter writer = new CodeWriter(outputStream);
+    private String packageName;
+    private List<Ast.Type> types;
+    private CodeWriter writer;
+    private Set<String> usedTypes;
 
+    public CodeGenerator(String packageName, List<Ast.Type> types, OutputStream target) {
+        this.packageName = packageName;
+        this.types = types;
+        usedTypes = new HashSet<>();
+        writer = new CodeWriter(target);
+    }
+
+
+    public void createJavaTypes() throws IOException {
         writer.write("package " + packageName + ";");
-        writer.write("");
+
+        var importSection = writer.section();
 
         writer.write("public class Messages {");
-        writer.indendt();
+        writer.indent();
+
         for (var type : types) {
-            //TODO: switch on types
-            writer.write(classProlog(type.name));
-            writer.indendt();
-            writeTypeFields(writer, type);
-            writer.dedendt();
-            writer.write(classEpilog());
-            writer.write("");
+            createJavaType(type);
         }
-        writer.dedendt();
+
+        writer.dedent();
         writer.write("}");
+
+
         writer.close();
     }
 
-    private static void writeTypeFields(CodeWriter writer, Ast.Type type) {
+
+    public void createJavaType(Ast.Type type) {
         if (type.kind == Ast.TypeKind.UserType && ((Ast.UserDefinedType)type).type.kind == Ast.TypeKind.Struct) {
-            writeStructFields(writer, (Ast.StructType) ((Ast.UserDefinedType)type).type);
+            //createStruct((Ast.StructType) ((Ast.UserDefinedType) type).type);
         } else if (type instanceof Ast.UserDefinedEnum) {
-            writer.write(writeEnumValues(((Ast.UserDefinedEnum)type).values));
+            createEnum((Ast.UserDefinedEnum)type);
         } else if (type.kind == Ast.TypeKind.Union) {
             //TODO: map unions
         } else {
             //TODO: change to inheritance -> move upwards to createJavaTypes
-            var userDefindeType = (Ast.UserDefinedType)type;
-            writer.write("public " + fieldTypeMap(userDefindeType.type) + " " + userDefindeType.name + ";");
+            //var userDefindeType = (Ast.UserDefinedType)type;
+            //writer.write("public " + fieldTypeMap(userDefindeType.type) + " " + userDefindeType.name + ";");
+        }
+    }
+
+    public void createStruct(Ast.StructType struct) {
+
+    }
+
+    public void createUnion(Ast.UnionType union) {
+
+    }
+
+    public void createEnum(Ast.UserDefinedEnum enumeration) {
+        writer.write("public enum " + enumeration.name + " {");
+        writer.indent();
+
+        writer.write(enumeration.values.stream().map(v -> v.name + "(" + v.value + ")").collect(Collectors.joining(",")) + ";");
+
+        usedTypes.add("org.nobloat.bare.Int");
+        writer.write("@Int(Int.Type.ui)");
+        writer.write("private int value;");
+
+        writer.newline();
+
+        writer.write(enumeration.name + "(int value) {");
+        writer.indent();
+        writer.write("this.value = value;");
+        writer.dedent();
+        writer.write("}");
+
+
+        writer.write("public static " + enumeration.name + " decode(PrimitiveBareDecoder decoder) throws IOException, BareException {");
+        writer.indent();
+
+        writer.write("var i = decoder.variadicUint().intValue();");
+        writer.write("return switch(i) {");
+        writer.indent();
+
+        for(var value : enumeration.values) {
+            writer.write("case " + value.value + " -> " + value.name + ";");
         }
 
+        writer.write("default -> throw new BareException(\"Unexpected enum value: \" + i); ");
+
+        writer.dedent();
+        writer.write("};");
+        writer.dedent();
+        writer.write("}");
+
+        writer.dedent();
+        writer.write("}");
     }
 
-    private static String writeEnumValues(List<Ast.EnumValue> values) {
-        return values.stream().map(v -> v.name + "(" + v.value +")").collect(Collectors.joining(",")) + ";";
-    }
 
     private static void writeStructFields (CodeWriter writer, Ast.StructType struct) {
         for(var field : struct.fields) {
@@ -118,20 +177,12 @@ public class CodeGenerator {
     }
 
 
-    public static String classProlog(String classname) {
-        return "public static class " + classname + " {";
-    }
-
-    public static String classEpilog() {
-        return "}";
-    }
-
     public static void main(String[] args) throws Exception {
         try (var is = openFile("schema.bare"); var scanner = new Scanner(is)) {
             Lexer lexer = new Lexer(scanner);
             AstParser parser = new AstParser(lexer);
-            CodeGenerator.createJavaTypes("com.example", parser.parse(), System.out);
 
+            new CodeGenerator("org.example", parser.parse(), System.out).createJavaTypes();
         }
     }
 

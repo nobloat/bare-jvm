@@ -47,6 +47,7 @@ public class TestClasses {
 
     public enum Department {
         ACCOUNTING(0), ADMINISTRATION(1), CUSTOMER_SERVICE(2), DEVELOPMENT(3), JSMITH(99);
+        @Int(Int.Type.ui)
         public int value;
         Department(int value) {
             this.value= value;
