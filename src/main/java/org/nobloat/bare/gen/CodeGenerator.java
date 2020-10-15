@@ -1,5 +1,6 @@
 package org.nobloat.bare.gen;
 
+import org.nobloat.bare.BareException;
 import org.nobloat.bare.dsl.Ast;
 import org.nobloat.bare.dsl.AstParser;
 import org.nobloat.bare.dsl.Lexer;
@@ -33,14 +34,14 @@ public class CodeGenerator {
     }
 
 
-    public void createJavaTypes() throws IOException {
+    public void createJavaTypes() throws IOException, BareException {
 
         var importSection = writer.section();
 
         importSection.write("package " + packageName + ";");
-        importSection.newline();
 
-        writer.write("public class Messages {");
+        var messagesSection = writer.section();
+        messagesSection.write("public class Messages {");
         writer.indent();
 
         for (var type : types) {
@@ -66,7 +67,7 @@ public class CodeGenerator {
     }
 
 
-    public void createJavaType(Ast.Type type) {
+    public void createJavaType(Ast.Type type) throws BareException {
         if (type.kind == Ast.TypeKind.UserType && ((Ast.UserDefinedType)type).type.kind == Ast.TypeKind.Struct) {
             createStruct((Ast.UserDefinedType)type);
         } else if (type instanceof Ast.UserDefinedEnum) {
@@ -80,15 +81,22 @@ public class CodeGenerator {
         }
     }
 
-    public void createStruct(Ast.UserDefinedType struct) {
+    public void createStruct(Ast.UserDefinedType struct) throws BareException {
 
-        var decodeSection = writer.section();
-        var encodeSection = writer.section();
+        var structSection = writer.section();
 
-        writer.write("public static class " + struct.name + " {");
-        writer.indent();
+        var fieldSection = structSection.section();
+        var decodeSection = structSection.section();
+
+        fieldSection.write("public static class " + struct.name + " {");
 
         var fields = ((Ast.StructType)struct.type).fields;
+
+        fieldSection.indent();
+        decodeSection.indent();
+        decodeSection.write("public static " + struct.name + " decode(AggregateBareDecoder decoder) throws IOException, BareException {");
+        decodeSection.indent();
+        decodeSection.write("var o = new " + struct.name + "();");
 
         for(var field : fields) {
             String fieldMapping = "public " + fieldTypeMap(field.type) + " " + field.name;
@@ -96,12 +104,17 @@ public class CodeGenerator {
                 var arrayType = (Ast.ArrayType)field.type;
                 fieldMapping += " = new Array<>("+arrayType.length+")";
             }
-            writer.write(fieldMapping + ";");
+            fieldSection.write(fieldMapping + ";");
+
+            decodeSection.write("o." + field.name + " = " + deocodeStatement(field.type) + ";");
+
         }
 
+        decodeSection.write("return o;");
+        decodeSection.dedent();
+        decodeSection.write("}");
 
-        writer.dedent();
-        writer.write("}");
+        structSection.write("}");
     }
 
     public void createUnion(Ast.UnionType union) {
@@ -120,8 +133,6 @@ public class CodeGenerator {
 
         writer.write("@Int(Int.Type.ui)");
         writer.write("private int value;");
-
-        writer.newline();
 
         writer.write(enumeration.name + "(int value) {");
         writer.indent();
@@ -158,7 +169,7 @@ public class CodeGenerator {
         writer.write("}");
     }
 
-    private String deocodeStatement(Ast.Type type) {
+    private String deocodeStatement(Ast.Type type) throws BareException {
         switch (type.kind) {
             case U8:
                 return "decoder.u8()";
@@ -189,23 +200,60 @@ public class CodeGenerator {
             case UINT:
                 return "decoder.variadicUint()";
             case DataSlice:
-                //TODO: lambda with element decoder
                 return "decoder.data()";
             case DataArray:
-                //TODO: size
-                return "decoder.data()";
+                return "decoder.array("+((Ast.ArrayType)type).length+")";
             case UserType:
                 return type.name + ".decode(decoder)";
             case Optional:
-                return "decoder.optional()";
+                return "decoder.optional("+decodeLambda(((Ast.OptionalType) type).subType)+")";
             case Map:
-                return "decoder.map()";
+                return "decoder.map("+decodeLambda(((Ast.MapType) type).key)+","+decodeLambda(((Ast.MapType) type).value) + ")";
             case Slice:
-                return "decoder.slice()";
+                return "decoder.slice("+decodeLambda(((Ast.ArrayType) type).member)+")";
             case Array:
-                return "decoder.array()";
+                return "decoder.array("+ ((Ast.ArrayType) type).length + ", " + decodeLambda(((Ast.ArrayType) type).member) +")";
         }
         return "";
+    }
+
+    private String decodeLambda(Ast.Type type) throws BareException {
+        switch (type.kind) {
+            case U8:
+                return "PrimitiveBareDecoder::u8";
+            case I8:
+                return "PrimitiveBareDecoder::i8";
+            case U16:
+                return "PrimitiveBareDecoder::u16";
+            case I16:
+                return "PrimitiveBareDecoder::i16";
+            case U32:
+                return "PrimitiveBareDecoder::u32";
+            case I32:
+                return "PrimitiveBareDecoder::i32";
+            case U64:
+                return "PrimitiveBareDecoder::u64";
+            case I64:
+                return "PrimitiveBareDecoder::i64";
+            case STRING:
+                return "PrimitiveBareDecoder::string";
+            case Bool:
+                return "PrimitiveBareDecoder::bool";
+            case F32:
+                return "PrimitiveBareDecoder::f32";
+            case F64:
+                return "PrimitiveBareDecoder::f64";
+            case INT:
+                return "PrimitiveBareDecoder::variadicInt";
+            case UINT:
+                return "PrimitiveBareDecoder::variadicUint";
+            case DataSlice:
+                return "PrimitiveBareDecoder::data";
+            case Struct:
+            case UserType:
+                return type.name + "::decode";
+            default: throw new BareException("Unknown lambda for " + type.name);
+        }
     }
 
     private String enocodeStatement(Ast.Type type) {
@@ -270,8 +318,8 @@ public class CodeGenerator {
         try (var is = openFile("schema.bare"); var scanner = new Scanner(is)) {
             Lexer lexer = new Lexer(scanner);
             AstParser parser = new AstParser(lexer);
-
-            new CodeGenerator("org.example", parser.parse(), System.out).createJavaTypes();
+            var types = parser.parse();
+            new CodeGenerator("org.example", types, System.out).createJavaTypes();
         }
     }
 

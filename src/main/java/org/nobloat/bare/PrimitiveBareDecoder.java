@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class PrimitiveBareDecoder {
 
@@ -111,14 +114,20 @@ public class PrimitiveBareDecoder {
     }
 
     public String string() throws IOException {
-        return new String(data(), StandardCharsets.UTF_8);
+        BigInteger length = variadicUint();
+        //TODO: check length
+        var target = new byte[length.intValue()];
+        is.read(target);
+        return new String(target, StandardCharsets.UTF_8);
     }
 
-    public byte[] data() throws IOException {
+    public List<Byte> data() throws IOException {
         //TODO: add max length
         BigInteger length = variadicUint();
-        byte[] bytes = new byte[length.intValue()];
-        is.read(bytes);
-        return bytes;
+        var result = new ArrayList<Byte>(length.intValue());
+        for (long i=0; i < length.longValue(); i++) {
+            result.add(is.readByte());
+        }
+        return result;
     }
 }

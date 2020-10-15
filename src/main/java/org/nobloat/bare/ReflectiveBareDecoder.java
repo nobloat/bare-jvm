@@ -13,6 +13,10 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ReflectiveBareDecoder extends AggregateBareDecoder {
+
+    public static final List<String> INTEGER_TYPES = List.of(new String[]{"java.lang.Long", "java.lang.Integer", "java.lang.BigInteger", "java.lang.Short"});
+    public static final List<String> PRIMITIVE_TYPES = List.of(new String[]{"java.lang.String", "java.lang.Boolean", "java.lang.Byte", "java.lang.Float", "java.lang.Double"});
+
     public ReflectiveBareDecoder(InputStream inputStream) {
         super(inputStream);
     }

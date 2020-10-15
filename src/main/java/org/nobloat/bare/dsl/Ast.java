@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 public class Ast {
 
     public static class Type {
-        public final String name;
+        public String name;
         public final TypeKind kind;
 
         public Type(String name, TypeKind kind) {
