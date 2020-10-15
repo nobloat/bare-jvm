@@ -59,12 +59,9 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
         return result;
     }
 
-    public Union union(Class<?>... possibleTypes) throws IOException, ReflectiveOperationException {
-        return union(new Union(possibleTypes).types);
-    }
 
-    public Union union(Map<Long, Class<?>> allowedTypes) throws IOException, ReflectiveOperationException {
-        var union = new Union(allowedTypes);
+    public Union union(Class<?>... possibleTypes) throws IOException, ReflectiveOperationException {
+        var union = new Union(possibleTypes);
         int type = variadicUint().intValue();
         var clazz = union.type(type);
         union.set(type, readType(clazz));

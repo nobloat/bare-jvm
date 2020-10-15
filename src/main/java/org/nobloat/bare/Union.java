@@ -13,6 +13,11 @@ public class Union {
     private Object value;
     private long type;
 
+    public Union(int type, Object value) {
+        this.type = type;
+        this.value = value;
+    }
+
     public Union(Class<?> ...allowedTypes) {
         this.types = new HashMap<>();
         for (var c : allowedTypes) {
@@ -44,8 +49,8 @@ public class Union {
         throw new UnsupportedOperationException("Unexpected union type: " + id);
     }
 
-    public Class<?> type() {
-        return types.get(type);
+    public long type() {
+        return type;
     }
 
     public <T> T get(Class<T> type) {

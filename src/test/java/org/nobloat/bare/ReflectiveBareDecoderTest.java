@@ -82,27 +82,31 @@ class ReflectiveBareDecoderTest {
         assertEquals((byte)0x33, result.get((byte)0x03));
     }
 
+
     @Test
-    public void testUnion() throws IOException, ReflectiveOperationException {
+    public void testUnion() throws IOException, ReflectiveOperationException, BareException {
         var stream = fromInts(0x01, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
         var decoder = new ReflectiveBareDecoder(stream);
 
-        var result = decoder.union(Map.of(0L, Float.class, 1L, String.class));
-        assertEquals(String.class, result.type());
+
+
+
+        var result = decoder.union(Map.of(0, PrimitiveBareDecoder::f32, 1, PrimitiveBareDecoder::string));
+        assertEquals(1, result.type());
         assertEquals("こんにちは、世界！", result.get(String.class));
 
 
         stream = fromInts(0x00, 0x71, 0x2D, 0xA7, 0x44);
         decoder = new ReflectiveBareDecoder(stream);
-        result = decoder.union(Map.of(0L, Float.class, 1L, String.class));
-        assertEquals(Float.class, result.type());
+        result = decoder.union(Map.of(0, PrimitiveBareDecoder::f32, 1, PrimitiveBareDecoder::string));
+        assertEquals(0, result.type());
         assertEquals(1337.42, result.get(Float.class), 0.001);
 
-        assertThrows(UnsupportedOperationException.class, () ->  new ReflectiveBareDecoder(fromInts(0x03, 0x71, 0x2D, 0xA7, 0x44))
-                .union(Map.of(0L, Float.class, 1L, String.class)));
+        assertThrows(BareException.class, () ->  new ReflectiveBareDecoder(fromInts(0x03, 0x71, 0x2D, 0xA7, 0x44))
+                .union(Map.of(0, PrimitiveBareDecoder::f32, 1, PrimitiveBareDecoder::string)));
     }
 
     @Test
