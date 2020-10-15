@@ -11,21 +11,20 @@ public class CodeWriter implements AutoCloseable {
 
     public static String INDENDT_CHARACTER = "\t";
     private int indent = 0;
-    private ByteArrayOutputStream buffer;
+    private final ByteArrayOutputStream buffer;
     private PrintWriter writer;
-    private OutputStream target;
-    private List<CodeWriter> sections;
+    private final OutputStream target;
+    private final List<CodeWriter> sections;
 
     public CodeWriter(OutputStream out) {
         buffer = new ByteArrayOutputStream();
-        this.target = out;
-        writer = new PrintWriter(out);
+        target = out;
         sections = new ArrayList<>();
         writer = new PrintWriter(buffer);
     }
 
     public CodeWriter section() {
-        var writer = new CodeWriter(buffer);
+        var writer = new CodeWriter(target);
         writer.indent = this.indent;
         sections.add(writer);
         return writer;
@@ -49,10 +48,9 @@ public class CodeWriter implements AutoCloseable {
     @Override
     public void close() throws IOException {
         writer.close();
-        buffer.writeTo(target);
         for(var section: sections) {
             section.close();
-            section.buffer.writeTo(target);
         }
+        buffer.writeTo(target);
     }
 }

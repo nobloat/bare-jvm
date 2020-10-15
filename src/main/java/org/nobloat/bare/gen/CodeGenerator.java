@@ -11,6 +11,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,9 +34,10 @@ public class CodeGenerator {
 
 
     public void createJavaTypes() throws IOException {
-        writer.write("package " + packageName + ";");
 
         var importSection = writer.section();
+
+        importSection.write("package " + packageName + ";");
 
         writer.write("public class Messages {");
         writer.indent();
@@ -46,14 +49,25 @@ public class CodeGenerator {
         writer.dedent();
         writer.write("}");
 
+       createImports(importSection);
 
         writer.close();
+    }
+
+    public void createImports(CodeWriter section) {
+
+        var types = new ArrayList<>(usedTypes);
+        Collections.sort(types);
+
+        for(var usedType : types) {
+            section.write("import " + usedType + ";");
+        }
     }
 
 
     public void createJavaType(Ast.Type type) {
         if (type.kind == Ast.TypeKind.UserType && ((Ast.UserDefinedType)type).type.kind == Ast.TypeKind.Struct) {
-            //createStruct((Ast.StructType) ((Ast.UserDefinedType) type).type);
+            createStruct((Ast.UserDefinedType)type);
         } else if (type instanceof Ast.UserDefinedEnum) {
             createEnum((Ast.UserDefinedEnum)type);
         } else if (type.kind == Ast.TypeKind.Union) {
@@ -65,8 +79,24 @@ public class CodeGenerator {
         }
     }
 
-    public void createStruct(Ast.StructType struct) {
+    public void createStruct(Ast.UserDefinedType struct) {
+        writer.write("public static class " + struct.name + " {");
+        writer.indent();
 
+        var fields = ((Ast.StructType)struct.type).fields;
+
+        for(var field : fields) {
+            String fieldMapping = "public " + fieldTypeMap(field.type) + " " + field.name;
+            if (field.type.kind == Ast.TypeKind.Array || field.type.kind == Ast.TypeKind.DataArray) {
+                var arrayType = (Ast.ArrayType)field.type;
+                fieldMapping += " = new Array<>("+arrayType.length+")";
+            }
+            writer.write(fieldMapping + ";");
+        }
+
+
+        writer.dedent();
+        writer.write("}");
     }
 
     public void createUnion(Ast.UnionType union) {
@@ -123,20 +153,7 @@ public class CodeGenerator {
         writer.write("}");
     }
 
-
-    private static void writeStructFields (CodeWriter writer, Ast.StructType struct) {
-        for(var field : struct.fields) {
-            String fieldMapping = "public " + fieldTypeMap(field.type) + " " + field.name;
-            if (field.type.kind == Ast.TypeKind.Array || field.type.kind == Ast.TypeKind.DataArray) {
-                var arrayType = (Ast.ArrayType)field.type;
-                fieldMapping += " = new Array<>("+arrayType.length+")";
-            }
-            writer.write(fieldMapping + ";");
-        }
-
-    }
-
-    private static String fieldTypeMap(Ast.Type type) {
+    private String fieldTypeMap(Ast.Type type) {
         switch (type.kind) {
             case U8:
                return "@Int(Int.Type.u8) Short";
@@ -167,19 +184,24 @@ public class CodeGenerator {
             case UINT:
                 return "@Int(Int.Type.ui) Long";
             case DataSlice:
+                usedTypes.add("java.util.List");
                 return "List<Byte>";
             case DataArray:
+                usedTypes.add("java.util.List");
                 return "Array<Byte>";
             case UserType:
-                return "" + type.name + ";";
+                return type.name;
             case Optional:
-                //TODO: set state that optional was used for importing
+                usedTypes.add("org.nobloat.bare.Array");
                 return "Optional<" + fieldTypeMap(((Ast.OptionalType) type).subType) + ">";
             case Map:
+                usedTypes.add("java.util.Map");
                 return "Map<" + fieldTypeMap(((Ast.MapType) type).key) + "," + fieldTypeMap(((Ast.MapType) type).value) + ">";
             case Slice:
+                usedTypes.add("java.util.List");
                 return "List<" + fieldTypeMap(((Ast.ArrayType) type).member) + ">";
             case Array:
+                usedTypes.add("org.nobloat.bare.Array");
                 return "Array<"+fieldTypeMap(((Ast.ArrayType) type).member) + ">";
         }
         return "";
