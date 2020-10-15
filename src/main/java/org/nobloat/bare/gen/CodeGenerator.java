@@ -80,6 +80,9 @@ public class CodeGenerator {
         writer.write(enumeration.values.stream().map(v -> v.name + "(" + v.value + ")").collect(Collectors.joining(",")) + ";");
 
         usedTypes.add("org.nobloat.bare.Int");
+        usedTypes.add("org.nobloat.bare.PrimitiveBareDecoder");
+        usedTypes.add("org.nobloat.bare.PrimitiveBareEncoder");
+
         writer.write("@Int(Int.Type.ui)");
         writer.write("private int value;");
 
@@ -107,6 +110,12 @@ public class CodeGenerator {
 
         writer.dedent();
         writer.write("};");
+        writer.dedent();
+        writer.write("}");
+
+        writer.write("public void encode(PrimitiveBareEncoder encoder) throws IOException {");
+        writer.indent();
+        writer.write("encoder.variadicUInt(value);");
         writer.dedent();
         writer.write("}");
 
