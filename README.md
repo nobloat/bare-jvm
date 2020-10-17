@@ -8,13 +8,18 @@
 
 ![bare-jvm-logo](logo.svg)
 
-This is a [baremessages](https://baremessages.org/) implementation for the JVM.
+This is a [bare messages](https://baremessages.org/) implementation for the JVM.
 
 ## Features
+- Parsing of [bare schemas](https://baremessages.org/)
+- [Code generation](src/main/java/org/nobloat/bare/gen/CodeGenerator.java) for data structures, encoding and decoding methods out ouf [bare schemas](https://baremessages.org/) 
+
 - Decoding primitive data types from `InputStream`
 - Decoding aggregate data types from `InputStream`
 - Encoding primitive data types to `OutputStream`
-- Parsing bare schemas
+- Encoding aggregate data types to `OutputStream`
+
+- Reflective decoding of data types from `InputStream`
 
 ## Type mappings
 
@@ -38,7 +43,7 @@ This is a [baremessages](https://baremessages.org/) implementation for the JVM.
 | `@Int(Int.Type.u8) Byte`         | `u8`           |
 | `@Int(Int.Type.i8) Byte`         | `i8`           |
 | `@Int(Int.Type.i) Long`         | `int`          |
-| `@Int(Int.Type.i) BigInteger`    | `uint`         |
+| `@Int(Int.Type.ui) BigInteger`    | `uint`         |
 
 ### Aggregate types
 
@@ -51,64 +56,11 @@ This is a [baremessages](https://baremessages.org/) implementation for the JVM.
 | `class Person {public String name;}`                        | `struct`       |
 | `Union u = new Union(Person.class, Account.class)`                        | `tagged union`       |
 
-### Unions
-
-**Defining inline tag IDs**
-```java
-decoder.union(Map.of(0L, Float.class, 1L, String.class));
-```
-
-**Defining tag IDs on class level**
-```java
-@Union.Id(0)
-public static class Customer {
-    public String name;
-    public String email;
-    public Address address;
-    public List<Order> orders;
-    public Map<String,String> metadata;
-}
-
-@Union.Id(1)
-public static class Employee {
-    public String name;
-    public String email;
-    public Address address;
-    public Department department;
-    public String hireDate;
-    public List<Byte> publicKey;
-    public Map<String,String> metadata;
-}
-
-public static class CustomerOrEmployee { public Union person = new Union(Customer.class, Employee.class); }
-```
-
-
-
-### Enums
-
-**enums are not functional yet**
-
-```java
-public enum Department {
-    ACCOUNTING(0), ADMINISTRATION(1), CUSTOMER_SERVICE(2), DEVELOPMENT(3), JSMITH(99);
-    public int value;
-    Department(int value) {
-        this.value= value;
-    }
-}
-```
-
 
 ## Usage
 
-Simply copy the required classes from `org.nobloat.bar` or add the dependency via [![](https://jitpack.io/v/nobloat/bare-jvm.svg)](https://jitpack.io/#nobloat/bare-jvm)
+Simply copy the required classes from `org.nobloat.bare` or add the dependency via [![](https://jitpack.io/v/nobloat/bare-jvm.svg)](https://jitpack.io/#nobloat/bare-jvm)
 
-- [Decoding a class](src/test/java/org/nobloat/bare/AggregateBareDecoderTest.java#L120)
-- [Decoding a slice](src/test/java/org/nobloat/bare/AggregateBareDecoderTest.java#L66)
-- [Decoding a map](src/test/java/org/nobloat/bare/AggregateBareDecoderTest.java#L85)
-- [Decoding a union](src/test/java/org/nobloat/bare/AggregateBareDecoderTest.java#L97)
-- [Decoding a map](src/test/java/org/nobloat/bare/AggregateBareDecoderTest.java#L85)
 
 
 ## Limitations
@@ -123,6 +75,7 @@ Simply copy the required classes from `org.nobloat.bar` or add the dependency vi
 ## Problems
 - Java has no concept of unsigned primitive data types, hence double the amount of memory is required to safely use unsigned types:
     - `u64` becomes `BigInteger`
-    - `u32` becomes `Integer`
+    - `u32` becomes `long`
     - `u16` becomes `int`
+    - `u8` becomes `short`
     
