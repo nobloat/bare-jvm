@@ -306,17 +306,17 @@ public class CodeGenerator {
         writer.indent();
 
         writer.write("var i = decoder.variadicUint().intValue();");
-        writer.write("return switch(i) {");
+        writer.write("switch(i) {");
         writer.indent();
 
         for(var value : enumeration.values) {
-            writer.write("case " + value.value + " -> " + value.name + ";");
+            writer.write("case " + value.value + ": return " + value.name + ";");
         }
 
-        writer.write("default -> throw new BareException(\"Unexpected enum value: \" + i); ");
+        writer.write("default: throw new BareException(\"Unexpected enum value: \" + i); ");
 
         writer.dedent();
-        writer.write("};");
+        writer.write("}");
         writer.dedent();
         writer.write("}");
 
