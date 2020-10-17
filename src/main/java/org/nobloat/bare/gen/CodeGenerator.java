@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -481,17 +482,17 @@ public class CodeGenerator {
     }
 
     public static void main(String[] args) throws Exception {
-
-        if (args.length < 2) {
-            System.err.println("input schema required");
+        if (args.length < 1) {
             System.out.println("Usage: java -jar bare-jvm schame.bare [Messages.java]");
+            System.err.println("   Input schema required");
+            System.exit(1);
         }
         var fileName = "Messages.java";
-        if (args.length >= 3) {
-            fileName = args[2];
+        if (args.length >= 2) {
+            fileName = args[1];
         }
 
-        try (var is = new FileInputStream(args[1]); var scanner = new Scanner(is); var target = new FileOutputStream("Messages.java")) {
+        try (var is = new FileInputStream(args[0]); var scanner = new Scanner(is); var target = new FileOutputStream(fileName)) {
             Lexer lexer = new Lexer(scanner);
             AstParser parser = new AstParser(lexer);
             var types = parser.parse();

@@ -22,14 +22,14 @@ class CodeGeneratorTest {
 
     @Test
     void compileSchema() throws Exception {
-        CodeGenerator.main(new String[]{"bare-jvm", "src/test/resources/schema2.bare", "Messages.java"});
+        CodeGenerator.main(new String[]{"src/test/resources/schema2.bare", "Messages.java"});
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         assertEquals(0, compiler.run(null, System.out, System.err, "--source-path", "src/main/java", "Messages.java"));
     }
 
     @Test
     void compileNumberSchema() throws Exception {
-        CodeGenerator.main(new String[]{"bare-jvm", "src/test/resources/numbers.bare", "Messages.java"});
+        CodeGenerator.main(new String[]{"src/test/resources/numbers.bare", "Messages.java"});
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         assertEquals(0, compiler.run(null, System.out, System.err, "--source-path", "src/main/java", "Messages.java"));
     }

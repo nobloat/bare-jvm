@@ -2,7 +2,6 @@ package org.nobloat.bare;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class Array<T> {
     public final int size;
