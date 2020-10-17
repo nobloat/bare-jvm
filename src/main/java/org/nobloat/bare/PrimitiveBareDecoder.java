@@ -129,13 +129,11 @@ public class PrimitiveBareDecoder {
         return result;
     }
 
-    public List<Byte> data() throws IOException {
+    public byte[] data() throws IOException {
         //TODO: add max length
         BigInteger length = variadicUint();
-        var result = new ArrayList<Byte>(length.intValue());
-        for (long i=0; i < length.longValue(); i++) {
-            result.add(is.readByte());
-        }
+        var result = new byte[length.intValue()];
+        is.read(result);
         return result;
     }
 }

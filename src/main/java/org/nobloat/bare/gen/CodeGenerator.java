@@ -273,18 +273,11 @@ public class CodeGenerator {
         writer.dedent();
         writer.write("}");
 
-        types = union.variants.stream().map(v -> {
-            try {
-                return v.tag + "," + encodeLambda(v.subtype);
-            } catch (BareException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }).collect(Collectors.joining(","));
+        types = union.variants.stream().map(v -> v.tag + ", o -> (("+v.subtype.name+")o).encode(encoder)").collect(Collectors.joining(","));
 
-        writer.write("public Union encode(AggregateBareEncoder encoder) throws IOException, BareException {");
+        writer.write("public void encode(AggregateBareEncoder encoder) throws IOException, BareException {");
         writer.indent();
-        writer.write("return encoder.union(this, Map.of("+types+"));");
+        writer.write("encoder.union(this, Map.of("+types+"));");
         writer.dedent();
         writer.write("}");
 

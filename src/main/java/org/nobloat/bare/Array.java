@@ -22,8 +22,4 @@ public class Array<T> {
     public <T> T get(int index) {
         return (T)values.get(index);
     }
-
-    public <T> Stream<T> stream() {
-        return (Stream<T>)values.stream();
-    }
 }
