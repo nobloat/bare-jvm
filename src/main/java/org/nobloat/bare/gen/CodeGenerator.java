@@ -22,21 +22,18 @@ import java.util.stream.Collectors;
 
 public class CodeGenerator {
 
-    private String packageName;
-    private List<Ast.Type> types;
-    private CodeWriter writer;
-    private Set<String> usedTypes;
+    private final String packageName;
+    private final List<Ast.Type> types;
+    private final CodeWriter writer;
+    private final Set<String> usedTypes = new HashSet<>();
 
     public CodeGenerator(String packageName, List<Ast.Type> types, OutputStream target) {
         this.packageName = packageName;
         this.types = types;
-        usedTypes = new HashSet<>();
         writer = new CodeWriter(target);
     }
 
-
     public void createJavaTypes() throws IOException, BareException {
-
         var importSection = writer.section();
 
         if (packageName != null) {
@@ -60,8 +57,6 @@ public class CodeGenerator {
     }
 
     public void createImports(CodeWriter section) {
-
-
         usedTypes.add("org.nobloat.bare.AggregateBareDecoder");
         usedTypes.add("org.nobloat.bare.AggregateBareEncoder");
         usedTypes.add("org.nobloat.bare.BareException");
@@ -94,14 +89,17 @@ public class CodeGenerator {
 
         writer.write("public " + fieldTypeMap(type.type) + " value;");
 
-
         writer.write("public static " + type.name + " decode(AggregateBareDecoder decoder) throws IOException, BareException {");
         writer.indent();
         writer.write("var o = new " + type.name + "();");
-
         writer.write("o.value = " + decodeStatement(type.type) + ";");
-
         writer.write("return o;");
+        writer.dedent();
+        writer.write("}");
+
+        writer.write("public void encode(AggregateBareEncoder encoder) throws IOException, BareException {");
+        writer.indent();
+        writer.write(encodeStatement(type.type, "value") + ";");
         writer.dedent();
         writer.write("}");
 
@@ -205,10 +203,12 @@ public class CodeGenerator {
                 return "encoder.map("+ name + "," + encodeLambda(((Ast.MapType) type).key)+","+encodeLambda(((Ast.MapType) type).value) + ")";
             case Slice:
                 return "encoder.slice(" + name + "," + encodeLambda(((Ast.ArrayType) type).member)+")";
+            case DataArray:
+                return "encoder.array(" + name + ", encoder::u8)";
             case Array:
                 return "encoder.array("+ name + ", " + encodeLambda(((Ast.ArrayType) type).member) +")";
+            default: throw new BareException("Unknown encoding statement for " + type.name);
         }
-        return "";
     }
 
     private String encodeLambda(Ast.Type type) throws BareException {
@@ -245,7 +245,7 @@ public class CodeGenerator {
                 return "encoder::data";
             case Struct:
             case UserType:
-                return type.name + "::encode";
+                return "o -> o.encode(encoder)";
             default: throw new BareException("Unknown lambda for " + type.name);
         }
     }
@@ -253,13 +253,6 @@ public class CodeGenerator {
     public void createUnion(Ast.UnionType union) {
 
         usedTypes.add("org.nobloat.bare.Union");
-
-        writer.write("public static class " + union.name + " extends Union {");
-        writer.indent();
-
-        writer.write("public static Union decode(AggregateBareDecoder decoder) throws IOException, BareException {");
-        writer.indent();
-
 
         var types = union.variants.stream().map(v -> {
             try {
@@ -270,8 +263,28 @@ public class CodeGenerator {
             return null;
         }).collect(Collectors.joining(","));
 
-        writer.write("return decoder.union(Map.of("+types+"));");
 
+        writer.write("public static class " + union.name + " extends Union {");
+        writer.indent();
+
+        writer.write("public static Union decode(AggregateBareDecoder decoder) throws IOException, BareException {");
+        writer.indent();
+        writer.write("return decoder.union(Map.of("+types+"));");
+        writer.dedent();
+        writer.write("}");
+
+        types = union.variants.stream().map(v -> {
+            try {
+                return v.tag + "," + encodeLambda(v.subtype);
+            } catch (BareException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).collect(Collectors.joining(","));
+
+        writer.write("public Union encode(AggregateBareEncoder encoder) throws IOException, BareException {");
+        writer.indent();
+        writer.write("return encoder.union(this, Map.of("+types+"));");
         writer.dedent();
         writer.write("}");
 
@@ -422,7 +435,7 @@ public class CodeGenerator {
         }
     }
 
-    private String fieldTypeMap(Ast.Type type) {
+    private String fieldTypeMap(Ast.Type type) throws BareException {
         switch (type.kind) {
             case U8:
                return "@Int(Int.Type.u8) Short";
@@ -472,8 +485,8 @@ public class CodeGenerator {
             case Array:
                 usedTypes.add("org.nobloat.bare.Array");
                 return "Array<"+fieldTypeMap(((Ast.ArrayType) type).member) + ">";
+            default: throw new BareException("Unknown field type mapping for " + type.name);
         }
-        return "";
     }
 
     public static void main(String[] args) throws Exception {
