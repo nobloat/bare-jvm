@@ -23,8 +23,8 @@ public class AggregateBareDecoder extends PrimitiveBareDecoder {
 
     public <T> Array<T> array(long count, DecodeFunction<T> itemDecoder) throws IOException, BareException {
         var result = new Array<T>((int)count);
-        for (long i=0; i < count; i++) {
-            result.values.add(itemDecoder.apply(this));
+        for (int i=0; i < count; i++) {
+            result.values.set(i, itemDecoder.apply(this));
         }
         return result;
     }

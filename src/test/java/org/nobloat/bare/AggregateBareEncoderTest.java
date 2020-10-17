@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.nobloat.bare.TestUtil.bytesFromInts;
 
 class AggregateBareEncoderTest {
@@ -116,5 +117,10 @@ class AggregateBareEncoderTest {
         var expected = bytesFromInts(0x00, 0x71, 0x2D, 0xA7, 0x44);
         assertEquals(expected.length, bos.size());
         assertArrayEquals(expected, bos.toByteArray());
+    }
+
+    @Test
+    void unmappedUnion() {
+        assertThrows(BareException.class, () -> encoder.union(new Union(1, 1337.42f), Map.of(0, e -> encoder.f32((Float) e))));
     }
 }
