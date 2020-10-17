@@ -45,7 +45,7 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
     public <T> Array<T> values(Class<T> c, int length) throws IOException, ReflectiveOperationException {
         var result = new Array<T>(length);
         for (int i = 0; i < length; i++) {
-            result.values.add(readType(c));
+            result.values.set(i,readType(c));
         }
         return result;
     }
@@ -156,7 +156,6 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
     public <T> T readType(Class<T> c) throws IOException, ReflectiveOperationException {
         try {
             if (c.isEnum()) {
-
                 return enumeration(c);
             }
             return readPrimitiveType(c);
