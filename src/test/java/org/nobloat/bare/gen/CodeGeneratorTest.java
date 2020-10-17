@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -14,8 +16,8 @@ class CodeGeneratorTest {
     @BeforeEach
     @AfterEach
     void cleanup() throws IOException {
-        //Files.deleteIfExists(Paths.get("Messages.java"));
-        //Files.deleteIfExists(Paths.get("Messages.class"));
+        Files.deleteIfExists(Paths.get("Messages.java"));
+        Files.deleteIfExists(Paths.get("Messages.class"));
     }
 
     @Test
