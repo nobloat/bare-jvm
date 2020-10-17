@@ -6,12 +6,9 @@ import org.nobloat.bare.dsl.AstParser;
 import org.nobloat.bare.dsl.Lexer;
 import org.nobloat.bare.dsl.Scanner;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -159,7 +156,7 @@ public class CodeGenerator {
                 return "encoder.u8("+name+")";
             case I8:
                 usedTypes.add("org.nobloat.bare.Int");
-                return "encoder.ui8("+name+")";
+                return "encoder.i8("+name+")";
             case U16:
                 usedTypes.add("org.nobloat.bare.Int");
                 return "encoder.u16("+name+")";
@@ -431,33 +428,35 @@ public class CodeGenerator {
     private String fieldTypeMap(Ast.Type type) throws BareException {
         switch (type.kind) {
             case U8:
-               return "@Int(Int.Type.u8) Short";
+               return "@Int(Int.Type.u8) byte";
             case I8:
-                return "@Int(Int.Type.i8) Short";
+                return "@Int(Int.Type.i8) short";
             case U16:
-                return "@Int(Int.Type.u16) Integer";
+                return "@Int(Int.Type.u16) int";
             case I16:
-                return "@Int(Int.Type.i16) Short";
+                return "@Int(Int.Type.i16) short";
             case U32:
-                return "@Int(Int.Type.u32) Long";
+                return "@Int(Int.Type.u32) long";
             case I32:
-                return "@Int(Int.Type.i32) Integer";
+                return "@Int(Int.Type.i32) int";
             case U64:
+                usedTypes.add("java.math.BigInteger");
                 return "@Int(Int.Type.u64) BigInteger";
             case I64:
-                return "@Int(Int.Type.i64) Long";
+                return "@Int(Int.Type.i64) long";
             case STRING:
                 return "String";
             case Bool:
-                return "Boolean";
+                return "boolean";
             case F32:
-                return "Float";
+                return "float";
             case F64:
-                return "Double";
+                return "double";
             case INT:
-                return "@Int(Int.Type.i) Long";
+                return "@Int(Int.Type.i) long";
             case UINT:
-                return "@Int(Int.Type.ui) Long";
+                usedTypes.add("java.math.BigInteger");
+                return "@Int(Int.Type.ui) BigInteger";
             case DataSlice:
                 return "byte[]";
             case DataArray:
@@ -482,17 +481,21 @@ public class CodeGenerator {
     }
 
     public static void main(String[] args) throws Exception {
-        try (var is = openFile("schema2.bare"); var scanner = new Scanner(is); var target = new FileOutputStream("Messages.java")) {
+
+        if (args.length < 2) {
+            System.err.println("input schema required");
+            System.out.println("Usage: java -jar bare-jvm schame.bare [Messages.java]");
+        }
+        var fileName = "Messages.java";
+        if (args.length >= 3) {
+            fileName = args[2];
+        }
+
+        try (var is = new FileInputStream(args[1]); var scanner = new Scanner(is); var target = new FileOutputStream("Messages.java")) {
             Lexer lexer = new Lexer(scanner);
             AstParser parser = new AstParser(lexer);
             var types = parser.parse();
             new CodeGenerator("org.example", types, target).createJavaTypes();
         }
-    }
-
-    public static InputStream openFile(String name) throws FileNotFoundException {
-        String path = "src/test/resources";
-        File file = new File(path);
-        return new FileInputStream(file.getAbsolutePath() + "/" + name);
     }
 }

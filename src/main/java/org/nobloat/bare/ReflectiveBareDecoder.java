@@ -143,7 +143,7 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
             case i16: return (T) Short.valueOf(i16());
             case u16: return (T) Integer.valueOf(u16());
             case i32: return (T) Integer.valueOf(i32());
-            case u32: return (T) u32();
+            case u32: return (T) Long.valueOf(u32());
             case u64: return (T) u64();
             case i64: return (T) Long.valueOf(i64());
             case i: return (T) Long.valueOf(variadicInt());

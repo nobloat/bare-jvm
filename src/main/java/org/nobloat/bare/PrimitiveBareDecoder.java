@@ -28,8 +28,7 @@ public class PrimitiveBareDecoder {
         return (byte1 | byte2 << 8);
     }
 
-    public Integer u32() throws IOException {
-        //TODO: change to byte array
+    public long u32() throws IOException {
         int byte1 = is.readByte() & 0xff;
         int byte2 = is.readByte() & 0xff;
         int byte3 = is.readByte() & 0xff;
@@ -53,7 +52,6 @@ public class PrimitiveBareDecoder {
     }
 
     public int i32() throws IOException {
-        //TODO: change to byte array
         int byte1 = is.readByte() & 0xff;
         int byte2 = is.readByte() & 0xff;
         int byte3 = is.readByte() & 0xff;
@@ -63,7 +61,6 @@ public class PrimitiveBareDecoder {
     }
 
     public long i64() throws IOException {
-        //TODO: change to byte array
         long byte1 = is.readByte() & 0xff;
         long byte2 = is.readByte() & 0xff;
         long byte3 = is.readByte() & 0xff;
@@ -77,7 +74,7 @@ public class PrimitiveBareDecoder {
     }
 
     public float f32() throws IOException {
-        return Float.intBitsToFloat(u32());
+        return Float.intBitsToFloat(i32());
     }
 
     public double f64() throws IOException {
