@@ -459,8 +459,7 @@ public class CodeGenerator {
             case UINT:
                 return "@Int(Int.Type.ui) Long";
             case DataSlice:
-                usedTypes.add("java.util.List");
-                return "List<Byte>";
+                return "byte[]";
             case DataArray:
                 usedTypes.add("java.util.List");
                 return "Array<Byte>";
