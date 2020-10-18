@@ -1,0 +1,10 @@
+type Numbers {
+    usmaller: u8
+    ssmaller: i8
+    usmall: u16
+    ssmall: i16
+    unormal: u32
+    snormal: i32
+    ubig: u64
+    sbig: i64
+}

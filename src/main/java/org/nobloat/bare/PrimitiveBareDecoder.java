@@ -25,8 +25,7 @@ public class PrimitiveBareDecoder {
         return (byte1 | byte2 << 8);
     }
 
-    public Integer u32() throws IOException {
-        //TODO: change to byte array
+    public long u32() throws IOException {
         int byte1 = is.readByte() & 0xff;
         int byte2 = is.readByte() & 0xff;
         int byte3 = is.readByte() & 0xff;
@@ -50,17 +49,10 @@ public class PrimitiveBareDecoder {
     }
 
     public int i32() throws IOException {
-        //TODO: change to byte array
-        int byte1 = is.readByte() & 0xff;
-        int byte2 = is.readByte() & 0xff;
-        int byte3 = is.readByte() & 0xff;
-        int byte4 = is.readByte() & 0xff;
-        return (byte4 << 24) | (byte3 << 16) |
-                (byte2 << 8) | (byte1);
+        return (int) u32();
     }
 
     public long i64() throws IOException {
-        //TODO: change to byte array
         long byte1 = is.readByte() & 0xff;
         long byte2 = is.readByte() & 0xff;
         long byte3 = is.readByte() & 0xff;
@@ -74,7 +66,7 @@ public class PrimitiveBareDecoder {
     }
 
     public float f32() throws IOException {
-        return Float.intBitsToFloat(u32());
+        return Float.intBitsToFloat(i32());
     }
 
     public double f64() throws IOException {
@@ -111,14 +103,26 @@ public class PrimitiveBareDecoder {
     }
 
     public String string() throws IOException {
-        return new String(data(), StandardCharsets.UTF_8);
+        BigInteger length = variadicUint();
+        //TODO: check length
+        var target = new byte[length.intValue()];
+        is.read(target);
+        return new String(target, StandardCharsets.UTF_8);
+    }
+
+    public Array<Byte> data(int length) throws IOException {
+        var result = new Array<Byte>(length);
+        for (long i=0; i < length; i++) {
+            result.values.add(is.readByte());
+        }
+        return result;
     }
 
     public byte[] data() throws IOException {
         //TODO: add max length
         BigInteger length = variadicUint();
-        byte[] bytes = new byte[length.intValue()];
-        is.read(bytes);
-        return bytes;
+        var result = new byte[length.intValue()];
+        is.read(result);
+        return result;
     }
 }

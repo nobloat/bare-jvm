@@ -25,11 +25,18 @@ public class PrimitiveBareEncoder {
         os.writeByte(b);
     }
 
+    public void u8(short b) throws IOException {
+        if (verifyInput && b > 255) {
+            throw new NotSerializableException("u8 cannot exceed value of 255");
+        }
+        os.writeByte(b);
+    }
+
     public void u16(int b) throws IOException {
         os.write(new byte[]{(byte) b, (byte) (b >> 8)});
     }
 
-    public void u32(int b) throws IOException {
+    public void u32(long b) throws IOException {
         os.write(new byte[]{(byte) b, (byte) (b >> 8), (byte) (b >> 16), (byte) (b >> 24)});
     }
 
@@ -38,6 +45,13 @@ public class PrimitiveBareEncoder {
             throw new NotSerializableException("value for variadicUint cannot have more than 64 bits, value has " + b.bitLength() + " bits");
         }
         i64(b.and(UNSIGNED_LONG_MASK).longValue());
+    }
+
+    public void i8(short b) throws IOException {
+        if (verifyInput && b > 255 || b < -255) {
+            throw new NotSerializableException("i8 cannot exceed range between 255 and -255");
+        }
+        u8(b);
     }
 
     public void i8(byte b) throws IOException {

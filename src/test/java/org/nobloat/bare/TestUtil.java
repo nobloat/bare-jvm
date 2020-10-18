@@ -13,11 +13,15 @@ public class TestUtil {
         return new FileInputStream(file.getAbsolutePath() + "/" + name);
     }
 
-    public static InputStream fromInts(int... bytes) {
+    public static ByteArrayInputStream fromInts(int... bytes) {
+        return new ByteArrayInputStream(bytesFromInts(bytes));
+    }
+
+    public static byte[] bytesFromInts(int... bytes) {
         byte[] b = new byte[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
             b[i] = (byte) bytes[i];
         }
-        return new ByteArrayInputStream(b);
+        return b;
     }
 }

@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -119,7 +118,10 @@ class PrimitiveBareDecoderTest {
     void data() throws IOException {
         byte[] ref = {0x13, 0x37, 0x42};
         InputStream stream = fromInts(0x03, 0x13, 0x37, 0x42);
-        assertArrayEquals(ref, new PrimitiveBareDecoder(stream).data());
+        var data = new PrimitiveBareDecoder(stream).data();
+        assertEquals(ref[0], data[0]);
+        assertEquals(ref[1], data[1]);
+        assertEquals(ref[2], data[2]);
         assertEquals(-1, stream.read());
     }
 }

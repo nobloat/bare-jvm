@@ -77,6 +77,7 @@ public class AstParser {
         }
 
         Ast.Type type = parseType();
+        type.name = nameToken.value;
 
         return new Ast.UserDefinedType(nameToken.value, type);
     }

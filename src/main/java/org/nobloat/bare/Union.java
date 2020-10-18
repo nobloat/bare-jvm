@@ -10,8 +10,13 @@ import java.util.Map;
 public class Union {
 
     Map<Long, Class<?>> types;
-    private Object value;
-    private long type;
+    Object value;
+    long type;
+
+    public Union(int type, Object value) {
+        this.type = type;
+        this.value = value;
+    }
 
     public Union(Class<?> ...allowedTypes) {
         this.types = new HashMap<>();
@@ -44,8 +49,8 @@ public class Union {
         throw new UnsupportedOperationException("Unexpected union type: " + id);
     }
 
-    public Class<?> type() {
-        return types.get(type);
+    public int type() {
+        return (int) type;
     }
 
     public <T> T get(Class<T> type) {

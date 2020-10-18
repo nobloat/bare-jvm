@@ -145,7 +145,7 @@ public class Lexer {
             this.column = column;
         }
 
-        enum Type {
+        public enum Type {
             NUMBER,
             L_ANGLE, R_ANGLE,
             L_BRACE, R_BRACE,

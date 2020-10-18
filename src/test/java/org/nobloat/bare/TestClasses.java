@@ -1,6 +1,7 @@
 package org.nobloat.bare;
 
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -47,9 +48,22 @@ public class TestClasses {
 
     public enum Department {
         ACCOUNTING(0), ADMINISTRATION(1), CUSTOMER_SERVICE(2), DEVELOPMENT(3), JSMITH(99);
+        @Int(Int.Type.ui)
         public int value;
         Department(int value) {
             this.value= value;
+        }
+    }
+
+    public static class SimplePerson {
+        public String name;
+        public int age;
+
+        public static SimplePerson decode(PrimitiveBareDecoder decoder) throws IOException {
+            var o = new SimplePerson();
+            o.name = decoder.string();
+            o.age = decoder.u8();
+            return o;
         }
     }
 

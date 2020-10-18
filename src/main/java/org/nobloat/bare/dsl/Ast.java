@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 public class Ast {
 
     public static class Type {
-        public final String name;
+        public String name;
         public final TypeKind kind;
 
         public Type(String name, TypeKind kind) {
@@ -132,7 +132,7 @@ public class Ast {
         }
     }
 
-    enum TypeKind {
+    public enum TypeKind {
         UINT,U8,U16,U32,U64,
         INT,I8,I16,I32,I64,
         F32,F64,
