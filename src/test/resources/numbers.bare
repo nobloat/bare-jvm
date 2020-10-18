@@ -7,4 +7,6 @@ type Numbers {
     snormal: i32
     ubig: u64
     sbig: i64
+    floatingPoint: f32
+    doubleFloatingPoint: f64
 }
