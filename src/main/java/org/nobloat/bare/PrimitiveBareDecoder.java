@@ -49,12 +49,7 @@ public class PrimitiveBareDecoder {
     }
 
     public int i32() throws IOException {
-        int byte1 = is.readByte() & 0xff;
-        int byte2 = is.readByte() & 0xff;
-        int byte3 = is.readByte() & 0xff;
-        int byte4 = is.readByte() & 0xff;
-        return (byte4 << 24) | (byte3 << 16) |
-                (byte2 << 8) | (byte1);
+        return (int) u32();
     }
 
     public long i64() throws IOException {
