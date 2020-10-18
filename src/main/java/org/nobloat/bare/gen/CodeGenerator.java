@@ -477,6 +477,8 @@ public class CodeGenerator {
             case Array:
                 usedTypes.add("org.nobloat.bare.Array");
                 return "Array<"+fieldTypeMap(((Ast.ArrayType) type).member) + ">";
+            case Struct:
+                throw new UnsupportedOperationException("Java does not support anonymous nested classes");
             default: throw new BareException("Unknown field type mapping for " + type.name);
         }
     }
