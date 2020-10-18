@@ -6,9 +6,12 @@ import org.junit.jupiter.api.Test;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -17,26 +20,31 @@ class CodeGeneratorTest {
     @BeforeEach
     @AfterEach
     void cleanup() throws IOException {
-        Files.deleteIfExists(Paths.get("Messages.java"));
-        Files.deleteIfExists(Paths.get("Messages.class"));
+        Path pathToBeDeleted = Path.of("org");
+        if (Files.exists(pathToBeDeleted)) {
+            Files.walk(pathToBeDeleted)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
     }
 
     @Test
     void compileSchema() throws Exception {
-        CodeGenerator.main(new String[]{"src/test/resources/schema2.bare", "Messages.java"});
+        CodeGenerator.main(new String[]{"src/test/resources/schema2.bare", "org.example.Messages"});
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        assertEquals(0, compiler.run(null, System.out, System.err, "--source-path", "src/main/java", "Messages.java"));
+        assertEquals(0, compiler.run(null, System.out, System.err, "--source-path", "src/main/java", "org/example/Messages.java"));
     }
 
     @Test
     void compileNumberSchema() throws Exception {
-        CodeGenerator.main(new String[]{"src/test/resources/numbers.bare", "Messages.java"});
+        CodeGenerator.main(new String[]{"src/test/resources/numbers.bare", "org.example.NumberMessages"});
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        assertEquals(0, compiler.run(null, System.out, System.err, "--source-path", "src/main/java", "Messages.java"));
+        assertEquals(0, compiler.run(null, System.out, System.err, "--source-path", "src/main/java", "org/example/NumberMessages.java"));
     }
 
     @Test
-    void testNestedStruct() throws Exception {
-        assertThrows(UnsupportedOperationException.class, () -> CodeGenerator.main(new String[]{"src/test/resources/schema.bare", "Messages.java"}));
+    void testNestedStruct() {
+        assertThrows(UnsupportedOperationException.class, () -> CodeGenerator.main(new String[]{"src/test/resources/schema.bare", "Messages"}));
     }
 }

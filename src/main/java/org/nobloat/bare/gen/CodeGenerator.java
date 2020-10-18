@@ -6,28 +6,22 @@ import org.nobloat.bare.dsl.AstParser;
 import org.nobloat.bare.dsl.Lexer;
 import org.nobloat.bare.dsl.Scanner;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CodeGenerator {
 
     private final String packageName;
+    private final String className;
     private final List<Ast.Type> types;
     private final CodeWriter writer;
     private final Set<String> usedTypes = new HashSet<>();
 
-    public CodeGenerator(String packageName, List<Ast.Type> types, OutputStream target) {
+    public CodeGenerator(String packageName, String className, List<Ast.Type> types, OutputStream target) {
         this.packageName = packageName;
         this.types = types;
+        this.className = Objects.requireNonNullElse(className, "Messages");
         writer = new CodeWriter(target);
     }
 
@@ -39,7 +33,7 @@ public class CodeGenerator {
         }
 
         var messagesSection = writer.section();
-        messagesSection.write("public class Messages {");
+        messagesSection.write("public class " + className + "  {");
         writer.indent();
 
         for (var type : types) {
@@ -485,20 +479,31 @@ public class CodeGenerator {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
-            System.out.println("Usage: java -jar bare-jvm schame.bare [Messages.java]");
+            System.out.println("Usage: java -jar bare-jvm.jar schame.bare [Messages.java]");
             System.err.println("   Input schema required");
             System.exit(1);
         }
-        var fileName = "Messages.java";
+
+        String className = "Messages";
+        String packageName = null;
+        File outputFile = new File(className + ".java");
+
         if (args.length >= 2) {
-            fileName = args[1];
+            className = args[1];
+            if (className.contains(".")) {
+                packageName = className.substring(0, className.lastIndexOf("."));
+                className = className.substring(className.lastIndexOf(".")+1);
+                var dirs = new File(packageName.replaceAll("\\.", "/"));
+                dirs.mkdirs();
+                outputFile = new File(dirs.getAbsolutePath() + "/" + className + ".java");
+            }
         }
 
-        try (var is = new FileInputStream(args[0]); var scanner = new Scanner(is); var target = new FileOutputStream(fileName)) {
+        try (var is = new FileInputStream(args[0]); var scanner = new Scanner(is); var target = new FileOutputStream(outputFile)) {
             Lexer lexer = new Lexer(scanner);
             AstParser parser = new AstParser(lexer);
             var types = parser.parse();
-            new CodeGenerator("org.example", types, target).createJavaTypes();
+            new CodeGenerator(packageName, className, types, target).createJavaTypes();
         }
     }
 }
