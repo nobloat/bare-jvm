@@ -41,6 +41,10 @@ public class CodeWriter implements AutoCloseable {
         writer.println(INDENDT_CHARACTER.repeat(indent) + codeLine);
     }
 
+    public void newline() {
+        writer.println();
+    }
+
     @Override
     public void close() throws IOException {
         writer.close();

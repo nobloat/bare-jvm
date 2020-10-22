@@ -57,6 +57,13 @@ public class Union {
         return (T)value;
     }
 
+    @Override
+    public String toString() {
+        return "Union{" +
+                "value=" + value +
+                '}';
+    }
+
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.TYPE)
     public @interface Id {
