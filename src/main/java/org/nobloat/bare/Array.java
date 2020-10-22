@@ -21,4 +21,12 @@ public class Array<T> {
     public <T> T get(int index) {
         return (T)values.get(index);
     }
+
+    @Override
+    public String toString() {
+        return "Array{" +
+                "size=" + size +
+                ", values=" + values +
+                '}';
+    }
 }
