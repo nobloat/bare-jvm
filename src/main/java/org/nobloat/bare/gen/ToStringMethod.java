@@ -1,14 +1,18 @@
 package org.nobloat.bare.gen;
 
+import org.nobloat.bare.dsl.Ast;
+
 class ToStringMethod {
 
     private final CodeWriter codeWriter;
     private final String className;
     private String fieldSeparator = "";
+    private ByteToHexStaticMethods byteToHexStaticMethods;
 
-    public ToStringMethod(CodeWriter codeWriter, String className) {
+    public ToStringMethod(CodeWriter codeWriter, String className, ByteToHexStaticMethods byteToHexStaticMethods) {
         this.codeWriter = codeWriter;
         this.className = className;
+        this.byteToHexStaticMethods = byteToHexStaticMethods;
         writeProlog();
     }
 
@@ -21,8 +25,20 @@ class ToStringMethod {
         codeWriter.indent();
     }
 
-    public void addField(String fieldName) {
-        codeWriter.write(String.format("\"%s%s=\" + %s + ", fieldSeparator, fieldName, fieldName));
+    public void addField(Ast.TypeKind kind, String fieldName) {
+        String field;
+        switch (kind) {
+            case U8:
+                field = byteToHexStaticMethods.callByteToHex(fieldName);
+                break;
+            case DataSlice:
+                field = byteToHexStaticMethods.callByteArrayToHex(fieldName);
+                break;
+            default:
+                field = fieldName;
+        }
+
+        codeWriter.write(String.format("\"%s%s=\" + %s + ", fieldSeparator, fieldName, field));
         fieldSeparator = ", ";
     }
 

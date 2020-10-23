@@ -17,6 +17,7 @@ public class CodeGenerator {
     private final List<Ast.Type> types;
     private final CodeWriter writer;
     private final Set<String> usedTypes = new HashSet<>();
+    private ByteToHexStaticMethods byteToHexStaticMethods;
 
     public CodeGenerator(String packageName, String className, List<Ast.Type> types, OutputStream target) {
         this.packageName = packageName;
@@ -37,9 +38,13 @@ public class CodeGenerator {
         messagesSection.newline();
         writer.indent();
 
+        byteToHexStaticMethods = new ByteToHexStaticMethods(writer);
+
         for (var type : types) {
             createJavaType(type);
         }
+
+        byteToHexStaticMethods.addStaticMethods();
 
         writer.dedent();
         writer.write("}");
@@ -102,8 +107,8 @@ public class CodeGenerator {
         writer.write("}");
         writer.newline();
 
-        ToStringMethod toStringMethod = new ToStringMethod(writer, type.name);
-        toStringMethod.addField("value");
+        ToStringMethod toStringMethod = new ToStringMethod(writer, type.name, byteToHexStaticMethods);
+        toStringMethod.addField(type.kind, "value");
         toStringMethod.writeEpilog();
 
         writer.dedent();
@@ -137,7 +142,7 @@ public class CodeGenerator {
 
         toStringSection.indent();
 
-        ToStringMethod toStringMethod = new ToStringMethod(toStringSection, struct.name);
+        ToStringMethod toStringMethod = new ToStringMethod(toStringSection, struct.name, byteToHexStaticMethods);
 
         for (var field : fields) {
             String fieldMapping = "public " + fieldTypeMap(field.type) + " " + field.name;
@@ -150,7 +155,7 @@ public class CodeGenerator {
             decodeSection.write("o." + field.name + " = " + decodeStatement(field.type) + ";");
             encodeSection.write(encodeStatement(field.type, field.name) + ";");
 
-            toStringMethod.addField(field.name);
+            toStringMethod.addField(field.type.kind, field.name);
         }
 
         fieldSection.newline();
