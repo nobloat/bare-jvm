@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## UNRELEASED
 ### Added
 - Possibility to define fully qualified class name (including package) in `CodeGenerator::main`
+- `toString()` method for all generated data classes (#10)
 
 ## [0.1.0] - 2020-10-18
 ### Added
