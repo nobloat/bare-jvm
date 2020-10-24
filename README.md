@@ -68,5 +68,4 @@ This is a [bare messages](https://baremessages.org/) implementation for the JVM.
     - `u32` becomes `long`
     - `u16` becomes `int`
     - `u8` becomes `short`
-- Enum's are currently always set to null
 - Anonymous structs are not supported by the code generator.

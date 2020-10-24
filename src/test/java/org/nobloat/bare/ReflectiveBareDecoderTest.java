@@ -163,7 +163,7 @@ class ReflectiveBareDecoderTest {
         assertEquals("Philadelphia", employee.address.city);
         assertEquals("PA", employee.address.sate);
         assertEquals("United States", employee.address.country);
-        //assertEquals(TestClasses.Department.ADMINISTRATION, employee.department);
+        assertEquals(TestClasses.Department.ADMINISTRATION, employee.department);
         assertEquals("2020-06-21T21:18:05+00:00", employee.hireDate);
     }
 

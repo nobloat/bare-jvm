@@ -27,7 +27,6 @@ class CodeGeneratorTest {
                     .map(Path::toFile)
                     .forEach(File::delete);
         }
-
         Files.deleteIfExists(Path.of("Messages.java"));
     }
 

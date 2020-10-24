@@ -7,6 +7,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,12 +70,18 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
         return union;
     }
 
-    public <T> T enumeration(Class<T> c) throws IOException, ReflectiveOperationException {
-        //TODO: maybe fallback to ordinal? -> I like it more explicit, therefore no fallback
-        var field = c.getField("value");
-        var enumValue = variadicUint().longValue();
+    public <T> T enumeration(Class<? extends Enum> c) throws IOException, ReflectiveOperationException, BareException {
+        var enumValue = variadicUint().intValue();
+        var valueField = c.getField("value");
 
-        return null;
+        for (var constant : c.getEnumConstants()) {
+            int value = (int) valueField.get(constant);
+            if (value == enumValue) {
+                return (T) Enum.valueOf(c, constant.name());
+            }
+        }
+
+        throw new BareException("Unexpected enum value: " + enumValue);
     }
 
     @SuppressWarnings("unchecked")
@@ -149,7 +156,7 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
     public <T> T readType(Class<T> c) throws IOException, ReflectiveOperationException, BareException {
         try {
             if (c.isEnum()) {
-                return enumeration(c);
+                return enumeration((Class<? extends Enum>) c);
             }
             return readPrimitiveType(c);
         } catch (UnsupportedOperationException | BareException e) {
