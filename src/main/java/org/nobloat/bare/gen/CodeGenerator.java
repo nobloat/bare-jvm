@@ -157,7 +157,7 @@ public class CodeGenerator {
             String fieldMapping = "public " + fieldTypeMap(field.type) + " " + field.name;
             if (field.type.kind == Ast.TypeKind.Array || field.type.kind == Ast.TypeKind.DataArray) {
                 var arrayType = (Ast.ArrayType) field.type;
-                fieldMapping += " = new " + fieldTypeMap(field.type).replace("[]", "["+ arrayType.length +"]");
+                fieldMapping += " = new " + toArrayType(arrayType.member).replace("[]", "["+ arrayType.length +"]");
             }
             fieldSection.write(fieldMapping + ";");
 
@@ -273,7 +273,7 @@ public class CodeGenerator {
             case INT:
                 return "encoder::variadicInt";
             case UINT:
-                return "encoder::variadicUint";
+                return "encoder::variadicUInt";
             case DataSlice:
                 return "encoder::data";
             case Struct:
@@ -425,7 +425,7 @@ public class CodeGenerator {
             case Slice:
                 return "decoder.slice(" + decodeLambda(((Ast.ArrayType) type).member) + ")";
             case Array:
-                return "decoder.array(" + ((Ast.ArrayType) type).length + ", " + decodeLambda(((Ast.ArrayType) type).member) + ").toArray(new " +fieldTypeMap(type).replace("[]", "["+((Ast.ArrayType) type).length+"]") + ")";
+                return "decoder.array(" + ((Ast.ArrayType) type).length + ", " + decodeLambda(((Ast.ArrayType) type).member) + ").toArray(new " + toArrayType(((Ast.ArrayType) type).member).replace("[]", "["+((Ast.ArrayType) type).length+"]") + ")";
         }
         return "";
     }
@@ -470,6 +470,38 @@ public class CodeGenerator {
         }
     }
 
+    private String toArrayType(Ast.Type type) throws BareException {
+        switch (type.kind) {
+            case U8:
+                return "Byte[]";
+            case I16:
+            case I8:
+                return "Short[]";
+            case I32:
+            case U16:
+                return "Integer[]";
+            case UINT:
+            case U64:
+                return "BigInteger[]";
+            case Bool:
+                return "Boolean[]";
+            case F32:
+                return "Float[]";
+            case F64:
+                return "Double[]";
+            case I64:
+            case INT:
+            case U32:
+                return "Long[]";
+            case STRING:
+                return "String[]";
+            case UserType:
+                return type.name + "[]";
+            default:
+                throw new BareException("Unknown field type mapping for " + type.name);
+        }
+    }
+
     private String fieldTypeMap(Ast.Type type) throws BareException {
         switch (type.kind) {
             case U8:
@@ -503,10 +535,8 @@ public class CodeGenerator {
                 usedTypes.add("java.math.BigInteger");
                 return "@Int(Int.Type.ui) BigInteger";
             case DataSlice:
-                return "byte[]";
             case DataArray:
-                usedTypes.add("java.util.List");
-                return "byte[]";
+                return "Byte[]";
             case UserType:
                 return type.name;
             case Optional:
@@ -518,7 +548,7 @@ public class CodeGenerator {
                 usedTypes.add("java.util.List");
                 return "List<" + fieldTypeMap(((Ast.ArrayType) type).member) + ">";
             case Array:
-                return fieldTypeMap(((Ast.ArrayType) type).member) + "[]";
+                return toArrayType(((Ast.ArrayType) type).member);
             case Struct:
                 throw new UnsupportedOperationException("Java does not support anonymous nested classes");
             default:

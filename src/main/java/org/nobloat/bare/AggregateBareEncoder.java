@@ -69,6 +69,12 @@ public class AggregateBareEncoder extends PrimitiveBareEncoder {
         }
     }
 
+    public void array(Byte[] value) throws IOException {
+        for (var item : value) {
+            u8(item);
+        }
+    }
+
     public <T> void slice(List<T> value, EncodeFunction<T> itemEncoder) throws IOException, BareException {
         variadicUInt(value.size());
         for (var item : value) {

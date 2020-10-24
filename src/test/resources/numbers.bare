@@ -9,4 +9,18 @@ type Numbers {
     sbig: i64
     floatingPoint: f32
     doubleFloatingPoint: f64
+
+    u8Array: [2]u8
+    i8Array: [2]i8
+    u16Array: [2]u16
+    i16Array: [2]i16
+    u32Array: [2]u32
+    i32Array: [2]i32
+    u64Array: [2]u64
+    i64Array: [2]i64
+    f32Array: [2]f32
+    f64Array: [2]f64
+
+    uintArray: [2]uint
+    intArray: [2]int
 }

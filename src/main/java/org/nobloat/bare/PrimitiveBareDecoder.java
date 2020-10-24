@@ -113,21 +113,19 @@ public class PrimitiveBareDecoder {
         return new String(target, StandardCharsets.UTF_8);
     }
 
-    public byte[] data(int length) throws IOException {
-        var result = new byte[length];
+    public Byte[] data(int length) throws IOException {
+        var result = new Byte[length];
         for (int i=0; i < length; i++) {
             result[i] = is.readByte();
         }
         return result;
     }
 
-    public byte[] data() throws IOException, BareException {
+    public Byte[] data() throws IOException, BareException {
         int length = variadicUint().intValue();
         if (length > MaxSliceLength) {
             throw new BareException(String.format("Decoding slice with length %d > %d max length", length, MaxSliceLength));
         }
-        var result = new byte[length];
-        is.read(result);
-        return result;
+        return data(length);
     }
 }

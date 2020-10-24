@@ -118,7 +118,7 @@ class PrimitiveBareDecoderTest {
 
     @Test
     void data() throws IOException, BareException {
-        byte[] ref = {0x13, 0x37, 0x42};
+        Byte[] ref = {0x13, 0x37, 0x42};
         InputStream stream = fromInts(0x03, 0x13, 0x37, 0x42);
         var data = new PrimitiveBareDecoder(stream).data();
         assertArrayEquals(ref, data);
