@@ -6,7 +6,6 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,28 +21,22 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
         super(inputStream);
     }
 
-    public <T> Optional<T> optional(Class<T> c) throws IOException {
+    public <T> Optional<T> optional(Class<T> c) throws IOException, BareException {
         if (bool()) {
             return Optional.of(readPrimitiveType(c));
         }
         return Optional.empty();
     }
 
-    public <T> List<T> values(Class<T> c) throws IOException, ReflectiveOperationException {
-        //TODO: add max length
-        var length = variadicUint();
-        if (length.equals(BigInteger.ZERO)) {
-            return List.of();
+    public <T> List<T> slice(Class<T> c) throws IOException, ReflectiveOperationException, BareException {
+        var length = variadicUint().intValue();
+        if (length > MaxSliceLength) {
+            throw new BareException(String.format("Decoding slice with entries %d > %d max length", length, MaxSliceLength));
         }
-        var result = new ArrayList<T>();
-        while (!length.equals(BigInteger.ZERO)) {
-            result.add(readType(c));
-            length = length.subtract(BigInteger.ONE);
-        }
-        return result;
+        return array(c, length);
     }
 
-    public <T> List<T> values(Class<T> c, int length) throws IOException, ReflectiveOperationException {
+    public <T> List<T> array(Class<T> c, int length) throws IOException, ReflectiveOperationException, BareException {
         var result = new ArrayList<T>(length);
         for (int i = 0; i < length; i++) {
             result.add(readType(c));
@@ -51,21 +44,24 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
         return result;
     }
 
-    public <K, V> Map<K, V> map(Class<K> key, Class<V> value) throws IOException, ReflectiveOperationException {
-        //TODO: add max length
+    public <K, V> Map<K, V> map(Class<K> key, Class<V> value) throws IOException, ReflectiveOperationException, BareException {
         assert PRIMITIVE_TYPES.contains(key.getName());
 
-        var length = variadicUint();
-        var result = new HashMap<K, V>(length.intValue());
-        while (!length.equals(BigInteger.ZERO)) {
+        var length = variadicUint().intValue();
+
+        if (length > MaxMapLength) {
+            throw new BareException(String.format("Decoding map with entries %d > %d max length", length, MaxSliceLength));
+        }
+
+        var result = new HashMap<K, V>(length);
+        for(int i=0; i < length; i++) {
             result.put(readPrimitiveType(key), readType(value));
-            length = length.subtract(BigInteger.ONE);
         }
         return result;
     }
 
 
-    public Union union(Class<?>... possibleTypes) throws IOException, ReflectiveOperationException {
+    public Union union(Class<?>... possibleTypes) throws IOException, ReflectiveOperationException, BareException {
         var union = new Union(possibleTypes);
         int type = variadicUint().intValue();
         var clazz = union.type(type);
@@ -82,7 +78,7 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T  struct(Class<T> c) throws ReflectiveOperationException, IOException {
+    public <T> T  struct(Class<T> c) throws ReflectiveOperationException, IOException, BareException {
         var fields = c.getFields();
         var result = c.getConstructor().newInstance();
         for(var f : fields) {
@@ -93,11 +89,11 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
                 f.set(result, readPrimitiveType(f.getType()));
             } else if(f.getType().isArray()) {
                 var array = (T[])f.get(result);
-                f.set(result, values(f.getType().getComponentType(), array.length).toArray((Object[])Array.newInstance(f.getType().getComponentType(), array.length)));
+                f.set(result, array(f.getType().getComponentType(), array.length).toArray((Object[])Array.newInstance(f.getType().getComponentType(), array.length)));
             } else if(f.getType().getName().equals("java.util.List")) {
                 ParameterizedType type = (ParameterizedType)f.getGenericType();
                 var elementType =  type.getActualTypeArguments()[0];
-                f.set(result, values((Class<?>) elementType));
+                f.set(result, slice((Class<?>) elementType));
             } else if(f.getType().getName().equals("java.util.Map")) {
                 ParameterizedType type = (ParameterizedType)f.getGenericType();
                 var keyType =  type.getActualTypeArguments()[0];
@@ -111,7 +107,7 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T readPrimitiveType(Class<?> c) throws IOException {
+    public <T> T readPrimitiveType(Class<?> c) throws IOException, BareException {
         switch (c.getName()) {
             case "java.lang.Boolean":
                 return (T) Boolean.valueOf(bool());
@@ -150,13 +146,13 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
         }
     }
 
-    public <T> T readType(Class<T> c) throws IOException, ReflectiveOperationException {
+    public <T> T readType(Class<T> c) throws IOException, ReflectiveOperationException, BareException {
         try {
             if (c.isEnum()) {
                 return enumeration(c);
             }
             return readPrimitiveType(c);
-        } catch (UnsupportedOperationException e) {
+        } catch (UnsupportedOperationException | BareException e) {
             return struct(c);
         }
     }

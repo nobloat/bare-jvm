@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.nobloat.bare.TestUtil.fromInts;
 
@@ -106,7 +108,7 @@ class PrimitiveBareDecoderTest {
     }
 
     @Test
-    void string() throws IOException {
+    void string() throws IOException, BareException {
         InputStream stream = fromInts(0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
@@ -115,13 +117,18 @@ class PrimitiveBareDecoderTest {
     }
 
     @Test
-    void data() throws IOException {
+    void data() throws IOException, BareException {
         byte[] ref = {0x13, 0x37, 0x42};
         InputStream stream = fromInts(0x03, 0x13, 0x37, 0x42);
         var data = new PrimitiveBareDecoder(stream).data();
-        assertEquals(ref[0], data[0]);
-        assertEquals(ref[1], data[1]);
-        assertEquals(ref[2], data[2]);
+        assertArrayEquals(ref, data);
         assertEquals(-1, stream.read());
+    }
+
+    @Test
+    void dataTooLong() {
+        var decoder = new PrimitiveBareDecoder(fromInts(0x03, 0x13, 0x37, 0x42));
+        decoder.MaxSliceLength = 2;
+        assertThrows(BareException.class, () -> decoder.data());
     }
 }

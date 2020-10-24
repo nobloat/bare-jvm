@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public class AggregateBareDecoder extends PrimitiveBareDecoder {
 
+    public int MaxMapLength = 1000000000;
+
     public AggregateBareDecoder(InputStream inputStream) {
         super(inputStream);
     }
@@ -31,14 +33,20 @@ public class AggregateBareDecoder extends PrimitiveBareDecoder {
     }
 
     public <T> List<T> slice(DecodeFunction<T> itemDecoder) throws IOException, BareException {
-        var count = variadicUint().intValue();
-        return array(count, itemDecoder);
+        var length = variadicUint().intValue();
+        if (length > MaxMapLength) {
+            throw new BareException(String.format("Decoding slice with entries %d > %d max length", length, MaxSliceLength));
+        }
+        return array(length, itemDecoder);
     }
 
     public <K,V> Map<K,V> map(DecodeFunction<K> keyDecoder, DecodeFunction<V> valueDecoder) throws IOException, BareException {
-        var count = variadicUint().longValue();
+        var length = variadicUint().intValue();
+        if (length > MaxMapLength) {
+            throw new BareException(String.format("Decoding map with entries %d > %d max length", length, MaxSliceLength));
+        }
         var result = new HashMap<K,V>();
-        for (long i=0; i < count; i++) {
+        for (int i=0; i < length; i++) {
             result.put(keyDecoder.apply(this), valueDecoder.apply(this));
         }
         return result;
