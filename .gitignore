@@ -25,3 +25,5 @@ hs_err_pid*
 .idea/*
 target/*
 /src/main/java/Messages.java
+/codegen-testing/.idea/
+/codegen-testing/target/

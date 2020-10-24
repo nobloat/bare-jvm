@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -558,7 +560,7 @@ public class CodeGenerator {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
-            System.out.println("Usage: java -jar bare-jvm.jar schame.bare [Messages.java]");
+            System.out.println("Usage: java -jar bare-jvm.jar schame.bare [Messages.java] [output-directory]");
             System.err.println("   Input schema required");
             System.exit(1);
         }
@@ -572,7 +574,16 @@ public class CodeGenerator {
             if (className.contains(".")) {
                 packageName = className.substring(0, className.lastIndexOf("."));
                 className = className.substring(className.lastIndexOf(".") + 1);
-                var dirs = new File(packageName.replaceAll("\\.", "/"));
+                String pathname = packageName.replaceAll("\\.", "/");
+
+                Path outputDirectory = Paths.get("");
+                if (args.length == 3) {
+                    outputDirectory = Paths.get(args[2]);
+                }
+
+                outputDirectory = outputDirectory.resolve(pathname);
+
+                var dirs = outputDirectory.toFile();
                 dirs.mkdirs();
                 outputFile = new File(dirs.getAbsolutePath() + "/" + className + ".java");
             }
