@@ -2,6 +2,7 @@ package org.nobloat.bare;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,17 +22,17 @@ public class AggregateBareDecoder extends PrimitiveBareDecoder {
         return Optional.empty();
     }
 
-    public <T> Array<T> array(long count, DecodeFunction<T> itemDecoder) throws IOException, BareException {
-        var result = new Array<T>((int)count);
+    public <T> List<T> array(int count, DecodeFunction<T> itemDecoder) throws IOException, BareException {
+        var result = new ArrayList<T>(count);
         for (int i=0; i < count; i++) {
-            result.values.set(i, itemDecoder.apply(this));
+            result.add(itemDecoder.apply(this));
         }
         return result;
     }
 
     public <T> List<T> slice(DecodeFunction<T> itemDecoder) throws IOException, BareException {
         var count = variadicUint().intValue();
-        return array(count, itemDecoder).values;
+        return array(count, itemDecoder);
     }
 
     public <K,V> Map<K,V> map(DecodeFunction<K> keyDecoder, DecodeFunction<V> valueDecoder) throws IOException, BareException {

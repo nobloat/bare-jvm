@@ -6,8 +6,17 @@ import org.nobloat.bare.dsl.AstParser;
 import org.nobloat.bare.dsl.Lexer;
 import org.nobloat.bare.dsl.Scanner;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CodeGenerator {
@@ -148,7 +157,7 @@ public class CodeGenerator {
             String fieldMapping = "public " + fieldTypeMap(field.type) + " " + field.name;
             if (field.type.kind == Ast.TypeKind.Array || field.type.kind == Ast.TypeKind.DataArray) {
                 var arrayType = (Ast.ArrayType) field.type;
-                fieldMapping += " = new Array<>(" + arrayType.length + ")";
+                fieldMapping += " = new " + fieldTypeMap(field.type).replace("[]", "["+ arrayType.length +"]");
             }
             fieldSection.write(fieldMapping + ";");
 
@@ -227,7 +236,7 @@ public class CodeGenerator {
             case Slice:
                 return "encoder.slice(" + name + "," + encodeLambda(((Ast.ArrayType) type).member) + ")";
             case DataArray:
-                return "encoder.array(" + name + ", encoder::u8)";
+                return "encoder.array(" + name + ")";
             case Array:
                 return "encoder.array(" + name + ", " + encodeLambda(((Ast.ArrayType) type).member) + ")";
             default:
@@ -416,7 +425,7 @@ public class CodeGenerator {
             case Slice:
                 return "decoder.slice(" + decodeLambda(((Ast.ArrayType) type).member) + ")";
             case Array:
-                return "decoder.array(" + ((Ast.ArrayType) type).length + ", " + decodeLambda(((Ast.ArrayType) type).member) + ")";
+                return "decoder.array(" + ((Ast.ArrayType) type).length + ", " + decodeLambda(((Ast.ArrayType) type).member) + ").toArray(new " +fieldTypeMap(type).replace("[]", "["+((Ast.ArrayType) type).length+"]") + ")";
         }
         return "";
     }
@@ -497,11 +506,10 @@ public class CodeGenerator {
                 return "byte[]";
             case DataArray:
                 usedTypes.add("java.util.List");
-                return "Array<Byte>";
+                return "byte[]";
             case UserType:
                 return type.name;
             case Optional:
-                usedTypes.add("org.nobloat.bare.Array");
                 return "Optional<" + fieldTypeMap(((Ast.OptionalType) type).subType) + ">";
             case Map:
                 usedTypes.add("java.util.Map");
@@ -510,8 +518,7 @@ public class CodeGenerator {
                 usedTypes.add("java.util.List");
                 return "List<" + fieldTypeMap(((Ast.ArrayType) type).member) + ">";
             case Array:
-                usedTypes.add("org.nobloat.bare.Array");
-                return "Array<" + fieldTypeMap(((Ast.ArrayType) type).member) + ">";
+                return fieldTypeMap(((Ast.ArrayType) type).member) + "[]";
             case Struct:
                 throw new UnsupportedOperationException("Java does not support anonymous nested classes");
             default:

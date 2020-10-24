@@ -33,7 +33,7 @@ class AggregateBareDecoderTest {
     }
 
     @Test
-    public void testStaticArray() throws IOException, ReflectiveOperationException {
+    public void testStaticArray() throws IOException, BareException {
         var stream = fromInts(0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
@@ -42,10 +42,10 @@ class AggregateBareDecoderTest {
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
-        var decoder = new ReflectiveBareDecoder(stream);
-        var result = decoder.values(String.class, 3);
+        var decoder = new AggregateBareDecoder(stream);
+        var result = decoder.array(3, AggregateBareDecoder::string);
 
-        assertEquals(3, result.size);
+        assertEquals(3, result.size());
         assertEquals("こんにちは、世界！", result.get(0));
         assertEquals("こんにちは、世界！", result.get(1));
         assertEquals("こんにちは、世界！", result.get(2));

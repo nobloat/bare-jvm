@@ -3,6 +3,7 @@ package org.nobloat.bare;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigInteger;
@@ -42,10 +43,10 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
         return result;
     }
 
-    public <T> Array<T> values(Class<T> c, int length) throws IOException, ReflectiveOperationException {
-        var result = new Array<T>(length);
+    public <T> List<T> values(Class<T> c, int length) throws IOException, ReflectiveOperationException {
+        var result = new ArrayList<T>(length);
         for (int i = 0; i < length; i++) {
-            result.values.set(i,readType(c));
+            result.add(readType(c));
         }
         return result;
     }
@@ -90,11 +91,9 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
                 f.set(result, readIntegerType(f));
             } else if (PRIMITIVE_TYPES.contains(f.getType().getName())) {
                 f.set(result, readPrimitiveType(f.getType()));
-            } else if(f.getType().getName().equals("org.nobloat.bare.Array")) {
-                var array = (Array<T>)f.get(result);
-                ParameterizedType type = (ParameterizedType)f.getGenericType();
-                var elementType =  type.getActualTypeArguments()[0];
-                f.set(result, values((Class<?>)elementType, array.size));
+            } else if(f.getType().isArray()) {
+                var array = (T[])f.get(result);
+                f.set(result, values(f.getType().getComponentType(), array.length).toArray((Object[])Array.newInstance(f.getType().getComponentType(), array.length)));
             } else if(f.getType().getName().equals("java.util.List")) {
                 ParameterizedType type = (ParameterizedType)f.getGenericType();
                 var elementType =  type.getActualTypeArguments()[0];
@@ -111,8 +110,6 @@ public class ReflectiveBareDecoder extends AggregateBareDecoder {
         return result;
     }
 
-
-    //TODO: optimize for slices -> check type only once
     @SuppressWarnings("unchecked")
     public <T> T readPrimitiveType(Class<?> c) throws IOException {
         switch (c.getName()) {

@@ -30,10 +30,10 @@ class AggregateBareEncoderTest {
     @Test
     void array() throws IOException, BareException {
         try(var stream = bos) {
-            var array = new Array<String>(3);
-            array.set(0, "こんにちは、世界！");
-            array.set(1, "こんにちは、世界！");
-            array.set(2, "こんにちは、世界！");
+            var array = new String[3];
+            array[0] = "こんにちは、世界！";
+            array[1] = "こんにちは、世界！";
+            array[2] = "こんにちは、世界！";
             encoder.array(array, encoder::string);
         }
 
@@ -46,6 +46,18 @@ class AggregateBareEncoderTest {
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
         assertArrayEquals(expected, bos.toByteArray());
+
+        var u32Array = new int[]{7,8,9};
+        bos = new ByteArrayOutputStream();
+        encoder.array(u32Array, encoder::u32);
+
+    }
+
+    @Test
+    void arrayU32() throws IOException, BareException {
+        var u32Array = new int[]{7,8,9};
+        encoder.array(u32Array, encoder::u32);
+        assertArrayEquals(new byte[]{7,0,0,0,8,0,0,0,9,0,0,0}, bos.toByteArray());
     }
 
     @Test

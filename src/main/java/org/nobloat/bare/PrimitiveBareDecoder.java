@@ -110,10 +110,10 @@ public class PrimitiveBareDecoder {
         return new String(target, StandardCharsets.UTF_8);
     }
 
-    public Array<Byte> data(int length) throws IOException {
-        var result = new Array<Byte>(length);
-        for (long i=0; i < length; i++) {
-            result.values.add(is.readByte());
+    public byte[] data(int length) throws IOException {
+        var result = new byte[length];
+        for (int i=0; i < length; i++) {
+            result[i] = is.readByte();
         }
         return result;
     }

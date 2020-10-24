@@ -45,7 +45,7 @@ class ReflectiveBareDecoderTest {
         var decoder = new ReflectiveBareDecoder(stream);
         var result = decoder.values(String.class, 3);
 
-        assertEquals(3, result.size);
+        assertEquals(3, result.size());
         assertEquals("こんにちは、世界！", result.get(0));
         assertEquals("こんにちは、世界！", result.get(1));
         assertEquals("こんにちは、世界！", result.get(2));
@@ -141,7 +141,7 @@ class ReflectiveBareDecoderTest {
     private void verifyCustomer(TestClasses.Customer customer) {
         assertEquals("James Smith", customer.name);
         assertEquals("jsmith@example.org", customer.email);
-        assertEquals("123 Main St", customer.address.addressLines.get(0));
+        assertEquals("123 Main St", customer.address.addressLines[0]);
         assertEquals("Philadelphia", customer.address.city);
         assertEquals("PA", customer.address.sate);
         assertEquals("United States", customer.address.country);
@@ -162,7 +162,7 @@ class ReflectiveBareDecoderTest {
     private void verifyEmployee(TestClasses.Employee employee) {
         assertEquals("Tiffany Doe", employee.name);
         assertEquals("tiffanyd@acme.corp", employee.email);
-        assertEquals("123 Main St", employee.address.addressLines.get(0));
+        assertEquals("123 Main St", employee.address.addressLines[0]);
         assertEquals("Philadelphia", employee.address.city);
         assertEquals("PA", employee.address.sate);
         assertEquals("United States", employee.address.country);
