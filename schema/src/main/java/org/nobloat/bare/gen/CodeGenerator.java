@@ -2,6 +2,7 @@ package org.nobloat.bare.gen;
 
 import org.nobloat.bare.BareException;
 import org.nobloat.bare.dsl.Ast;
+import org.nobloat.bare.dsl.Ast.TypeKind;
 import org.nobloat.bare.dsl.AstParser;
 import org.nobloat.bare.dsl.Lexer;
 import org.nobloat.bare.dsl.Scanner;
@@ -20,6 +21,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.nobloat.bare.dsl.Ast.TypeKind.Struct;
+import static org.nobloat.bare.dsl.Ast.TypeKind.UserType;
 
 public class CodeGenerator {
 
@@ -83,7 +87,7 @@ public class CodeGenerator {
 
 
     public void createJavaType(Ast.Type type) throws BareException {
-        if (type.kind == Ast.TypeKind.UserType && ((Ast.UserDefinedType) type).type.kind == Ast.TypeKind.Struct) {
+        if (type.kind == UserType && ((Ast.UserDefinedType) type).type.kind == Struct) {
             createStruct((Ast.UserDefinedType) type);
         } else if (type instanceof Ast.UserDefinedEnum) {
             createEnum((Ast.UserDefinedEnum) type);

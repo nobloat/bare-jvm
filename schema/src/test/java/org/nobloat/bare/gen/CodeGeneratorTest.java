@@ -34,14 +34,14 @@ class CodeGeneratorTest {
     void compileSchema() throws Exception {
         CodeGenerator.main(new String[]{"src/test/resources/schema2.bare", "org.example.Messages"});
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        assertEquals(0, compiler.run(null, System.out, System.err, "--source-path", "src/main/java", "org/example/Messages.java"));
+        assertEquals(0, compiler.run(null, System.out, System.err, "--source-path", "../codec/src/main/java", "org/example/Messages.java"));
     }
 
     @Test
     void compileNumberSchema() throws Exception {
         CodeGenerator.main(new String[]{"src/test/resources/numbers.bare", "org.example.NumberMessages"});
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        assertEquals(0, compiler.run(null, System.out, System.err, "--source-path", "src/main/java", "org/example/NumberMessages.java"));
+        assertEquals(0, compiler.run(null, System.out, System.err, "--source-path", "../codec/src/main/java", "org/example/NumberMessages.java"));
     }
 
     @Test

@@ -101,7 +101,11 @@ public class PrimitiveBareEncoder {
     }
 
     public void string(String s) throws IOException {
-        data(s.getBytes(StandardCharsets.UTF_8));
+        if (s == null) {
+            data(new byte[]{});
+        } else {
+            data(s.getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     public int variadicUInt(BigInteger value) throws IOException {

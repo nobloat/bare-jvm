@@ -1,6 +1,7 @@
 package org.nobloat.bare.dsl;
 
 import org.junit.jupiter.api.Test;
+import org.nobloat.bare.TestUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -8,7 +9,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.nobloat.bare.TestUtil.openFile;
 
 public class AstParserTest {
 
@@ -93,7 +93,7 @@ public class AstParserTest {
 
     @Test
     void testWholeSchema() throws Exception {
-        try (var stream = openFile("schema.bare"); var scanner = new Scanner(stream)) {
+        try (var stream = TestUtil.openFile("schema.bare"); var scanner = new Scanner(stream)) {
             Lexer lexer = new Lexer(scanner);
             AstParser parser = new AstParser(lexer);
 
