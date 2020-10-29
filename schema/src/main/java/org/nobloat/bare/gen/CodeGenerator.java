@@ -103,7 +103,17 @@ public class CodeGenerator {
         writer.indent();
         writer.newline();
 
-        writer.write("public " + fieldTypeMap(type.type) + " value;");
+
+        if (type.type.kind == Ast.TypeKind.Array) {
+            var arrayType = (Ast.ArrayType) type.type;
+            writer.write("public " + fieldTypeMap(type.type) +  "value = new " + toArrayType(arrayType.member).replace("[]", "["+ arrayType.length +"];"));
+        } else if (type.type.kind == TypeKind.DataArray) {
+            var arrayType = (Ast.DataType) type.type;
+            writer.write("public " + fieldTypeMap(type.type) +  "value = new " + toArrayType(arrayType).replace("[]", "["+ arrayType.length +"];"));
+        } else {
+            writer.write("public " + fieldTypeMap(type.type) + " value;");
+        }
+
         writer.newline();
 
         writer.write("public static " + type.name + " decode(AggregateBareDecoder decoder) throws IOException, BareException {");
@@ -478,6 +488,7 @@ public class CodeGenerator {
 
     private String toArrayType(Ast.Type type) throws BareException {
         switch (type.kind) {
+            case DataArray:
             case U8:
                 return "Byte[]";
             case I16:
