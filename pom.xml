@@ -16,9 +16,8 @@
 
 
     <modules>
-        <module>codegen-testing</module>
-        <module>schema</module>
         <module>codec</module>
+        <module>schema</module>
     </modules>
 
     <build>

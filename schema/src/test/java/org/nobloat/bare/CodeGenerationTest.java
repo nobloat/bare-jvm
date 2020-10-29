@@ -1,9 +1,6 @@
-package org.nobloat.bare.gen;
+package org.nobloat.bare;
 
 import org.junit.jupiter.api.Test;
-import org.nobloat.bare.AggregateBareDecoder;
-import org.nobloat.bare.AggregateBareEncoder;
-import org.nobloat.bare.BareException;
 import org.nobloat.bare.test.Dtos;
 
 import java.io.ByteArrayInputStream;
