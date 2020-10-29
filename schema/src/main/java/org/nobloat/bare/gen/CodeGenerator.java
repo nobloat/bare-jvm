@@ -106,10 +106,10 @@ public class CodeGenerator {
 
         if (type.type.kind == Ast.TypeKind.Array) {
             var arrayType = (Ast.ArrayType) type.type;
-            writer.write("public " + fieldTypeMap(type.type) +  "value = new " + toArrayType(arrayType.member).replace("[]", "["+ arrayType.length +"];"));
+            writer.write("public " + fieldTypeMap(type.type) +  " value = new " + toArrayType(arrayType.member).replace("[]", "["+ arrayType.length +"];"));
         } else if (type.type.kind == TypeKind.DataArray) {
             var arrayType = (Ast.DataType) type.type;
-            writer.write("public " + fieldTypeMap(type.type) +  "value = new " + toArrayType(arrayType).replace("[]", "["+ arrayType.length +"];"));
+            writer.write("public " + fieldTypeMap(type.type) +  " value = new " + toArrayType(arrayType).replace("[]", "["+ arrayType.length +"];"));
         } else {
             writer.write("public " + fieldTypeMap(type.type) + " value;");
         }
@@ -490,7 +490,7 @@ public class CodeGenerator {
         switch (type.kind) {
             case DataArray:
             case U8:
-                return "Byte[]";
+                return "byte[]";
             case I16:
             case I8:
                 return "Short[]";
@@ -552,8 +552,9 @@ public class CodeGenerator {
                 usedTypes.add("java.math.BigInteger");
                 return "@Int(Int.Type.ui) BigInteger";
             case DataSlice:
-            case DataArray:
                 return "Byte[]";
+            case DataArray:
+                return "byte[]";
             case UserType:
                 return type.name;
             case Optional:

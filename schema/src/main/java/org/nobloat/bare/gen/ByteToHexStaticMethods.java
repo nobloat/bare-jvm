@@ -5,6 +5,7 @@ public class ByteToHexStaticMethods {
     private final CodeWriter codeWriter;
     private boolean byteToHex = false;
     private boolean byteArrayToHex = false;
+    private boolean byteSliceToHex = false;
 
     public ByteToHexStaticMethods(CodeWriter codeWriter) {
         this.codeWriter = codeWriter;
@@ -20,6 +21,11 @@ public class ByteToHexStaticMethods {
         return String.format("byteArrayToHex(%s)", fieldName);
     }
 
+    public String callByteSliceToHex(String fieldName) {
+        byteSliceToHex = true;
+        return String.format("byteSliceToHex(%s)", fieldName);
+    }
+
     public void addStaticMethods() {
         if (byteToHex || byteArrayToHex) {
             byteToHexMethod();
@@ -27,6 +33,10 @@ public class ByteToHexStaticMethods {
 
         if(byteArrayToHex) {
             byteArrayToHexMethod();
+        }
+
+        if (byteSliceToHex) {
+            byteSliceToHexMethod();
         }
     }
 
@@ -46,7 +56,27 @@ public class ByteToHexStaticMethods {
     }
 
     private void byteArrayToHexMethod() {
-        codeWriter.write("static String byteArrayToHex(Byte[] byteArray) {");
+        codeWriter.write("static String byteArrayToHex(byte[] byteArray) {");
+        codeWriter.indent();
+
+        codeWriter.write("StringBuffer hexStringBuffer = new StringBuffer();");
+        codeWriter.write("for (int i = 0; i < byteArray.length; i++) {");
+        codeWriter.indent();
+        codeWriter.write("hexStringBuffer.append(byteToHex(byteArray[i]));");
+        codeWriter.write("hexStringBuffer.append(' ');");
+        codeWriter.dedent();
+        codeWriter.write("}");
+        codeWriter.newline();
+
+        codeWriter.write("hexStringBuffer.deleteCharAt(hexStringBuffer.length() - 1);");
+        codeWriter.write("return hexStringBuffer.toString();");
+
+        codeWriter.dedent();
+        codeWriter.write("}");
+    }
+
+    private void byteSliceToHexMethod() {
+        codeWriter.write("static String byteSliceToHex(Byte[] byteArray) {");
         codeWriter.indent();
 
         codeWriter.write("StringBuffer hexStringBuffer = new StringBuffer();");

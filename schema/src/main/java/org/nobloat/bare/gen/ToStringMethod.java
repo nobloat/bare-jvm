@@ -31,8 +31,11 @@ class ToStringMethod {
             case U8:
                 field = byteToHexStaticMethods.callByteToHex(fieldName);
                 break;
-            case DataSlice:
+            case DataArray:
                 field = byteToHexStaticMethods.callByteArrayToHex(fieldName);
+                break;
+            case DataSlice:
+                field = byteToHexStaticMethods.callByteSliceToHex(fieldName);
                 break;
             default:
                 field = fieldName;
