@@ -6,8 +6,17 @@ import org.nobloat.bare.dsl.AstParser;
 import org.nobloat.bare.dsl.Lexer;
 import org.nobloat.bare.dsl.Scanner;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class CodeGenerator {
@@ -148,7 +157,7 @@ public class CodeGenerator {
             String fieldMapping = "public " + fieldTypeMap(field.type) + " " + field.name;
             if (field.type.kind == Ast.TypeKind.Array || field.type.kind == Ast.TypeKind.DataArray) {
                 var arrayType = (Ast.ArrayType) field.type;
-                fieldMapping += " = new Array<>(" + arrayType.length + ")";
+                fieldMapping += " = new " + toArrayType(arrayType.member).replace("[]", "["+ arrayType.length +"]");
             }
             fieldSection.write(fieldMapping + ";");
 
@@ -227,7 +236,7 @@ public class CodeGenerator {
             case Slice:
                 return "encoder.slice(" + name + "," + encodeLambda(((Ast.ArrayType) type).member) + ")";
             case DataArray:
-                return "encoder.array(" + name + ", encoder::u8)";
+                return "encoder.array(" + name + ")";
             case Array:
                 return "encoder.array(" + name + ", " + encodeLambda(((Ast.ArrayType) type).member) + ")";
             default:
@@ -264,7 +273,7 @@ public class CodeGenerator {
             case INT:
                 return "encoder::variadicInt";
             case UINT:
-                return "encoder::variadicUint";
+                return "encoder::variadicUInt";
             case DataSlice:
                 return "encoder::data";
             case Struct:
@@ -416,7 +425,7 @@ public class CodeGenerator {
             case Slice:
                 return "decoder.slice(" + decodeLambda(((Ast.ArrayType) type).member) + ")";
             case Array:
-                return "decoder.array(" + ((Ast.ArrayType) type).length + ", " + decodeLambda(((Ast.ArrayType) type).member) + ")";
+                return "decoder.array(" + ((Ast.ArrayType) type).length + ", " + decodeLambda(((Ast.ArrayType) type).member) + ").toArray(new " + toArrayType(((Ast.ArrayType) type).member).replace("[]", "["+((Ast.ArrayType) type).length+"]") + ")";
         }
         return "";
     }
@@ -461,6 +470,38 @@ public class CodeGenerator {
         }
     }
 
+    private String toArrayType(Ast.Type type) throws BareException {
+        switch (type.kind) {
+            case U8:
+                return "Byte[]";
+            case I16:
+            case I8:
+                return "Short[]";
+            case I32:
+            case U16:
+                return "Integer[]";
+            case UINT:
+            case U64:
+                return "BigInteger[]";
+            case Bool:
+                return "Boolean[]";
+            case F32:
+                return "Float[]";
+            case F64:
+                return "Double[]";
+            case I64:
+            case INT:
+            case U32:
+                return "Long[]";
+            case STRING:
+                return "String[]";
+            case UserType:
+                return type.name + "[]";
+            default:
+                throw new BareException("Unknown field type mapping for " + type.name);
+        }
+    }
+
     private String fieldTypeMap(Ast.Type type) throws BareException {
         switch (type.kind) {
             case U8:
@@ -494,14 +535,11 @@ public class CodeGenerator {
                 usedTypes.add("java.math.BigInteger");
                 return "@Int(Int.Type.ui) BigInteger";
             case DataSlice:
-                return "byte[]";
             case DataArray:
-                usedTypes.add("java.util.List");
-                return "Array<Byte>";
+                return "Byte[]";
             case UserType:
                 return type.name;
             case Optional:
-                usedTypes.add("org.nobloat.bare.Array");
                 return "Optional<" + fieldTypeMap(((Ast.OptionalType) type).subType) + ">";
             case Map:
                 usedTypes.add("java.util.Map");
@@ -510,8 +548,7 @@ public class CodeGenerator {
                 usedTypes.add("java.util.List");
                 return "List<" + fieldTypeMap(((Ast.ArrayType) type).member) + ">";
             case Array:
-                usedTypes.add("org.nobloat.bare.Array");
-                return "Array<" + fieldTypeMap(((Ast.ArrayType) type).member) + ">";
+                return toArrayType(((Ast.ArrayType) type).member);
             case Struct:
                 throw new UnsupportedOperationException("Java does not support anonymous nested classes");
             default:

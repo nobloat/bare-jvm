@@ -16,7 +16,7 @@ import static org.nobloat.bare.TestUtil.openFile;
 class ReflectiveBareDecoderTest {
 
     @Test
-    public void testOptional() throws IOException {
+    public void testOptional() throws IOException, BareException {
         var stream = fromInts(0x01, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
@@ -33,7 +33,7 @@ class ReflectiveBareDecoderTest {
     }
 
     @Test
-    public void testStaticArray() throws IOException, ReflectiveOperationException {
+    public void testStaticArray() throws IOException, ReflectiveOperationException, BareException {
         var stream = fromInts(0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
@@ -43,16 +43,16 @@ class ReflectiveBareDecoderTest {
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
         var decoder = new ReflectiveBareDecoder(stream);
-        var result = decoder.values(String.class, 3);
+        var result = decoder.array(String.class, 3);
 
-        assertEquals(3, result.size);
+        assertEquals(3, result.size());
         assertEquals("こんにちは、世界！", result.get(0));
         assertEquals("こんにちは、世界！", result.get(1));
         assertEquals("こんにちは、世界！", result.get(2));
     }
 
     @Test
-    public void testSlice() throws IOException, ReflectiveOperationException {
+    public void testSlice() throws IOException, ReflectiveOperationException, BareException {
         var stream = fromInts(0x03, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
@@ -62,7 +62,7 @@ class ReflectiveBareDecoderTest {
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
         var decoder = new ReflectiveBareDecoder(stream);
-        var result = decoder.values(String.class);
+        var result = decoder.slice(String.class);
 
         assertEquals(3, result.size());
         assertEquals("こんにちは、世界！", result.get(0));
@@ -71,7 +71,7 @@ class ReflectiveBareDecoderTest {
     }
 
     @Test
-    public void testMap() throws IOException, ReflectiveOperationException {
+    public void testMap() throws IOException, ReflectiveOperationException, BareException {
         var stream = fromInts(0x03, 0x01, 0x11, 0x02, 0x22, 0x03, 0x33);
         var decoder = new ReflectiveBareDecoder(stream);
         var result = decoder.map(Byte.class, Byte.class);
@@ -84,15 +84,12 @@ class ReflectiveBareDecoderTest {
 
 
     @Test
-    public void testUnion() throws IOException, ReflectiveOperationException, BareException {
+    public void testUnion() throws IOException, BareException {
         var stream = fromInts(0x01, 0x1B, 0xE3, 0x81, 0x93, 0xE3, 0x82, 0x93, 0xE3,
                 0x81, 0xAB, 0xE3, 0x81, 0xA1, 0xE3, 0x81, 0xAF, 0xE3, 0x80, 0x81, 0xE4,
                 0xB8, 0x96, 0xE7, 0x95, 0x8C, 0xEF, 0xBC, 0x81);
 
         var decoder = new ReflectiveBareDecoder(stream);
-
-
-
 
         var result = decoder.union(Map.of(0, PrimitiveBareDecoder::f32, 1, PrimitiveBareDecoder::string));
         assertEquals(1, result.type());
@@ -110,7 +107,7 @@ class ReflectiveBareDecoderTest {
     }
 
     @Test
-    public void testStruct() throws ReflectiveOperationException, IOException {
+    public void testStruct() throws ReflectiveOperationException, IOException, BareException {
         var stream = fromInts(0x05, 0x50, 0x65, 0x74, 0x65, 0x72,     0x0C, 0x53, 0x70, 0x69, 0x65, 0x73, 0x73, 0x2d, 0x4b, 0x6e, 0x61, 0x66, 0x6c,
                 0x02,    0x10, 0x6e, 0x6f, 0x62, 0x6c, 0x6f, 0x61, 0x74, 0x2f, 0x62, 0x61, 0x72, 0x65, 0x2d, 0x6a, 0x76, 0x6d, 0x10, 0x6e, 0x6f, 0x62, 0x6c, 0x6f, 0x61, 0x74, 0x2f, 0x62, 0x61, 0x72, 0x65, 0x2d, 0x6a, 0x64, 0x6b);
         var decoder = new ReflectiveBareDecoder(stream);
@@ -129,7 +126,7 @@ class ReflectiveBareDecoderTest {
     }
 
     @Test
-    public void testCustomerStruct() throws IOException, ReflectiveOperationException {
+    public void testCustomerStruct() throws IOException, ReflectiveOperationException, BareException {
         try(var is = openFile("customer.bin")) {
             var decoder = new ReflectiveBareDecoder(is);
             var customer = decoder.union(TestClasses.Customer.class).get(TestClasses.Customer.class);
@@ -141,7 +138,7 @@ class ReflectiveBareDecoderTest {
     private void verifyCustomer(TestClasses.Customer customer) {
         assertEquals("James Smith", customer.name);
         assertEquals("jsmith@example.org", customer.email);
-        assertEquals("123 Main St", customer.address.addressLines.get(0));
+        assertEquals("123 Main St", customer.address.addressLines[0]);
         assertEquals("Philadelphia", customer.address.city);
         assertEquals("PA", customer.address.sate);
         assertEquals("United States", customer.address.country);
@@ -151,7 +148,7 @@ class ReflectiveBareDecoderTest {
     }
 
     @Test
-    public void testEmployeeStruct() throws IOException, ReflectiveOperationException {
+    public void testEmployeeStruct() throws IOException, ReflectiveOperationException, BareException {
         try(var is = openFile("employee.bin")) {
             var decoder = new ReflectiveBareDecoder(is);
             var employee = decoder.union(TestClasses.Employee.class).get(TestClasses.Employee.class);
@@ -162,16 +159,16 @@ class ReflectiveBareDecoderTest {
     private void verifyEmployee(TestClasses.Employee employee) {
         assertEquals("Tiffany Doe", employee.name);
         assertEquals("tiffanyd@acme.corp", employee.email);
-        assertEquals("123 Main St", employee.address.addressLines.get(0));
+        assertEquals("123 Main St", employee.address.addressLines[0]);
         assertEquals("Philadelphia", employee.address.city);
         assertEquals("PA", employee.address.sate);
         assertEquals("United States", employee.address.country);
-        //assertEquals(TestClasses.Department.ADMINISTRATION, employee.department);
+        assertEquals(TestClasses.Department.ADMINISTRATION, employee.department);
         assertEquals("2020-06-21T21:18:05+00:00", employee.hireDate);
     }
 
     @Test
-    public void testTerminatedStruct() throws IOException, ReflectiveOperationException {
+    public void testTerminatedStruct() throws IOException, ReflectiveOperationException, BareException {
         try(var is = openFile("terminated.bin")) {
             var decoder = new ReflectiveBareDecoder(is);
             decoder.union(TestClasses.TerminatedEmployee.class).get(TestClasses.TerminatedEmployee.class);
@@ -179,7 +176,7 @@ class ReflectiveBareDecoderTest {
     }
 
     @Test
-    public void testPeople() throws IOException, ReflectiveOperationException {
+    public void testPeople() throws IOException, ReflectiveOperationException, BareException {
         try(var is = openFile("people.bin")) {
             var decoder = new ReflectiveBareDecoder(is);
             var customer = decoder.union(TestClasses.Customer.class, TestClasses.Employee.class, TestClasses.TerminatedEmployee.class).get(TestClasses.Customer.class);

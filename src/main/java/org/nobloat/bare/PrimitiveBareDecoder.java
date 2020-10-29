@@ -11,6 +11,8 @@ public class PrimitiveBareDecoder {
     private final DataInputStream is;
     private static final BigInteger UNSIGNED_LONG_MASK = BigInteger.ONE.shiftLeft(Long.SIZE).subtract(BigInteger.ONE);
 
+    public int MaxSliceLength = 1000000000;
+
     public PrimitiveBareDecoder(InputStream is) {
         this.is = new DataInputStream(is);
     }
@@ -86,7 +88,6 @@ public class PrimitiveBareDecoder {
     }
 
     public BigInteger variadicUint() throws IOException {
-        //TODO: max 64bit
         BigInteger result = BigInteger.ZERO;
         int shift = 0;
         int b;
@@ -102,27 +103,29 @@ public class PrimitiveBareDecoder {
         return result;
     }
 
-    public String string() throws IOException {
-        BigInteger length = variadicUint();
-        //TODO: check length
-        var target = new byte[length.intValue()];
+    public String string() throws IOException, BareException {
+        int length = variadicUint().intValue();
+        if (length > MaxSliceLength) {
+            throw new BareException(String.format("Decoding slice with length %d > %d max length", length, MaxSliceLength));
+        }
+        var target = new byte[length];
         is.read(target);
         return new String(target, StandardCharsets.UTF_8);
     }
 
-    public Array<Byte> data(int length) throws IOException {
-        var result = new Array<Byte>(length);
-        for (long i=0; i < length; i++) {
-            result.values.add(is.readByte());
+    public Byte[] data(int length) throws IOException {
+        var result = new Byte[length];
+        for (int i=0; i < length; i++) {
+            result[i] = is.readByte();
         }
         return result;
     }
 
-    public byte[] data() throws IOException {
-        //TODO: add max length
-        BigInteger length = variadicUint();
-        var result = new byte[length.intValue()];
-        is.read(result);
-        return result;
+    public Byte[] data() throws IOException, BareException {
+        int length = variadicUint().intValue();
+        if (length > MaxSliceLength) {
+            throw new BareException(String.format("Decoding slice with length %d > %d max length", length, MaxSliceLength));
+        }
+        return data(length);
     }
 }

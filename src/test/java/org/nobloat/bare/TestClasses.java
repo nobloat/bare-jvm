@@ -33,7 +33,7 @@ public class TestClasses {
     }
 
     public static class Address {
-        public Array<String> addressLines = new Array<>(4);
+        public String[] addressLines = new String[4];
         public String city;
         public String sate;
         public String country;
@@ -59,7 +59,7 @@ public class TestClasses {
         public String name;
         public int age;
 
-        public static SimplePerson decode(PrimitiveBareDecoder decoder) throws IOException {
+        public static SimplePerson decode(PrimitiveBareDecoder decoder) throws IOException, BareException {
             var o = new SimplePerson();
             o.name = decoder.string();
             o.age = decoder.u8();

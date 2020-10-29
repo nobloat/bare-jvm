@@ -21,9 +21,57 @@ public class AggregateBareEncoder extends PrimitiveBareEncoder {
         }
     }
 
-    public <T> void array(Array<T> value, EncodeFunction<T> itemEncoder) throws IOException, BareException {
-        for (var item : value.values) {
+    public <T> void array(T[] value, EncodeFunction<T> itemEncoder) throws IOException, BareException {
+        for (var item : value) {
             itemEncoder.apply(item);
+        }
+    }
+
+    public void array(int[] value, EncodeFunction<Integer> itemEncoder) throws IOException, BareException {
+        for (var item : value) {
+            itemEncoder.apply(item);
+        }
+    }
+
+    public void array(long[] value, EncodeFunction<Long> itemEncoder) throws IOException, BareException {
+        for (var item : value) {
+            itemEncoder.apply(item);
+        }
+    }
+
+    public void array(short[] value, EncodeFunction<Short> itemEncoder) throws IOException, BareException {
+        for (var item : value) {
+            itemEncoder.apply(item);
+        }
+    }
+
+    public void array(boolean[] value, EncodeFunction<Boolean> itemEncoder) throws IOException, BareException {
+        for (var item : value) {
+            itemEncoder.apply(item);
+        }
+    }
+
+    public void array(float[] value, EncodeFunction<Float> itemEncoder) throws IOException, BareException {
+        for (var item : value) {
+            itemEncoder.apply(item);
+        }
+    }
+
+    public void array(double[] value, EncodeFunction<Double> itemEncoder) throws IOException, BareException {
+        for (var item : value) {
+            itemEncoder.apply(item);
+        }
+    }
+
+    public void array(byte[] value) throws IOException {
+        for (var item : value) {
+            u8(item);
+        }
+    }
+
+    public void array(Byte[] value) throws IOException {
+        for (var item : value) {
+            u8(item);
         }
     }
 

@@ -2,12 +2,15 @@ package org.nobloat.bare;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class AggregateBareDecoder extends PrimitiveBareDecoder {
+
+    public int MaxMapLength = 1000000000;
 
     public AggregateBareDecoder(InputStream inputStream) {
         super(inputStream);
@@ -21,23 +24,29 @@ public class AggregateBareDecoder extends PrimitiveBareDecoder {
         return Optional.empty();
     }
 
-    public <T> Array<T> array(long count, DecodeFunction<T> itemDecoder) throws IOException, BareException {
-        var result = new Array<T>((int)count);
+    public <T> List<T> array(int count, DecodeFunction<T> itemDecoder) throws IOException, BareException {
+        var result = new ArrayList<T>(count);
         for (int i=0; i < count; i++) {
-            result.values.set(i, itemDecoder.apply(this));
+            result.add(itemDecoder.apply(this));
         }
         return result;
     }
 
     public <T> List<T> slice(DecodeFunction<T> itemDecoder) throws IOException, BareException {
-        var count = variadicUint().intValue();
-        return array(count, itemDecoder).values;
+        var length = variadicUint().intValue();
+        if (length > MaxMapLength) {
+            throw new BareException(String.format("Decoding slice with entries %d > %d max length", length, MaxSliceLength));
+        }
+        return array(length, itemDecoder);
     }
 
     public <K,V> Map<K,V> map(DecodeFunction<K> keyDecoder, DecodeFunction<V> valueDecoder) throws IOException, BareException {
-        var count = variadicUint().longValue();
+        var length = variadicUint().intValue();
+        if (length > MaxMapLength) {
+            throw new BareException(String.format("Decoding map with entries %d > %d max length", length, MaxSliceLength));
+        }
         var result = new HashMap<K,V>();
-        for (long i=0; i < count; i++) {
+        for (int i=0; i < length; i++) {
             result.put(keyDecoder.apply(this), valueDecoder.apply(this));
         }
         return result;

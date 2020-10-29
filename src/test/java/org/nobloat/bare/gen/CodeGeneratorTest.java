@@ -10,13 +10,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CodeGeneratorTest {
+
     @BeforeEach
     @AfterEach
     void cleanup() throws IOException {
@@ -27,6 +27,7 @@ class CodeGeneratorTest {
                     .map(Path::toFile)
                     .forEach(File::delete);
         }
+        Files.deleteIfExists(Path.of("Messages.java"));
     }
 
     @Test

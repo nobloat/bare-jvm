@@ -93,6 +93,13 @@ public class PrimitiveBareEncoder {
         os.write(data);
     }
 
+    public void data(Byte[] data) throws IOException {
+        variadicUInt(data.length);
+        for(var b : data) {
+            os.write(b);
+        }
+    }
+
     public void string(String s) throws IOException {
         data(s.getBytes(StandardCharsets.UTF_8));
     }
