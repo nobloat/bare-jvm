@@ -3,7 +3,6 @@ package org.nobloat.bare.gen;
 import org.junit.jupiter.api.Test;
 import org.nobloat.bare.AggregateBareDecoder;
 import org.nobloat.bare.AggregateBareEncoder;
-import org.nobloat.bare.Array;
 import org.nobloat.bare.BareException;
 import org.nobloat.bare.test.Dtos;
 
@@ -40,7 +39,7 @@ public class CodeGenerationTest {
 
         Dtos.Address address = employee.address;
         Dtos.Address decodedAddress = decodedEmployee.address;
-        assertEquals(address.address.size, decodedAddress.address.size);
+        assertEquals(address.address.length, decodedAddress.address.length);
 //    TODO assert array
         assertEquals(address.city, decodedAddress.city);
         assertEquals(address.state, decodedAddress.state);
@@ -77,10 +76,10 @@ public class CodeGenerationTest {
         employee.height = 2;
         employee.name = "asdf";
         employee.email = "asdf@org.com";
-        employee.arbitraryData = new byte[]{(byte) 0x80, 0x3};
+        employee.arbitraryData = new Byte[]{(byte) 0x80, 0x3};
 
         Dtos.Address address = new Dtos.Address();
-        address.address.set(0, "Breiten Straße 23");
+        address.address[0] = "Breiten Straße 23";
         address.city = "Villach";
         address.state = "Austria";
         address.country = "Kärnten";
@@ -95,12 +94,11 @@ public class CodeGenerationTest {
         employee.hireDate = time;
 
         Dtos.PublicKey publicKey = new Dtos.PublicKey();
-        publicKey.value = new Array<>(3);
 
         employee.publicKey = Optional.of(publicKey);
         
         employee.metadata = new HashMap<>();
-        employee.metadata.put("key1", new byte[]{(byte) 0x80});
+        employee.metadata.put("key1", new Byte[]{(byte) 0x80});
 
         return employee;
     }

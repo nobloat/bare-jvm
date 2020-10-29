@@ -46,7 +46,7 @@ public class ByteToHexStaticMethods {
     }
 
     private void byteArrayToHexMethod() {
-        codeWriter.write("static String byteArrayToHex(byte[] byteArray) {");
+        codeWriter.write("static String byteArrayToHex(Byte[] byteArray) {");
         codeWriter.indent();
 
         codeWriter.write("StringBuffer hexStringBuffer = new StringBuffer();");
