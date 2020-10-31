@@ -29,10 +29,6 @@ public class Union {
         }
     }
 
-    public Union(Map<Long, Class<?>> allowedTypes) {
-        this.types = allowedTypes;
-    }
-
     public void set(long id, Object object) {
         if (types.containsKey(id)) {
             this.value = object;

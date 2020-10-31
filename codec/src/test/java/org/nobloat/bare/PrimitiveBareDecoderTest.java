@@ -123,6 +123,13 @@ class PrimitiveBareDecoderTest {
         var data = new PrimitiveBareDecoder(stream).data();
         assertArrayEquals(ref, data);
         assertEquals(-1, stream.read());
+
+
+        byte[] ref2 = {0x13, 0x37, 0x42};
+        stream = fromInts(0x13, 0x37, 0x42);
+        var data2 = new PrimitiveBareDecoder(stream).data(3);
+        assertArrayEquals(ref2, data2);
+        assertEquals(-1, stream.read());
     }
 
     @Test
