@@ -250,10 +250,12 @@ public class CodeGenerator {
             case Map:
                 return "encoder.map(" + name + "," + encodeLambda(((Ast.MapType) type).key) + "," + encodeLambda(((Ast.MapType) type).value) + ")";
             case Slice:
+                usedTypes.add("java.util.Arrays");
                 return "encoder.slice(" + name + "," + encodeLambda(((Ast.ArrayType) type).member) + ")";
             case DataArray:
                 return "encoder.array(" + name + ")";
             case Array:
+                usedTypes.add("java.util.Arrays");
                 return "encoder.array(" + name + ", " + encodeLambda(((Ast.ArrayType) type).member) + ")";
             default:
                 throw new BareException("Unknown encoding statement for " + type.name);

@@ -37,6 +37,10 @@ class ToStringMethod {
             case DataSlice:
                 field = byteToHexStaticMethods.callByteSliceToHex(fieldName);
                 break;
+            case Slice:
+            case Array:
+                field = "Arrays.toString(" + fieldName + ")";
+                break;
             default:
                 field = fieldName;
         }

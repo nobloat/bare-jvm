@@ -54,7 +54,7 @@
                     <arguments>
                         <argument>${project.basedir}/src/test/resources/schema-codegen.bare</argument>
                         <argument>org.nobloat.bare.test.Dtos</argument>
-                        <argument>target/generated-test-sources</argument>
+                        <argument>${project.basedir}/target/generated-test-sources</argument>
                     </arguments>
                 </configuration>
             </plugin>
