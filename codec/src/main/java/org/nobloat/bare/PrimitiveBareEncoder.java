@@ -18,38 +18,44 @@ public class PrimitiveBareEncoder {
     }
 
     public PrimitiveBareEncoder(OutputStream os) {
-        this(os, false);
+        this(os, true);
     }
 
     public void u8(byte b) throws IOException {
         os.writeByte(b);
     }
 
-    public void u8(short b) throws IOException {
+    public void u8(short b) throws IOException, BareException {
         if (verifyInput && b > 255) {
-            throw new NotSerializableException("u8 cannot exceed value of 255");
+            throw new BareException("u8 must not exceed value of 255");
         }
         os.writeByte(b);
     }
 
-    public void u16(int b) throws IOException {
+    public void u16(int b) throws IOException, BareException {
+        if (verifyInput && b > 65535) {
+            throw new BareException("u16 must not exceed value of 65535");
+        }
         os.write(new byte[]{(byte) b, (byte) (b >> 8)});
     }
 
-    public void u32(long b) throws IOException {
+    public void u32(long b) throws IOException, BareException {
+        if (verifyInput && b > 4294967295L) {
+            throw new BareException("u16 must not exceed value of 4294967295");
+        }
         os.write(new byte[]{(byte) b, (byte) (b >> 8), (byte) (b >> 16), (byte) (b >> 24)});
     }
 
-    public void u64(BigInteger b) throws IOException {
+    public void u64(BigInteger b) throws IOException, BareException {
         if (verifyInput && b.bitLength() > 64) {
-            throw new NotSerializableException("value for variadicUint cannot have more than 64 bits, value has " + b.bitLength() + " bits");
+            throw new BareException("value for variadicUint must not have more than 64 bits, value has " + b.bitLength() + " bits");
         }
         i64(b.and(UNSIGNED_LONG_MASK).longValue());
     }
 
-    public void i8(short b) throws IOException {
-        if (verifyInput && b > 255 || b < -255) {
-            throw new NotSerializableException("i8 cannot exceed range between 255 and -255");
+    public void i8(short b) throws IOException, BareException {
+        if (verifyInput && b > 128 || b < -127) {
+            throw new BareException("i8 must not exceed range between 255 and -255");
         }
         u8(b);
     }
@@ -58,11 +64,11 @@ public class PrimitiveBareEncoder {
         u8(b);
     }
 
-    public void i16(short b) throws IOException {
+    public void i16(short b) throws IOException, BareException {
         u16(b);
     }
 
-    public void i32(int b) throws IOException {
+    public void i32(int b) throws IOException, BareException {
         u32(b);
     }
 
@@ -72,7 +78,7 @@ public class PrimitiveBareEncoder {
         });
     }
 
-    public void f32(float b) throws IOException {
+    public void f32(float b) throws IOException, BareException {
         i32(Float.floatToIntBits(b));
     }
 
@@ -88,19 +94,19 @@ public class PrimitiveBareEncoder {
         }
     }
 
-    public void data(byte[] data) throws IOException {
+    public void data(byte[] data) throws IOException, BareException {
         variadicUInt(data.length);
         os.write(data);
     }
 
-    public void data(Byte[] data) throws IOException {
+    public void data(Byte[] data) throws IOException, BareException {
         variadicUInt(data.length);
         for(var b : data) {
             os.write(b);
         }
     }
 
-    public void string(String s) throws IOException {
+    public void string(String s) throws IOException, BareException {
         if (s == null) {
             data(new byte[]{});
         } else {
@@ -108,12 +114,12 @@ public class PrimitiveBareEncoder {
         }
     }
 
-    public int variadicUInt(BigInteger value) throws IOException {
+    public int variadicUInt(BigInteger value) throws IOException, BareException {
         if (verifyInput && value.bitLength() > 64) {
-            throw new NotSerializableException("value for variadicUint cannot have more than 64 bits, value has " + value.bitLength() + " bits");
+            throw new BareException("value for variadicUint must not have more than 64 bits, value has " + value.bitLength() + " bits");
         }
         if (verifyInput && value.signum() == -1) {
-            throw new NotSerializableException("value for variadicUint cannot be negative: " + value);
+            throw new BareException("value for variadicUint must not be negative: " + value);
         }
 
         int i = 0;
@@ -126,9 +132,9 @@ public class PrimitiveBareEncoder {
         return i + 1;
     }
 
-    public int variadicUInt(long value) throws IOException {
+    public int variadicUInt(long value) throws IOException, BareException {
         if (verifyInput && value < 0) {
-            throw new NotSerializableException("value for variadicUint cannot be negative: " + value);
+            throw new BareException("value for variadicUint must not be negative: " + value);
         }
         int i = 0;
         while (value >= 0x80) {
@@ -140,7 +146,7 @@ public class PrimitiveBareEncoder {
         return i + 1;
     }
 
-    public int variadicInt(long value) throws IOException {
+    public int variadicInt(long value) throws IOException, BareException {
         long unsigned = value << 1;
         if (unsigned < 0) {
             unsigned = ~unsigned;

@@ -380,7 +380,7 @@ public class CodeGenerator {
         writer.write("}");
         writer.newline();
 
-        writer.write("public void encode(AggregateBareEncoder encoder) throws IOException {");
+        writer.write("public void encode(AggregateBareEncoder encoder) throws IOException, BareException {");
         writer.indent();
         writer.write("encoder.variadicUInt(value);");
         writer.dedent();

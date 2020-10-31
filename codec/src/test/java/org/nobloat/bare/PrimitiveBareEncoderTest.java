@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.NotSerializableException;
 import java.math.BigInteger;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -29,30 +28,36 @@ class PrimitiveBareEncoderTest {
         }
         assertEquals(1, bos.size());
         assertEquals((byte)0xDE, bos.toByteArray()[0]);
+
+        assertThrows(BareException.class, () -> encoder.u8((short)256));
     }
 
     @Test
-    void u16() throws IOException {
+    void u16() throws IOException, BareException {
         try(var stream = bos) {
             encoder.u16(0xCAFE);
         }
         var result = bos.toByteArray();
         assertEquals(2, bos.size());
         assertArrayEquals(new byte[]{(byte) 0xFE, (byte) 0xCA}, result);
+
+        assertThrows(BareException.class, () -> encoder.u16(65536));
     }
 
     @Test
-    void u32() throws IOException {
+    void u32() throws IOException, BareException {
         try(var stream = bos) {
             encoder.u32(0xDEADBEEF);
         }
         var result = bos.toByteArray();
         assertEquals(4, bos.size());
         assertArrayEquals(new byte[]{(byte) 0xEF, (byte) 0xBE, (byte) 0xAD, (byte) 0xDE},result);
+
+        assertThrows(BareException.class, () -> encoder.u32(4294967296L));
     }
 
     @Test
-    void u64() throws IOException {
+    void u64() throws IOException, BareException {
         try(var stream = bos) {
             encoder.u64(new BigInteger("CAFEBABEDEADBEEF", 16));
         }
@@ -72,7 +77,7 @@ class PrimitiveBareEncoderTest {
     }
 
     @Test
-    void i16() throws IOException {
+    void i16() throws IOException, BareException {
         try(var stream = bos) {
             encoder.i16((short) -1234);
         }
@@ -82,7 +87,7 @@ class PrimitiveBareEncoderTest {
     }
 
     @Test
-    void i32() throws IOException {
+    void i32() throws IOException, BareException {
         try(var stream = bos) {
             encoder.i32( -12345678);
         }
@@ -102,7 +107,7 @@ class PrimitiveBareEncoderTest {
     }
 
     @Test
-    void f32() throws IOException {
+    void f32() throws IOException, BareException {
         try(var stream = bos) {
             encoder.f32(1337.42f);
         }
@@ -133,7 +138,7 @@ class PrimitiveBareEncoderTest {
     }
 
     @Test
-    void string() throws IOException {
+    void string() throws IOException, BareException {
         try(var stream = bos) {
             encoder.string("こんにちは、世界！");
         }
@@ -145,7 +150,15 @@ class PrimitiveBareEncoderTest {
     }
 
     @Test
-    void variadicUInt() throws IOException {
+    void nullString() throws IOException, BareException {
+        try(var stream = bos) {
+            encoder.string(null);
+        }
+        assertArrayEquals(new byte[]{0x00}, bos.toByteArray());
+    }
+
+    @Test
+    void variadicUInt() throws IOException, BareException {
         try(var stream = bos) {
             assertEquals(5, encoder.variadicUInt( new BigInteger("DEADBEEF", 16)));
         }
@@ -153,14 +166,13 @@ class PrimitiveBareEncoderTest {
         assertEquals(5, bos.size());
         assertArrayEquals(new byte[]{(byte) 0xEF, (byte) 0xFD, (byte) 0xB6, (byte) 0xF5, 0x0D},result);
 
-
         encoder = new PrimitiveBareEncoder(null, true);
-        assertThrows(NotSerializableException.class, () -> assertEquals(5, encoder.variadicUInt( new BigInteger("DEADBEEFDEADBEEFDEADBEEFDEADBEEF", 16))));
-        assertThrows(NotSerializableException.class, () -> assertEquals(5, encoder.variadicUInt( new BigInteger("-1", 16))));
+        assertThrows(BareException.class, () -> assertEquals(5, encoder.variadicUInt( new BigInteger("DEADBEEFDEADBEEFDEADBEEFDEADBEEF", 16))));
+        assertThrows(BareException.class, () -> assertEquals(5, encoder.variadicUInt( new BigInteger("-1", 16))));
     }
 
     @Test
-    void variadicUIntLong() throws IOException {
+    void variadicUIntLong() throws IOException, BareException {
         try(var stream = bos) {
             assertEquals(5, encoder.variadicUInt(0xDEADBEEFL));
         }
@@ -169,11 +181,11 @@ class PrimitiveBareEncoderTest {
         assertArrayEquals(new byte[]{(byte) 0xEF, (byte) 0xFD, (byte) 0xB6, (byte) 0xF5, 0x0D},result);
 
         encoder = new PrimitiveBareEncoder(null, true);
-        assertThrows(NotSerializableException.class, () -> assertEquals(5, encoder.variadicUInt( -1)));
+        assertThrows(BareException.class, () -> assertEquals(5, encoder.variadicUInt( -1)));
     }
 
     @Test
-    void variadicInt() throws IOException {
+    void variadicInt() throws IOException, BareException {
         try(var stream = bos) {
             assertEquals(4, encoder.variadicInt(-12345678));
         }
@@ -181,4 +193,14 @@ class PrimitiveBareEncoderTest {
         assertEquals(4, bos.size());
         assertArrayEquals(new byte[]{(byte) 0x9B, (byte) 0x85, (byte) 0xE3, 0x0B},result);
     }
+
+    @Test
+    void data() throws IOException, BareException {
+        try(var stream = bos) {
+            encoder.data(new Byte[]{0x01, 0x02, 0x03, 0x04});
+        }
+
+        assertArrayEquals(new byte[]{0x04, 0x01,0x02,0x03,0x04}, bos.toByteArray());
+    }
+    
 }

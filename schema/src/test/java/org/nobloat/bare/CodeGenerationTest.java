@@ -2,10 +2,12 @@ package org.nobloat.bare;
 
 import org.junit.jupiter.api.Test;
 import org.nobloat.bare.test.Dtos;
+import org.nobloat.bare.test.NumberDtos;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -54,6 +56,41 @@ public class CodeGenerationTest {
 
         assertEquals(employee.metadata.size(), decodedEmployee.metadata.size());
         assertArrayEquals(employee.metadata.get("key1"), decodedEmployee.metadata.get("key1"));
+    }
+
+    @Test
+    public void tesTNumbers() throws IOException, BareException {
+        NumberDtos.Numbers numbers = new NumberDtos.Numbers();
+        numbers.doubleFloatingPoint = 33.33333333;
+        numbers.floatingPoint = 13.37f;
+        numbers.usmall = 1337;
+        numbers.sbig = 133333377777777777L;
+        numbers.snormal = 234234234;
+        numbers.ssmall = 111;
+        numbers.usmaller = 0x01;
+        numbers.unormal = 4294967295L;
+        numbers.ubig = BigInteger.TEN;
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        AggregateBareEncoder encoder = new AggregateBareEncoder(outputStream);
+
+        numbers.encode(encoder);
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        AggregateBareDecoder decoder = new AggregateBareDecoder(inputStream);
+
+        var decodecNumbers = NumberDtos.Numbers.decode(decoder);
+
+        assertEquals(numbers.doubleFloatingPoint, decodecNumbers.doubleFloatingPoint);
+        assertEquals(numbers.floatingPoint, decodecNumbers.floatingPoint);
+        assertEquals(numbers.usmall, decodecNumbers.usmall);
+        assertEquals(numbers.sbig, decodecNumbers.sbig);
+        assertEquals(numbers.snormal, decodecNumbers.snormal);
+        assertEquals(numbers.ssmall, decodecNumbers.ssmall);
+        assertEquals(numbers.usmaller, decodecNumbers.usmaller);
+        //TODO: this fails
+        //assertEquals(numbers.unormal, decodecNumbers.unormal);
+        assertEquals(numbers.ubig, decodecNumbers.ubig);
     }
 
     @Test

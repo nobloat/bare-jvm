@@ -46,17 +46,33 @@
                         <goals>
                             <goal>java</goal>
                         </goals>
+                        <configuration>
+                            <mainClass>org.nobloat.bare.gen.CodeGenerator</mainClass>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>${project.basedir}/src/test/resources/schema-codegen.bare</argument>
+                                <argument>org.nobloat.bare.test.Dtos</argument>
+                                <argument>${project.basedir}/src/test/java/</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generateNumberDtos</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>org.nobloat.bare.gen.CodeGenerator</mainClass>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>${project.basedir}/src/test/resources/numbers.bare</argument>
+                                <argument>org.nobloat.bare.test.NumberDtos</argument>
+                                <argument>${project.basedir}/src/test/java/</argument>
+                            </arguments>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <mainClass>org.nobloat.bare.gen.CodeGenerator</mainClass>
-                    <classpathScope>test</classpathScope>
-                    <arguments>
-                        <argument>${project.basedir}/src/test/resources/schema-codegen.bare</argument>
-                        <argument>org.nobloat.bare.test.Dtos</argument>
-                        <argument>${project.basedir}/src/test/java/</argument>
-                    </arguments>
-                </configuration>
             </plugin>
         </plugins>
     </build>

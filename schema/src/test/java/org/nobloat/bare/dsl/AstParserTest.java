@@ -157,6 +157,42 @@ public class AstParserTest {
         }
     }
 
+    @Test
+    public void testNumberSchema() throws Exception {
+        String input = "type Numbers {\n" +
+                "    usmaller: u8\n" +
+                "    ssmaller: i8\n" +
+                "    usmall: u16\n" +
+                "    ssmall: i16\n" +
+                "    unormal: u32\n" +
+                "    snormal: i32\n" +
+                "    ubig: u64\n" +
+                "    sbig: i64\n" +
+                "    floatingPoint: f32\n" +
+                "    doubleFloatingPoint: f64\n" +
+                "}";
+
+        try (InputStream is = toStream(input);
+             Scanner scanner = new Scanner(is)) {
+            Lexer lexer = new Lexer(scanner);
+            AstParser astParser = new AstParser(lexer);
+            var types = astParser.parse();
+
+            var structType = (Ast.StructType)((Ast.UserDefinedType)types.get(0)).type;
+            assertEquals(1, types.size());
+            assertEquals("usmaller", structType.fields.get(0).name);
+            assertEquals("ssmaller", structType.fields.get(1).name);
+            assertEquals("usmall", structType.fields.get(2).name);
+            assertEquals("ssmall", structType.fields.get(3).name);
+            assertEquals("unormal", structType.fields.get(4).name);
+            assertEquals("snormal", structType.fields.get(5).name);
+            assertEquals("ubig", structType.fields.get(6).name);
+            assertEquals("sbig", structType.fields.get(7).name);
+            assertEquals("floatingPoint", structType.fields.get(8).name);
+            assertEquals("doubleFloatingPoint", structType.fields.get(9).name);
+        }
+    }
+
     private InputStream toStream(String input) {
         return new ByteArrayInputStream(input.getBytes());
     }
