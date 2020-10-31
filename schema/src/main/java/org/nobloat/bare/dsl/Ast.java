@@ -18,7 +18,7 @@ public class Ast {
     public static class UserDefinedType extends Type {
         public final Type type;
         public UserDefinedType(String name, Type type) {
-            super(name, TypeKind.UserType);
+            super(name, TypeKind.DefinedUserType);
             this.type = type;
         }
     }
@@ -31,7 +31,7 @@ public class Ast {
 
     public static class NamedUserType extends Type {
         public NamedUserType(String name) {
-            super(name, TypeKind.UserType);
+            super(name, TypeKind.NamedUserType);
         }
     }
 
@@ -154,7 +154,9 @@ public class Ast {
         Union,
         // { fields... },
         Struct,
-        // Named user type,
-        UserType,
+        // User defined Type,
+        DefinedUserType,
+        // Named user Type
+        NamedUserType
     }
 }

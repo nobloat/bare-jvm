@@ -69,7 +69,7 @@ public class ByteToHexStaticMethods {
         codeWriter.newline();
 
         codeWriter.write("hexStringBuffer.deleteCharAt(hexStringBuffer.length() - 1);");
-        codeWriter.write("return hexStringBuffer.toString();");
+        codeWriter.write("return \"[\" + hexStringBuffer.toString() + \"]\";");
 
         codeWriter.dedent();
         codeWriter.write("}");
@@ -89,7 +89,7 @@ public class ByteToHexStaticMethods {
         codeWriter.newline();
 
         codeWriter.write("hexStringBuffer.deleteCharAt(hexStringBuffer.length() - 1);");
-        codeWriter.write("return hexStringBuffer.toString();");
+        codeWriter.write("return \"[\" + hexStringBuffer.toString() + \"]\";");
 
         codeWriter.dedent();
         codeWriter.write("}");

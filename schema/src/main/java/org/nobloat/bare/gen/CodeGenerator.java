@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.nobloat.bare.dsl.Ast.TypeKind.Struct;
-import static org.nobloat.bare.dsl.Ast.TypeKind.UserType;
+import static org.nobloat.bare.dsl.Ast.TypeKind.DefinedUserType;
 
 public class CodeGenerator {
 
@@ -87,11 +87,11 @@ public class CodeGenerator {
 
 
     public void createJavaType(Ast.Type type) throws BareException {
-        if (type.kind == UserType && ((Ast.UserDefinedType) type).type.kind == Struct) {
+        if (type.kind == DefinedUserType && ((Ast.UserDefinedType) type).type.kind == Struct) {
             createStruct((Ast.UserDefinedType) type);
         } else if (type instanceof Ast.UserDefinedEnum) {
             createEnum((Ast.UserDefinedEnum) type);
-        } else if (type.kind == Ast.TypeKind.UserType && ((Ast.UserDefinedType) type).type.kind == Ast.TypeKind.Union) {
+        } else if (type.kind == Ast.TypeKind.DefinedUserType && ((Ast.UserDefinedType) type).type.kind == Ast.TypeKind.Union) {
             createUnion((Ast.UnionType) ((Ast.UserDefinedType) type).type);
         } else {
             createTypeAlias((Ast.UserDefinedType) type);
@@ -133,7 +133,7 @@ public class CodeGenerator {
         writer.newline();
 
         ToStringMethod toStringMethod = new ToStringMethod(writer, type.name, byteToHexStaticMethods);
-        toStringMethod.addField(type.kind, "value");
+        toStringMethod.addField(type, "value");
         toStringMethod.writeEpilog();
 
         writer.dedent();
@@ -180,7 +180,7 @@ public class CodeGenerator {
             decodeSection.write("o." + field.name + " = " + decodeStatement(field.type) + ";");
             encodeSection.write(encodeStatement(field.type, field.name) + ";");
 
-            toStringMethod.addField(field.type.kind, field.name);
+            toStringMethod.addField(field.type, field.name);
         }
 
         fieldSection.newline();
@@ -242,7 +242,8 @@ public class CodeGenerator {
                 return "encoder.variadicUInt(" + name + ")";
             case DataSlice:
                 return "encoder.data(" + name + ")";
-            case UserType:
+            case NamedUserType:
+            case DefinedUserType:
                 return name + ".encode(encoder)";
             case Optional:
                 usedTypes.add("java.util.Optional");
@@ -295,7 +296,8 @@ public class CodeGenerator {
             case DataSlice:
                 return "encoder::data";
             case Struct:
-            case UserType:
+            case DefinedUserType:
+            case NamedUserType:
                 return "o -> o.encode(encoder)";
             default:
                 throw new BareException("Unknown lambda for " + type.name);
@@ -433,7 +435,8 @@ public class CodeGenerator {
                 return "decoder.data()";
             case DataArray:
                 return "decoder.data(" + ((Ast.DataType) type).length + ")";
-            case UserType:
+            case NamedUserType:
+            case DefinedUserType:
                 return type.name + ".decode(decoder)";
             case Optional:
                 usedTypes.add("java.util.Optional");
@@ -444,8 +447,9 @@ public class CodeGenerator {
                 return "decoder.slice(" + decodeLambda(((Ast.ArrayType) type).member) + ")";
             case Array:
                 return "decoder.array(" + ((Ast.ArrayType) type).length + ", " + decodeLambda(((Ast.ArrayType) type).member) + ").toArray(new " + toArrayType(((Ast.ArrayType) type).member).replace("[]", "["+((Ast.ArrayType) type).length+"]") + ")";
+            default:
+                throw new BareException("Unknown decodeStatement for " + type.name);
         }
-        return "";
     }
 
     private String decodeLambda(Ast.Type type) throws BareException {
@@ -481,7 +485,8 @@ public class CodeGenerator {
             case DataSlice:
                 return "AggregateBareDecoder::data";
             case Struct:
-            case UserType:
+            case NamedUserType:
+            case DefinedUserType:
                 return type.name + "::decode";
             default:
                 throw new BareException("Unknown lambda for " + type.name);
@@ -514,7 +519,7 @@ public class CodeGenerator {
                 return "Long[]";
             case STRING:
                 return "String[]";
-            case UserType:
+            case DefinedUserType:
                 return type.name + "[]";
             default:
                 throw new BareException("Unknown field type mapping for " + type.name);
@@ -557,7 +562,8 @@ public class CodeGenerator {
                 return "Byte[]";
             case DataArray:
                 return "byte[]";
-            case UserType:
+            case NamedUserType:
+            case DefinedUserType:
                 return type.name;
             case Optional:
                 return "Optional<" + fieldTypeMap(((Ast.OptionalType) type).subType) + ">";

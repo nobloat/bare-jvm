@@ -167,11 +167,11 @@ public class AstParserTest {
         verifyNameMailAddress(fields);
 
         assertEquals("department", fields.get(3).name);
-        assertEquals(Ast.TypeKind.UserType, fields.get(3).type.kind);
+        assertEquals(Ast.TypeKind.DefinedUserType, fields.get(3).type.kind);
         assertEquals("Department", fields.get(3).type.name);
 
         assertEquals("hireDate", fields.get(4).name);
-        assertEquals(Ast.TypeKind.UserType, fields.get(4).type.kind);
+        assertEquals(Ast.TypeKind.DefinedUserType, fields.get(4).type.kind);
         assertEquals("Time", fields.get(4).type.name);
 
         assertEquals("publicKey", fields.get(5).name);
@@ -191,7 +191,7 @@ public class AstParserTest {
         assertEquals(Ast.TypeKind.STRING, emailField.type.kind);
 
         assertEquals("address", fields.get(2).name);
-        assertEquals(Ast.TypeKind.UserType, fields.get(2).type.kind);
+        assertEquals(Ast.TypeKind.DefinedUserType, fields.get(2).type.kind);
     }
 
     void verifyCustomerType(Ast.Type type) {
@@ -316,7 +316,7 @@ public class AstParserTest {
         assertEquals(2, subTypes.size());
 
         Ast.UnionVariant customerSubType = subTypes.get(0);
-        assertEquals(Ast.TypeKind.UserType, customerSubType.subtype.kind);
+        assertEquals(Ast.TypeKind.DefinedUserType, customerSubType.subtype.kind);
     }
 
     void verifyDepartment(Ast.Type type) {

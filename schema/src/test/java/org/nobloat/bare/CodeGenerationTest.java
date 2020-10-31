@@ -55,14 +55,17 @@ public class CodeGenerationTest {
 
     @Test
     public void testToString() {
+
+        String str = "0x00 ".repeat(128);
+
         assertEquals("Employee{height=0x02, " +
                         "name=asdf, " +
                         "email=asdf@org.com, " +
                         "address=Address{address=[Breiten Straße 23, null, null, null], city=Villach, state=Austria, country=Kärnten}, " +
                         "department=ADMINISTRATION, hireDate=Time{value=23.23.1999}, " +
-                        "arbitraryData=0x80 0x03, " +
-                        "publicKey=Optional[PublicKey{value=Array{size=3, values=[null, null, null]}}], " +
-                        "metadata={key1=[B@35a50a4c}}",
+                        "arbitraryData=[0x80 0x03], " +
+                        "publicKey=Optional[PublicKey{value=["+str.substring(0, str.length()-1)+"]}], " +
+                        "metadata={key1=[0x80]}}",
                 createEmployee().toString());
         
         // fails because of metadata's byte[] prints object id

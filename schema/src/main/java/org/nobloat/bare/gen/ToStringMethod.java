@@ -25,9 +25,9 @@ class ToStringMethod {
         codeWriter.indent();
     }
 
-    public void addField(Ast.TypeKind kind, String fieldName) {
+    public void addField(Ast.Type type, String fieldName) {
         String field;
-        switch (kind) {
+        switch (type.kind) {
             case U8:
                 field = byteToHexStaticMethods.callByteToHex(fieldName);
                 break;
@@ -43,6 +43,12 @@ class ToStringMethod {
             case Array:
                 field = "Arrays.toString(" + fieldName + ")";
                 break;
+            case DefinedUserType:
+                addField(((Ast.UserDefinedType)type).type, fieldName);
+                return;
+            case Map:
+
+
             default:
                 field = fieldName;
         }
