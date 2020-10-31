@@ -11,7 +11,7 @@ This is a [bare messages](https://baremessages.org/) implementation for the JVM.
 ## Features
 - Zero external dependencies and small, well structured code base
 - Parsing of [bare schemas](https://baremessages.org/)
-- [Code generation](src/main/java/org/nobloat/bare/gen/CodeGenerator.java) for data structures, encoding and decoding methods out ouf [bare schemas](https://baremessages.org/) 
+- [Code generation](schema/src/main/java/org/nobloat/bare/org.nobloat.bare.gen/CodeGenerator.java) for data structures, encoding and decoding methods out ouf [bare schemas](https://baremessages.org/) 
 - Decoding primitive data types from `InputStream`
 - Decoding aggregate data types from `InputStream`
 - Encoding primitive data types to `OutputStream`
