@@ -47,14 +47,31 @@ class ToStringMethod {
                 addField(((Ast.UserDefinedType)type).type, fieldName);
                 return;
             case Map:
-
-
+                var mapType = (Ast.MapType)type;
+                if (isByteType(mapType.key.kind) && isByteType(mapType.value.kind)) {
+                    byteToHexStaticMethods.enableToStringMethod(mapType.value.kind);
+                    byteToHexStaticMethods.enableToStringMethod(mapType.key.kind);
+                    field = "\"{\" + "+fieldName+".entrySet().stream().map(e -> bytesToHex(e.getKey()) + \"=\" + bytesToHex(e.getValue())).collect(Collectors.joining(\",\")) + \"}\"";
+                } else if (isByteType(mapType.key.kind)) {
+                    byteToHexStaticMethods.enableToStringMethod(mapType.key.kind);
+                    field = "\"{\" + "+fieldName+".entrySet().stream().map(e -> bytesToHex(e.getKey()) + \"=\" + e.getValue().toString()).collect(Collectors.joining(\",\")) + \"}\"";
+                } else if (isByteType(mapType.value.kind)) {
+                    byteToHexStaticMethods.enableToStringMethod(mapType.value.kind);
+                    field = "\"{\" + "+fieldName+".entrySet().stream().map(e -> e.getKey() + \"=\" + bytesToHex(e.getValue())).collect(Collectors.joining(\",\")) + \"}\"";
+                } else {
+                    field = fieldName;
+                }
+                break;
             default:
                 field = fieldName;
         }
 
         codeWriter.write(String.format("\"%s%s=\" + %s + ", fieldSeparator, fieldName, field));
         fieldSeparator = ", ";
+    }
+
+    private static boolean isByteType(Ast.TypeKind kind) {
+        return kind == Ast.TypeKind.DataArray || kind == Ast.TypeKind.DataSlice;
     }
 
     public void writeEpilog() {

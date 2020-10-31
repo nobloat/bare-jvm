@@ -67,8 +67,6 @@ public class CodeGenerationTest {
                         "publicKey=Optional[PublicKey{value=["+str.substring(0, str.length()-1)+"]}], " +
                         "metadata={key1=[0x80]}}",
                 createEmployee().toString());
-        
-        // fails because of metadata's byte[] prints object id
     }
 
     private Dtos.Employee createEmployee() {

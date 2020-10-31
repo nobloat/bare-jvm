@@ -1,5 +1,7 @@
 package org.nobloat.bare.gen;
 
+import org.nobloat.bare.dsl.Ast;
+
 public class ByteToHexStaticMethods {
 
     private final CodeWriter codeWriter;
@@ -18,12 +20,20 @@ public class ByteToHexStaticMethods {
 
     public String callByteArrayToHex(String fieldName) {
         byteArrayToHex = true;
-        return String.format("byteArrayToHex(%s)", fieldName);
+        return String.format("bytesToHex(%s)", fieldName);
     }
 
     public String callByteSliceToHex(String fieldName) {
         byteSliceToHex = true;
-        return String.format("byteSliceToHex(%s)", fieldName);
+        return String.format("bytesToHex(%s)", fieldName);
+    }
+
+    public void enableToStringMethod(Ast.TypeKind kind) {
+        if (kind == Ast.TypeKind.DataArray)
+            byteArrayToHex = true;
+        else if(kind == Ast.TypeKind.DataSlice) {
+            byteSliceToHex = true;
+        }
     }
 
     public void addStaticMethods() {
@@ -56,7 +66,7 @@ public class ByteToHexStaticMethods {
     }
 
     private void byteArrayToHexMethod() {
-        codeWriter.write("static String byteArrayToHex(byte[] byteArray) {");
+        codeWriter.write("static String bytesToHex(byte[] byteArray) {");
         codeWriter.indent();
 
         codeWriter.write("StringBuffer hexStringBuffer = new StringBuffer();");
@@ -76,7 +86,7 @@ public class ByteToHexStaticMethods {
     }
 
     private void byteSliceToHexMethod() {
-        codeWriter.write("static String byteSliceToHex(Byte[] byteArray) {");
+        codeWriter.write("static String bytesToHex(Byte[] byteArray) {");
         codeWriter.indent();
 
         codeWriter.write("StringBuffer hexStringBuffer = new StringBuffer();");
