@@ -34,7 +34,7 @@ public class AggregateBareDecoder extends PrimitiveBareDecoder {
 
     public <T> List<T> slice(DecodeFunction<T> itemDecoder) throws IOException, BareException {
         var length = variadicUint().intValue();
-        if (length > MaxMapLength) {
+        if (length > MaxSliceLength) {
             throw new BareException(String.format("Decoding slice with entries %d > %d max length", length, MaxSliceLength));
         }
         return array(length, itemDecoder);

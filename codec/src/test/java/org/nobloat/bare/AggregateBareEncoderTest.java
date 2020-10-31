@@ -20,7 +20,6 @@ class AggregateBareEncoderTest {
     ByteArrayOutputStream bos;
     AggregateBareEncoder encoder;
 
-
     @BeforeEach
     void setup() {
         bos = new ByteArrayOutputStream();
@@ -80,6 +79,48 @@ class AggregateBareEncoderTest {
 
         assertEquals(expected.length, bos.size());
         assertArrayEquals(expected, bos.toByteArray());
+    }
+
+    @Test
+    void testLongArray() throws IOException, BareException {
+        encoder.array(new long[]{1L,2L}, encoder::i64);
+        assertArrayEquals(new byte[]{1,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0},bos.toByteArray());
+    }
+
+    @Test
+    void testShortArray() throws IOException, BareException {
+        encoder.array(new short[]{1,2}, encoder::i16);
+        assertArrayEquals(new byte[]{1,0,2,0,},bos.toByteArray());
+    }
+
+    @Test
+    void testBooleanArray() throws IOException, BareException {
+        encoder.array(new boolean[]{false, true}, encoder::bool);
+        assertArrayEquals(new byte[]{0,1},bos.toByteArray());
+    }
+
+    @Test
+    void testByteArray() throws IOException, BareException {
+        encoder.array(new Byte[]{1,2}, encoder::i8);
+        assertArrayEquals(new byte[]{1,2},bos.toByteArray());
+    }
+
+    @Test
+    void testbyteArray() throws IOException, BareException {
+        encoder.array(new byte[]{1,2});
+        assertArrayEquals(new byte[]{1,2},bos.toByteArray());
+    }
+
+    @Test
+    void testDoubleArray() throws IOException, BareException {
+        encoder.array(new double[]{133713371337.42424242,133713371337.42424242}, encoder::f64);
+        assertArrayEquals(new byte[]{(byte) 0x9B, 0x6C, (byte) 0xC9, 0x20, (byte) 0xF0, 0x21, 0x3F, 0x42,(byte) 0x9B, 0x6C, (byte) 0xC9, 0x20, (byte) 0xF0, 0x21, 0x3F, 0x42},bos.toByteArray());
+    }
+
+    @Test
+    void testFloatArray() throws IOException, BareException {
+        encoder.array(new float[]{1337.42f,1337.42f}, encoder::f32);
+        assertArrayEquals(new byte[]{0x71, 0x2D, (byte) 0xA7, 0x44, 0x71, 0x2D, (byte) 0xA7, 0x44},bos.toByteArray());
     }
 
     @Test
