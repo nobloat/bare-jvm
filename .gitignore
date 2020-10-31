@@ -27,3 +27,4 @@ hs_err_pid*
 **/target/*
 /schema/Messages.java
 /Messages.java
+/schema/src/test/java/org/nobloat/bare/test/Dtos.java
