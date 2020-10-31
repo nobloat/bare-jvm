@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +32,7 @@ class PrimitiveBareDecoderTest {
     @Test
     void u32() throws IOException {
         InputStream stream = fromInts(0xEF, 0xBE, 0xAD, 0xDE);
-        assertEquals(0xDEADBEEF, new PrimitiveBareDecoder(stream).u32());
+        assertEquals(0xDEADBEEFL, new PrimitiveBareDecoder(stream).u32());
         assertEquals(-1, stream.read());
     }
 
@@ -137,5 +138,15 @@ class PrimitiveBareDecoderTest {
         var decoder = new PrimitiveBareDecoder(fromInts(0x03, 0x13, 0x37, 0x42));
         decoder.MaxSliceLength = 2;
         assertThrows(BareException.class, () -> decoder.data());
+    }
+
+    @Test
+    void testBorderBitCases() throws IOException {
+        var decoder = new PrimitiveBareDecoder(fromInts(0xFF,0xFF,0xFF,0xFF));
+        assertEquals(4294967295L,decoder.u32());
+        decoder = new PrimitiveBareDecoder(fromInts(0xFF,0xFF));
+        assertEquals(65535,decoder.u16());
+        decoder = new PrimitiveBareDecoder(fromInts(0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF));
+        assertEquals(new BigInteger("18446744073709551615", 10),decoder.u64());
     }
 }

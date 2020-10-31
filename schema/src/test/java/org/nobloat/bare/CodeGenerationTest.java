@@ -88,8 +88,7 @@ public class CodeGenerationTest {
         assertEquals(numbers.snormal, decodecNumbers.snormal);
         assertEquals(numbers.ssmall, decodecNumbers.ssmall);
         assertEquals(numbers.usmaller, decodecNumbers.usmaller);
-        //TODO: this fails
-        //assertEquals(numbers.unormal, decodecNumbers.unormal);
+        assertEquals(numbers.unormal, decodecNumbers.unormal);
         assertEquals(numbers.ubig, decodecNumbers.ubig);
     }
 

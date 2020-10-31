@@ -28,12 +28,11 @@ public class PrimitiveBareDecoder {
     }
 
     public long u32() throws IOException {
-        int byte1 = is.readByte() & 0xff;
-        int byte2 = is.readByte() & 0xff;
-        int byte3 = is.readByte() & 0xff;
-        int byte4 = is.readByte() & 0xff;
-        return (byte4 << 24) | (byte3 << 16) |
-                (byte2 << 8) | (byte1);
+        long byte1 = is.readByte() & 0xff;
+        long byte2 = is.readByte() & 0xff;
+        long byte3 = is.readByte() & 0xff;
+        long byte4 = is.readByte() & 0xff;
+        return (byte4 << 24) | (byte3 << 16) | (byte2 << 8) | (byte1);
     }
 
     public BigInteger u64() throws IOException {
