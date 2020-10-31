@@ -250,7 +250,7 @@ public class CodeGenerator {
             case Map:
                 return "encoder.map(" + name + "," + encodeLambda(((Ast.MapType) type).key) + "," + encodeLambda(((Ast.MapType) type).value) + ")";
             case Slice:
-                usedTypes.add("java.util.Arrays");
+                usedTypes.add("java.util.stream.Collectors");
                 return "encoder.slice(" + name + "," + encodeLambda(((Ast.ArrayType) type).member) + ")";
             case DataArray:
                 return "encoder.array(" + name + ")";

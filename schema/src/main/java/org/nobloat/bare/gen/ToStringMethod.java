@@ -38,6 +38,8 @@ class ToStringMethod {
                 field = byteToHexStaticMethods.callByteSliceToHex(fieldName);
                 break;
             case Slice:
+                field = "\"[\"+orders.stream().map(Object::toString).collect(Collectors.joining(\",\")) + \"]\"";
+                break;
             case Array:
                 field = "Arrays.toString(" + fieldName + ")";
                 break;
