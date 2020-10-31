@@ -37,7 +37,9 @@ public class CodeGenerationTest {
         Dtos.Address address = employee.address;
         Dtos.Address decodedAddress = decodedEmployee.address;
         assertEquals(address.address.length, decodedAddress.address.length);
-//    TODO assert array
+        assertArrayEquals(address.address, decodedAddress.address);
+
+
         assertEquals(address.city, decodedAddress.city);
         assertEquals(address.state, decodedAddress.state);
         assertEquals(address.country, decodedAddress.country);
@@ -47,7 +49,8 @@ public class CodeGenerationTest {
         assertEquals(employee.hireDate.value, decodedEmployee.hireDate.value);
 
         assertEquals(employee.publicKey.isPresent(), decodedEmployee.publicKey.isPresent());
-        // TODO assert array
+        assertArrayEquals(employee.publicKey.get().value, decodedEmployee.publicKey.get().value);
+
 
         assertEquals(employee.metadata.size(), decodedEmployee.metadata.size());
         assertArrayEquals(employee.metadata.get("key1"), decodedEmployee.metadata.get("key1"));
@@ -61,7 +64,7 @@ public class CodeGenerationTest {
         assertEquals("Employee{height=0x02, " +
                         "name=asdf, " +
                         "email=asdf@org.com, " +
-                        "address=Address{address=[Breiten Straße 23, null, null, null], city=Villach, state=Austria, country=Kärnten}, " +
+                        "address=Address{address=[Breiten Straße 23, , , ], city=Villach, state=Austria, country=Kärnten}, " +
                         "department=ADMINISTRATION, hireDate=Time{value=23.23.1999}, " +
                         "arbitraryData=[0x80 0x03], " +
                         "publicKey=Optional[PublicKey{value=["+str.substring(0, str.length()-1)+"]}], " +
@@ -77,7 +80,7 @@ public class CodeGenerationTest {
         employee.arbitraryData = new Byte[]{(byte) 0x80, 0x3};
 
         Dtos.Address address = new Dtos.Address();
-        address.address[0] = "Breiten Straße 23";
+        address.address = new String[]{"Breiten Straße 23", "","",""};
         address.city = "Villach";
         address.state = "Austria";
         address.country = "Kärnten";
